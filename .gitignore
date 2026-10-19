@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.env
+*.log
+.vite/
+test-results/
+playwright-report/
+art/out/
+*.blend1
+.claude/
+__pycache__/
+*.pyc
+test-results*/
+reports/
+CLAUDE.local.md
+
+# internal working notes (Slovak), kept local
+docs/superpowers/
+docs/design/
+docs/STAV-PROJEKTU.md
+docs/SUHRN-*

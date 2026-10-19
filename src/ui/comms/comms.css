@@ -1,0 +1,389 @@
+/* Communicator (the radio module): the radio module sits on the flight console's top edge
+   (left, above the console – the training panel is above it, the combat HUD around the edges and the
+   centre stays free); in the dock it sits low on the left, beside the hub. */
+
+.cm-panel {
+  --cm-accent: var(--af-glow);
+  position: absolute;
+  z-index: 4;
+  /* beside the chip column when the left column is full (Hud folds it, leftColumn.ts) */
+  left: var(--cm-left, var(--af-edge));
+  /* Game measures the console and sets --cm-bottom; a sane default until it does */
+  bottom: var(--cm-bottom, calc(var(--af-edge) + 11.5rem));
+  width: min(25rem, calc(100vw - 2 * var(--af-edge)));
+  padding: 0;
+  /* in flight the radio never takes the mouse from aiming, mining and firing – only its toll buttons do */
+  pointer-events: none;
+  animation: cm-in var(--af-dur-hatch) var(--af-ease-clamp);
+}
+.cm-panel.is-docked {
+  left: var(--af-edge);
+  bottom: var(--af-edge);
+  pointer-events: auto;
+}
+/* danger: the channel stripe becomes hazard stripes in the speaker's colour */
+.cm-panel.is-danger > .af-trim {
+  width: 7px;
+  background: repeating-linear-gradient(-45deg, var(--cm-accent) 0 5px, #1d1214 5px 10px);
+}
+@keyframes cm-in {
+  from {
+    opacity: 0;
+    transform: translateX(-0.75rem);
+  }
+}
+
+.cm-body {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem 0.65rem 0.85rem;
+}
+.cm-panel.is-docked .cm-body {
+  cursor: pointer;
+}
+.cm-panel.is-danger .cm-body {
+  padding-left: 1.05rem;
+}
+.cm-panel.has-reply .cm-body {
+  cursor: default;
+}
+
+/* ───── portrait: a recessed screen with cut corners, the speaker's colour on its lower edge ───── */
+.cm-portrait {
+  --cm-size: 4.5rem;
+  --cut: var(--af-cut-sm);
+  position: relative;
+  display: block;
+  width: var(--cm-size);
+  height: var(--cm-size);
+  flex: none;
+  background: var(--af-screen);
+  box-shadow:
+    inset 0 0 0 1px #050b12,
+    inset 0 -2px 0 var(--cm-accent);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  overflow: hidden;
+}
+.cm-portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cm-portrait::after {
+  /* the screen's own rim over the image: a thin dark frame and the accent baseline stay visible */
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    inset 0 0 0 1px rgba(5, 11, 18, 0.9),
+    inset 0 -2px 0 var(--cm-accent);
+  pointer-events: none;
+}
+.cm-portrait--sm {
+  --cm-size: 2.5rem;
+}
+.cm-portrait .cm-emblem {
+  object-fit: contain;
+  padding: 18%;
+  opacity: 0.85;
+}
+.cm-glyph {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  font-family: var(--af-font-display);
+  font-weight: 800;
+  font-size: var(--af-fs-2xl);
+  color: var(--af-text-dim);
+}
+
+/* ───── text ───── */
+.cm-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.cm-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 1rem;
+}
+.cm-role {
+  color: var(--cm-accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cm-radio {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--af-text-dim);
+}
+.cm-queued {
+  font-family: var(--af-font-text);
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  padding: 0.15rem 0.35rem;
+  color: var(--af-text);
+  background: var(--af-band-hi);
+  box-shadow: inset 0 0 0 1px #3a4558;
+  clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px);
+}
+.cm-name {
+  margin: 0.1rem 0 0.3rem;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-lg);
+  font-weight: 750;
+  line-height: var(--af-lh-tight);
+  color: var(--af-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cm-lines {
+  font-family: var(--af-font-text);
+  font-size: var(--af-fs-lg);
+  line-height: 1.35;
+  color: var(--af-text);
+}
+.cm-line {
+  margin: 0;
+}
+.cm-rest {
+  visibility: hidden;
+}
+.cm-caret {
+  display: inline-block;
+  width: 0.45em;
+  height: 0.95em;
+  margin: 0 1px -0.12em;
+  background: var(--cm-accent);
+}
+.cm-lines.is-echo {
+  color: #c9c1ff;
+  letter-spacing: 0.04em;
+}
+.cm-note {
+  margin: 0.35rem 0 0;
+  padding-top: 0.3rem;
+  border-top: 1px solid rgba(232, 237, 244, 0.08);
+  font-family: var(--af-font-text);
+  font-size: var(--af-fs-sm);
+  line-height: var(--af-lh-tight);
+  color: var(--af-text-dim);
+}
+.cm-journal {
+  margin-top: 0.35rem;
+  font-size: var(--af-fs-sm);
+  color: var(--af-text-dim);
+}
+
+/* ───── toll demand inside the panel ───── */
+.cm-toll {
+  pointer-events: auto;
+  display: grid;
+  gap: 0.4rem;
+  margin: 0 0.8rem 0.7rem 1.05rem;
+  padding: 0.5rem 0.65rem 0.55rem;
+  background: linear-gradient(180deg, rgba(40, 32, 18, 0.9), rgba(27, 26, 30, 0.9));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 181, 71, 0.25),
+    inset 0 -2px 0 var(--af-warn);
+  clip-path: polygon(var(--af-cut-sm) 0, 100% 0, 100% calc(100% - var(--af-cut-sm)), calc(100% - var(--af-cut-sm)) 100%, 0 100%, 0 var(--af-cut-sm));
+}
+.cm-toll-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--af-warn);
+}
+.cm-toll-amount {
+  font-family: var(--af-font-text);
+  font-size: var(--af-fs-xl);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--af-text);
+}
+.cm-toll-timer {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.cm-toll-timer i {
+  flex: 1;
+  height: 6px;
+  background: #3b3326;
+  transform: skewX(-20deg);
+}
+.cm-toll-timer i.is-on {
+  background: var(--af-warn);
+}
+.cm-toll-timer b {
+  margin-left: 0.4rem;
+  min-width: 2.4rem;
+  text-align: right;
+  font-size: var(--af-fs-sm);
+  font-variant-numeric: tabular-nums;
+}
+.cm-toll-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+.cm-toll-escape {
+  margin-left: auto;
+  font-size: var(--af-fs-sm);
+  color: var(--af-text-dim);
+}
+
+/* ───── the comm log (L) ───── */
+.cm-log {
+  position: absolute;
+  z-index: 5;
+  left: var(--af-edge);
+  bottom: var(--cm-bottom, calc(var(--af-edge) + 11.5rem));
+  width: min(30rem, calc(100vw - 2 * var(--af-edge)));
+  /* below the top-left stack (navigation + objectives; Hud's NavStack measures it) and the chips under
+     it (Hud measures the left column) */
+  max-height: calc(100vh - var(--cm-bottom, 12rem) - var(--hud-left-bottom, var(--hud-tl-bottom, 8.5rem)) - 0.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.7rem 0.8rem 0.8rem;
+  pointer-events: auto;
+  animation: cm-in var(--af-dur-hatch) var(--af-ease-clamp);
+}
+.cm-log.is-docked {
+  bottom: var(--af-edge);
+  max-height: calc(100vh - 2 * var(--af-edge));
+}
+.cm-log-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+.cm-log-title {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-wide);
+  font-size: var(--af-fs-xl);
+  font-weight: 800;
+}
+.cm-log-sub {
+  color: var(--af-text-dim);
+}
+.cm-log-close {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.cm-log-screen {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.35rem 0.55rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--af-screen-line) transparent;
+}
+.cm-log-empty {
+  margin: 0.6rem 0.2rem;
+  color: var(--af-text-dim);
+  font-size: var(--af-fs-md);
+}
+.cm-log-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.cm-log-item {
+  --cm-accent: var(--af-glow);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.6rem;
+  padding: 0.5rem 0 0.55rem 0.5rem;
+  border-left: 2px solid var(--cm-accent);
+}
+.cm-log-item + .cm-log-item {
+  margin-top: 1px;
+  box-shadow: 0 -1px 0 var(--af-screen-line);
+}
+.cm-log-item.is-danger {
+  border-left-style: dashed;
+}
+.cm-log-text {
+  min-width: 0;
+  font-size: var(--af-fs-md);
+  line-height: 1.35;
+}
+.cm-log-text p {
+  margin: 0.1rem 0 0;
+}
+.cm-log-text p.is-echo {
+  color: #c9c1ff;
+}
+.cm-log-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+.cm-log-meta strong {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cm-log-meta .af-label {
+  color: var(--cm-accent);
+  white-space: nowrap;
+}
+.cm-log-meta time {
+  margin-left: auto;
+  color: var(--af-text-dim);
+  font-size: var(--af-fs-sm);
+  font-variant-numeric: tabular-nums;
+}
+.cm-log-note {
+  color: var(--af-text-dim);
+  font-size: var(--af-fs-sm);
+}
+
+/* the style guide shows the panels in place */
+.cm-kit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.cm-kit .cm-panel,
+.cm-kit .cm-log {
+  position: relative;
+  left: auto;
+  bottom: auto;
+  pointer-events: auto;
+}
+.cm-kit .cm-log {
+  max-height: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-panel,
+  .cm-log {
+    animation: none;
+  }
+}
+:root[data-reduced-motion] .cm-panel,
+:root[data-reduced-motion] .cm-log {
+  animation: none;
+}

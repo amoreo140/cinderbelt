@@ -1,0 +1,260 @@
+/*
+ * M4d convoy trade window (ConvoyTrade.tsx): the career-overlay sheet (overlays.css) with two columns on
+ * the hull plate – rare goods left, cargo sale and the tanker right. Imported after ./theme (through the
+ * components), so equal specificity resolves in favour of these rules.
+ */
+.cv-backdrop {
+  z-index: 8;
+}
+.cv-sheet {
+  width: min(54rem, 100%);
+}
+.cv-sheet:focus {
+  outline: none;
+}
+/* the kit draws the sheet in place: the same width as in the game */
+.cv-inline {
+  width: min(54rem, 100%);
+}
+.cv-inline > .co-sheet {
+  width: 100%;
+  animation: none;
+}
+.cv-head-what {
+  min-width: 0;
+}
+.cv-title {
+  overflow: hidden;
+  font-size: var(--af-fs-xl);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cv-credits {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  flex: none;
+  color: var(--af-text-dim);
+}
+
+.cv-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+  gap: 0.4rem 1.4rem;
+  align-items: start;
+}
+.cv-col {
+  min-width: 0;
+}
+.cv-right {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+/* rare goods */
+.cv-items {
+  display: flex;
+  flex-direction: column;
+  margin: 0.3rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.cv-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'icon text price'
+    'icon text act'
+    'icon reason reason';
+  align-items: center;
+  gap: 0.1rem 0.7rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(22, 32, 44, 0.14);
+}
+.cv-item:last-child {
+  border-bottom: none;
+}
+.cv-item-icon {
+  grid-area: icon;
+  align-self: start;
+}
+.cv-item-text {
+  grid-area: text;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+.cv-item-title {
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--af-ink);
+}
+.cv-item-detail {
+  font-size: var(--af-fs-sm);
+  line-height: 1.3;
+  color: var(--af-ink-soft);
+}
+.cv-item-price {
+  grid-area: price;
+  justify-self: end;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--af-ink);
+}
+.cv-item > .af-btn,
+.cv-item > .cv-sold {
+  grid-area: act;
+  justify-self: end;
+}
+.cv-item.is-noCredits .cv-item-price {
+  color: var(--af-bad-ink);
+}
+.cv-item.is-sold .cv-item-title,
+.cv-item.is-sold .cv-item-price {
+  font-weight: 400;
+  color: var(--af-ink-soft);
+}
+.cv-item.is-sold .cv-item-price {
+  text-decoration: line-through;
+}
+.cv-item.is-sold .af-part,
+.cv-item.is-sold .cv-glyph {
+  opacity: 0.55;
+}
+.cv-sold {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+  color: var(--af-ok-ink);
+}
+.cv-reason {
+  grid-area: reason;
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  color: var(--af-warn-ink);
+}
+.cv-glyph {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+}
+.cv-glyph svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  fill: none;
+  stroke: var(--af-ink-soft);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+/* cargo sale */
+.cv-cap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--af-fs-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--af-ink-soft);
+}
+.cv-cap.is-full {
+  font-weight: 700;
+  color: var(--af-warn-ink);
+}
+.cv-qty {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin: 0.35rem 0 0.15rem;
+  color: var(--af-ink-soft);
+}
+.cv-sell-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cv-sell-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 0.15rem 0.7rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid rgba(22, 32, 44, 0.14);
+}
+.cv-sell-row:last-child {
+  border-bottom: none;
+}
+.cv-sell-res {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.5rem;
+  min-width: 0;
+}
+.cv-refined {
+  color: var(--af-ok-ink);
+}
+.cv-sell-have,
+.cv-sell-unit {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: right;
+}
+.cv-sell-have {
+  font-weight: 700;
+  color: var(--af-ink);
+}
+.cv-sell-unit {
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+
+/* tanker */
+.cv-fuel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem 0.8rem;
+  margin-top: 0.35rem;
+}
+.cv-fuel-line {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  font-variant-numeric: tabular-nums;
+}
+.cv-fuel-unit {
+  font-weight: 700;
+  color: var(--af-ink);
+}
+.cv-fuel-max {
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.cv-fuel-acts {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+.cv-fuel > .cv-reason {
+  flex-basis: 100%;
+}
+.cv-note {
+  margin: 0.4rem 0 0;
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+
+/* a narrow window: one column */
+@media (max-width: 760px) {
+  .cv-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

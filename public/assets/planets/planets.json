@@ -1,0 +1,548 @@
+{
+  "_schema": {
+    "albedo": "sRGB WebP (lossy q92), equirectangular 2:1 (three.js SphereGeometry UVs), no atmosphere baked in",
+    "normal": "tangent-space lossless WebP, OpenGL (+Y = north / up in the image), linear (NoColorSpace); null for gas",
+    "normalScale": "suggested three.js normalScale",
+    "emissive": "sRGB lossless WebP glow map (lava, cryo rifts): emissiveMap with emissive = white, emissiveIntensity",
+    "roughness": "suggested MeshStandardMaterial roughness",
+    "atmosphere": "fresnel rim shell: color (hex), density 0..1 (rim strength), shellScale (x planet radius), power (fresnel exponent); brighter on the lit side",
+    "clouds": "null or {texture (clouds_<n>.webp, white RGB, alpha = density), opacity, shellScale, speed (longitude scroll, revolutions per minute)}",
+    "deposits": "resource id (icons/resources/<id>.png) -> relative weight; roll depositCount distinct ones, richness 1-3 stars (x0.6 / x1 / x1.5, spec 7.2)",
+    "baseMode": "ground = base_hub with Hub_Legs; float = base_hub with Hub_Floats (gas planets, see base_modules.json); gasProbe = the Plynova sonda module is allowed (gas only)",
+    "rings": "world rings (P1-P4) where this biome spawns (spec 5.1)",
+    "legacy": "old file stem of the same texture (renamed in M5b)",
+    "ringSystem": "gas_giant only: models/planets/gas_giant_rings.glb, inner/outer radius in planet radii, suggested tilt"
+  },
+  "_types": {
+    "rocky": [
+      "arid",
+      "temperate",
+      "barren"
+    ],
+    "ice": [
+      "glacier",
+      "frozen_sea",
+      "cryovolcanic"
+    ],
+    "gas": [
+      "amber",
+      "azure",
+      "violet_storm"
+    ],
+    "volcanic": [
+      "fissure",
+      "lava_sea",
+      "sulfur"
+    ],
+    "_special": [
+      "gas_giant"
+    ]
+  },
+  "rocky_arid": {
+    "type": "rocky",
+    "biome": "arid",
+    "label": "Rust desert",
+    "labelSk": "Púštna",
+    "rings": [
+      1,
+      2
+    ],
+    "albedo": "rocky_arid_albedo.webp",
+    "normal": "rocky_arid_normal.webp",
+    "normalScale": 0.85,
+    "emissive": null,
+    "emissiveIntensity": 0.0,
+    "roughness": 0.88,
+    "atmosphere": {
+      "color": "#E8A070",
+      "density": 0.35,
+      "shellScale": 1.045,
+      "power": 2.2
+    },
+    "clouds": {
+      "texture": "clouds_1.webp",
+      "opacity": 0.25,
+      "shellScale": 1.012,
+      "speed": 0.02
+    },
+    "deposits": {
+      "iron": 3,
+      "copper": 2,
+      "rareEarth": 1
+    },
+    "depositCount": [
+      2,
+      4
+    ],
+    "baseMode": "ground",
+    "gasProbe": false,
+    "legacy": "rocky_a"
+  },
+  "rocky_temperate": {
+    "type": "rocky",
+    "biome": "temperate",
+    "label": "Temperate ocean world",
+    "labelSk": "Oceán a pevnina",
+    "rings": [
+      1,
+      2
+    ],
+    "albedo": "rocky_temperate_albedo.webp",
+    "normal": "rocky_temperate_normal.webp",
+    "normalScale": 0.85,
+    "emissive": null,
+    "emissiveIntensity": 0.0,
+    "roughness": 0.88,
+    "atmosphere": {
+      "color": "#7FC4FF",
+      "density": 0.75,
+      "shellScale": 1.045,
+      "power": 2.2
+    },
+    "clouds": {
+      "texture": "clouds_2.webp",
+      "opacity": 0.85,
+      "shellScale": 1.012,
+      "speed": 0.02
+    },
+    "deposits": {
+      "iron": 2,
+      "copper": 2,
+      "ice": 2
+    },
+    "depositCount": [
+      2,
+      4
+    ],
+    "baseMode": "ground",
+    "gasProbe": false,
+    "legacy": "rocky_b"
+  },
+  "rocky_barren": {
+    "type": "rocky",
+    "biome": "barren",
+    "label": "Barren regolith",
+    "labelSk": "Pustá skala",
+    "rings": [
+      1,
+      2,
+      3
+    ],
+    "albedo": "rocky_barren_albedo.webp",
+    "normal": "rocky_barren_normal.webp",
+    "normalScale": 0.85,
+    "emissive": null,
+    "emissiveIntensity": 0.0,
+    "roughness": 0.88,
+    "atmosphere": {
+      "color": "#C8C4BC",
+      "density": 0.12,
+      "shellScale": 1.045,
+      "power": 2.2
+    },
+    "clouds": null,
+    "deposits": {
+      "titanium": 3,
+      "iron": 2,
+      "rareEarth": 2
+    },
+    "depositCount": [
+      2,
+      4
+    ],
+    "baseMode": "ground",
+    "gasProbe": false,
+    "legacy": null
+  },
+  "ice_glacier": {
+    "type": "ice",
+    "biome": "glacier",
+    "label": "Glacier shell",
+    "labelSk": "Ľadovcová",
+    "rings": [
+      2
+    ],
+    "albedo": "ice_glacier_albedo.webp",
+    "normal": "ice_glacier_normal.webp",
+    "normalScale": 0.6,
+    "emissive": null,
+    "emissiveIntensity": 0.0,
+    "roughness": 0.55,
+    "atmosphere": {
+      "color": "#BFE8FF",
+      "density": 0.45,
+      "shellScale": 1.045,
+      "power": 2.2
+    },
+    "clouds": {
+      "texture": "clouds_1.webp",
+      "opacity": 0.45,
+      "shellScale": 1.012,
+      "speed": 0.02
+    },
+    "deposits": {
+      "ice": 4,
+      "titanium": 2
+    },
+    "depositCount": [
+      2,
+      4
+    ],
+    "baseMode": "ground",
+    "gasProbe": false,
+    "legacy": "ice_a"
+  },
+  "ice_frozen_sea": {
+    "type": "ice",
+    "biome": "frozen_sea",
+    "label": "Frozen seas",
+    "labelSk": "Zamrznuté more",
+    "rings": [
+      2,
+      3
+    ],
+    "albedo": "ice_frozen_sea_albedo.webp",
+    "normal": "ice_frozen_sea_normal.webp",
+    "normalScale": 0.6,
+    "emissive": null,
+    "emissiveIntensity": 0.0,
+    "roughness": 0.55,
+    "atmosphere": {
+      "color": "#C8B8FF",
+      "density": 0.5,
+      "shellScale": 1.045,
+      "power": 2.2
+    },
+    "clouds": {
+      "texture": "clouds_2.webp",
+      "opacity": 0.4,
+      "shellScale": 1.012,
+      "speed": 0.02
+    },
+    "deposits": {
+      "ice": 3,
+      "copper": 1,
+      "helium3": 1
+    },
+    "depositCount": [
+      2,
+      4
+    ],
+    "baseMode": "ground",
+    "gasProbe": false,
+    "legacy": "ice_b"
+  },
+  "ice_cryo": {
+    "type": "ice",
+    "biome": "cryovolcanic",
+    "label": "Cryovolcanic moon",
+    "labelSk": "Kryovulkanická",
+    "rings": [
+      2,
+      3
+    ],
+    "albedo": "ice_cryo_albedo.webp",
+    "normal": "ice_cryo_normal.webp",
+    "normalScale": 0.6,
+    "emissive": "ice_cryo_emissive.webp",
+    "emissiveIntensity": 2.0,
+    "roughness": 0.55,
+    "atmosphere": {
+      "color": "#9CF0FF",
+      "density": 0.3,
+      "shellScale": 1.045,
+      "power": 2.2
+    },
+    "clouds": {
+      "texture": "clouds_1.webp",
+      "opacity": 0.2,
+      "shellScale": 1.012,
+      "speed": 0.02
+    },
+    "deposits": {
+      "ice": 3,
+      "helium3": 2,
+      "crystal": 1
+    },
+    "depositCount": [
+      2,
+      4
+    ],
+    "baseMode": "ground",
+    "gasProbe": false,
+    "legacy": null
+  },
+  "gas_amber": {
+    "type": "gas",
+    "biome": "amber",
+    "label": "Amber giant",
+    "labelSk": "Jantárový obor",
+    "rings": [
+      3
+    ],
+    "albedo": "gas_amber_albedo.webp",
+    "normal": null,
+    "normalScale": null,
+    "emissive": null,
+    "emissiveIntensity": 0.0,
+    "roughness": 0.6,
+    "atmosphere": {
+      "color": "#FFD8A8",
+      "density": 0.9,
+      "shellScale": 1.03,
+      "power": 2.2
+    },
+    "clouds": {
+      "texture": "clouds_3.webp",
+      "opacity": 0.3,
+      "shellScale": 1.012,
+      "speed": 0.05
+    },
+    "deposits": {
+      "helium3": 4,
+      "ice": 1
+    },
+    "depositCount": [
+      2,
+      3
+    ],
+    "baseMode": "float",
+    "gasProbe": true,
+    "legacy": "gas_a"
+  },
+  "gas_azure": {
+    "type": "gas",
+    "biome": "azure",
+    "label": "Azure giant",
+    "labelSk": "Azúrový obor",
+    "rings": [
+      3
+    ],
+    "albedo": "gas_azure_albedo.webp",
+    "normal": null,
+    "normalScale": null,
+    "emissive": null,
+    "emissiveIntensity": 0.0,
+    "roughness": 0.6,
+    "atmosphere": {
+      "color": "#8FE8FF",
+      "density": 0.9,
+      "shellScale": 1.03,
+      "power": 2.2
+    },
+    "clouds": {
+      "texture": "clouds_3.webp",
+      "opacity": 0.3,
+      "shellScale": 1.012,
+      "speed": 0.05
+    },
+    "deposits": {
+      "helium3": 3,
+      "ice": 2
+    },
+    "depositCount": [
+      2,
+      3
+    ],
+    "baseMode": "float",
+    "gasProbe": true,
+    "legacy": "gas_b"
+  },
+  "gas_violet": {
+    "type": "gas",
+    "biome": "violet_storm",
+    "label": "Violet storm giant",
+    "labelSk": "Fialový búrlivý obor",
+    "rings": [
+      3
+    ],
+    "albedo": "gas_violet_albedo.webp",
+    "normal": null,
+    "normalScale": null,
+    "emissive": null,
+    "emissiveIntensity": 0.0,
+    "roughness": 0.6,
+    "atmosphere": {
+      "color": "#D8A8FF",
+      "density": 0.85,
+      "shellScale": 1.03,
+      "power": 2.2
+    },
+    "clouds": {
+      "texture": "clouds_3.webp",
+      "opacity": 0.35,
+      "shellScale": 1.012,
+      "speed": 0.05
+    },
+    "deposits": {
+      "helium3": 3,
+      "crystal": 2
+    },
+    "depositCount": [
+      2,
+      3
+    ],
+    "baseMode": "float",
+    "gasProbe": true,
+    "legacy": null
+  },
+  "volcanic_fissure": {
+    "type": "volcanic",
+    "biome": "fissure",
+    "label": "Basalt fissures",
+    "labelSk": "Puklinová",
+    "rings": [
+      3
+    ],
+    "albedo": "volcanic_fissure_albedo.webp",
+    "normal": "volcanic_fissure_normal.webp",
+    "normalScale": 0.85,
+    "emissive": "volcanic_fissure_emissive.webp",
+    "emissiveIntensity": 2.5,
+    "roughness": 0.88,
+    "atmosphere": {
+      "color": "#FF7A4A",
+      "density": 0.55,
+      "shellScale": 1.045,
+      "power": 2.2
+    },
+    "clouds": {
+      "texture": "clouds_1.webp",
+      "opacity": 0.35,
+      "shellScale": 1.012,
+      "speed": 0.02
+    },
+    "deposits": {
+      "rareEarth": 3,
+      "iron": 2,
+      "titanium": 1
+    },
+    "depositCount": [
+      2,
+      4
+    ],
+    "baseMode": "ground",
+    "gasProbe": false,
+    "legacy": "volcanic_a"
+  },
+  "volcanic_lava_sea": {
+    "type": "volcanic",
+    "biome": "lava_sea",
+    "label": "Lava seas",
+    "labelSk": "Lávové more",
+    "rings": [
+      3
+    ],
+    "albedo": "volcanic_lava_sea_albedo.webp",
+    "normal": "volcanic_lava_sea_normal.webp",
+    "normalScale": 0.85,
+    "emissive": "volcanic_lava_sea_emissive.webp",
+    "emissiveIntensity": 2.5,
+    "roughness": 0.88,
+    "atmosphere": {
+      "color": "#FF5A3A",
+      "density": 0.6,
+      "shellScale": 1.045,
+      "power": 2.2
+    },
+    "clouds": {
+      "texture": "clouds_2.webp",
+      "opacity": 0.3,
+      "shellScale": 1.012,
+      "speed": 0.02
+    },
+    "deposits": {
+      "rareEarth": 3,
+      "copper": 2,
+      "crystal": 1
+    },
+    "depositCount": [
+      2,
+      4
+    ],
+    "baseMode": "ground",
+    "gasProbe": false,
+    "legacy": "volcanic_b"
+  },
+  "volcanic_sulfur": {
+    "type": "volcanic",
+    "biome": "sulfur",
+    "label": "Sulfur plains",
+    "labelSk": "Sírna",
+    "rings": [
+      3
+    ],
+    "albedo": "volcanic_sulfur_albedo.webp",
+    "normal": "volcanic_sulfur_normal.webp",
+    "normalScale": 0.85,
+    "emissive": "volcanic_sulfur_emissive.webp",
+    "emissiveIntensity": 2.5,
+    "roughness": 0.88,
+    "atmosphere": {
+      "color": "#F0B060",
+      "density": 0.3,
+      "shellScale": 1.045,
+      "power": 2.2
+    },
+    "clouds": {
+      "texture": "clouds_1.webp",
+      "opacity": 0.15,
+      "shellScale": 1.012,
+      "speed": 0.02
+    },
+    "deposits": {
+      "rareEarth": 4,
+      "titanium": 1,
+      "helium3": 1
+    },
+    "depositCount": [
+      2,
+      4
+    ],
+    "baseMode": "ground",
+    "gasProbe": false,
+    "legacy": null
+  },
+  "gas_giant": {
+    "type": "gas",
+    "biome": "giant",
+    "label": "Gas giant",
+    "labelSk": "Plynný obor",
+    "rings": [
+      3
+    ],
+    "albedo": "gas_giant_albedo.webp",
+    "normal": null,
+    "normalScale": null,
+    "emissive": null,
+    "emissiveIntensity": 0.0,
+    "roughness": 0.6,
+    "atmosphere": {
+      "color": "#FFE2B0",
+      "density": 0.3,
+      "shellScale": 1.03,
+      "power": 2.2
+    },
+    "clouds": null,
+    "deposits": {
+      "helium3": 5,
+      "ice": 1
+    },
+    "depositCount": [
+      2,
+      3
+    ],
+    "baseMode": "float",
+    "gasProbe": true,
+    "legacy": null,
+    "size": "x2.5 the radius of a normal planet (suggested)",
+    "ringSystem": {
+      "model": "models/planets/gas_giant_rings.glb",
+      "texture": "gas_giant_ring.png",
+      "inner": 1.28,
+      "outer": 2.35,
+      "tiltDeg": 16.0,
+      "note": "mesh is in planet radii (scale with the planet), lies in the planet equatorial plane (glTF XZ), double-sided, alpha-blended"
+    }
+  }
+}

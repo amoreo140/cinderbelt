@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cinderbelt – sound lab</title>
+    <style>
+      :root {
+        --bg: #05070f;
+        --panel: #0c1122;
+        --panel-2: #111830;
+        --line: rgba(120, 150, 255, 0.18);
+        --text: #dfe7ff;
+        --muted: #8792b8;
+        --accent: #7aa2ff;
+        --accent-2: #7dffb0;
+        --warn: #ffb36b;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; }
+      body { min-height: 100vh; background: radial-gradient(1200px 600px at 70% -10%, #13204a 0%, transparent 60%), var(--bg); }
+      header { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 20px 24px 8px; }
+      h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 0.02em; }
+      h1 span { color: var(--muted); font-weight: 400; }
+      .status { padding: 4px 10px; border-radius: 999px; font-size: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--warn); }
+      .status.running { color: var(--accent-2); }
+      #scope { flex: 1 1 260px; height: 48px; min-width: 200px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); }
+      main { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; padding: 14px 24px 32px; }
+      section { background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+      h2 { margin: 0 0 10px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+      .row { display: grid; grid-template-columns: 110px 1fr 44px; align-items: center; gap: 10px; margin: 8px 0; font-size: 14px; }
+      .row output { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; }
+      input[type='range'] { width: 100%; accent-color: var(--accent); }
+      .buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+      button, select { font: inherit; font-size: 13px; color: var(--text); background: #18213f; border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; cursor: pointer; }
+      button:hover, select:hover { border-color: var(--accent); background: #1d2850; }
+      button.on { border-color: var(--accent-2); color: var(--accent-2); }
+      label.check { display: flex; align-items: center; gap: 8px; margin: 8px 0; font-size: 14px; cursor: pointer; }
+      input[type='checkbox'] { accent-color: var(--accent-2); width: 16px; height: 16px; }
+      .hint { color: var(--muted); font-size: 12px; line-height: 1.5; margin: 8px 0 0; }
+      kbd { font-family: inherit; font-size: 11px; padding: 1px 5px; border-radius: 4px; border: 1px solid var(--line); background: var(--panel); }
+      .rings { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
+      .rings button { text-align: left; }
+      .rings small { display: block; color: var(--muted); font-size: 11px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Cinderbelt <span>· sound lab</span></h1>
+      <div id="status" class="status">Audio is locked - click anywhere</div>
+      <canvas id="scope"></canvas>
+    </header>
+    <main>
+      <section>
+        <h2>Volume</h2>
+        <div class="row"><span>Master</span><input id="vol-master" type="range" min="0" max="1" step="0.01" value="0.9" /><output></output></div>
+        <div class="row"><span>Effects</span><input id="vol-sfx" type="range" min="0" max="1" step="0.01" value="0.9" /><output></output></div>
+        <div class="row"><span>Ambient</span><input id="vol-ambient" type="range" min="0" max="1" step="0.01" value="0.7" /><output></output></div>
+        <div class="buttons"><button id="mute">Mute</button></div>
+      </section>
+
+      <section>
+        <h2>Engine</h2>
+        <div class="row"><span>Main thrust</span><input id="thr-main" type="range" min="0" max="1" step="0.01" value="0" /><output></output></div>
+        <div class="row"><span>Reverse thrust</span><input id="thr-reverse" type="range" min="0" max="1" step="0.01" value="0" /><output></output></div>
+        <div class="row"><span>Side thrusters</span><input id="thr-side" type="range" min="-1" max="1" step="0.01" value="0" /><output></output></div>
+        <div class="buttons"><button id="thr-stop">Stop engine</button></div>
+        <p class="hint">Keys: <kbd>W</kbd> thrust, <kbd>S</kbd> reverse thrust, <kbd>Q</kbd>/<kbd>E</kbd> side thrusters - a test of smooth ramp-ups.</p>
+      </section>
+
+      <section>
+        <h2>Mining laser</h2>
+        <label class="check"><input id="laser-on" type="checkbox" /> Laser active</label>
+        <label class="check"><input id="laser-hit" type="checkbox" /> Asteroid hit (crackle)</label>
+        <div class="row"><span>Resource</span>
+          <select id="laser-resource">
+            <option value="iron">Iron</option>
+            <option value="copper">Copper</option>
+            <option value="titanium">Titanium</option>
+            <option value="ice">Ice</option>
+          </select><span></span>
+        </div>
+        <p class="hint">Hold <kbd>Space</kbd> for the laser with a hit.</p>
+      </section>
+
+      <section>
+        <h2>Impact</h2>
+        <div class="row"><span>Intensity</span><input id="impact-intensity" type="range" min="0" max="1" step="0.01" value="0.5" /><output></output></div>
+        <div class="row"><span>Side</span><input id="impact-pan" type="range" min="-1" max="1" step="0.01" value="0" /><output></output></div>
+        <div class="buttons">
+          <button id="impact">Impact</button>
+          <button data-impact="0.15">Scrape</button>
+          <button data-impact="0.5">Medium</button>
+          <button data-impact="1">Hard</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>Resources</h2>
+        <div class="buttons"><button id="collect">Collect resource</button></div>
+        <label class="check"><input id="collect-spam" type="checkbox" /> Continuous pickup (every frame - rate-limit test)</label>
+        <p class="hint">A fast streak rises along the pentatonic scale; the resource is taken from the laser selection.</p>
+      </section>
+
+      <section>
+        <h2>Alerts</h2>
+        <div class="buttons">
+          <button id="alert-cargo">Cargo full</button>
+          <button id="alert-fuel">Out of fuel</button>
+        </div>
+        <p class="hint">Each alert has its own cooldown, so the game can call it every frame.</p>
+      </section>
+
+      <section>
+        <h2>Ship and interface</h2>
+        <div class="buttons">
+          <button id="dampers">Dampers: off</button>
+          <button id="dock">Docking</button>
+          <button id="undock">Undocking</button>
+        </div>
+        <label class="check"><input id="ui-sounds" type="checkbox" checked /> Interface sounds (hover / click)</label>
+      </section>
+
+      <section>
+        <h2>Ambience</h2>
+        <div class="buttons"><button id="ambient-toggle">Turn ambience on</button></div>
+        <div class="rings">
+          <button data-ring="1">1 · Home Belt<small>warm, calm</small></button>
+          <button data-ring="2">2 · Outer Belts<small>cooler, open</small></button>
+          <button data-ring="3">3 · Crystal Nebulae<small>bright, shimmering</small></button>
+          <button data-ring="4">4 · Dead Zones<small>dark, tense</small></button>
+        </div>
+        <p class="hint">The transition between rings takes a few seconds.</p>
+      </section>
+    </main>
+    <script type="module" src="/src/audio/demo.ts"></script>
+  </body>
+</html>

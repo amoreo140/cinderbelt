@@ -1,0 +1,70 @@
+/* On-board workshop (M4c T10): the flight lamps beside the console and the market's refined-ore tag.
+   "Hull language" design system (Jazyk trupu): lamps for states, stencil codes, numbers in tabular figures; amber = stands for a reason. */
+
+/* ───── flight: a small band right of the flight console, level with its cargo gauge ───── */
+.ws-lamps {
+  position: absolute;
+  /* Game measures the console and sets --cm-right; a sane default until it does */
+  left: calc(var(--cm-right, 27rem) + 0.5rem);
+  bottom: var(--af-edge);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  padding: 0.45rem 0.6rem 0.5rem;
+  /* the tooltips need the pointer; the band is small and off the aiming area */
+  pointer-events: auto;
+}
+.ws-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  color: var(--af-text-dim);
+  white-space: nowrap;
+  cursor: default;
+}
+.ws-lamp.is-fuel .ws-code,
+.ws-lamp.is-ore .ws-code,
+.ws-lamp.is-working .ws-code {
+  color: var(--af-text);
+}
+.ws-refined b {
+  color: var(--af-text);
+  font-family: var(--af-font-text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: var(--af-fs-sm);
+  letter-spacing: 0;
+}
+
+/* ───── market: "of which refined 84 · +15 %" on its own line under the resource name ───── */
+.ws-refined-tag {
+  --cut: 4px;
+  display: block;
+  width: max-content;
+  margin-top: 0.2rem;
+  padding: 1px 6px;
+  font-size: var(--af-fs-xs);
+  color: var(--af-ok-ink);
+  box-shadow: inset 0 0 0 1px rgba(21, 106, 48, 0.45);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  vertical-align: middle;
+  text-transform: none;
+}
+/* a transfer that strips refined ore of its bonus: an amber bar on the button's left edge */
+.af-btn.ws-transfer-warn::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 0;
+  width: 4px;
+  background: var(--af-warn);
+  pointer-events: none;
+}

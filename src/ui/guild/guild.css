@@ -1,0 +1,180 @@
+/*
+ * M4d Guild status chips (GuildStatus.tsx): dark bands like the HUD event chips (sites.css), in the left
+ * column under them: under the top-left stack (Hud's NavStack publishes --hud-tl-bottom) plus the event
+ * chips' height with a gap (EventChip publishes --ev-chips-h while it shows; 0 without chips).
+ */
+.gs-chips {
+  position: absolute;
+  left: var(--af-edge);
+  top: calc(var(--hud-tl-bottom, var(--af-edge) + 10rem) + 0.4rem + var(--ev-chips-h, 0px));
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.3rem;
+  width: min(21rem, calc(100vw - 2 * var(--af-edge)));
+  pointer-events: none;
+}
+.gs-chips--inline {
+  position: static;
+}
+.gs-chip {
+  --cut: 7px;
+  --tone: var(--af-glow);
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  padding: 0.3rem 0.55rem 0.4rem 0.65rem;
+  color: var(--af-text);
+  background:
+    linear-gradient(var(--tone), var(--tone)) bottom / 100% 2px no-repeat,
+    linear-gradient(180deg, rgba(37, 46, 60, 0.94) 0%, rgba(27, 34, 45, 0.9) 100%);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  font-size: var(--af-fs-md);
+  line-height: 1.2;
+  animation: af-drop var(--af-dur-hatch) var(--af-ease-clamp) both;
+}
+.gs-chip--ok {
+  --tone: var(--af-ok);
+}
+.gs-chip--warn {
+  --tone: var(--af-warn);
+}
+.gs-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+.gs-icon {
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+}
+.gs-title {
+  flex: none;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.gs-state {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--tone);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.gs-aside {
+  flex: none;
+  margin-left: auto;
+  padding-left: 0.35rem;
+  border-left: 1px solid rgba(232, 237, 244, 0.12);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.gs-next {
+  margin: 0;
+  font-size: var(--af-fs-sm);
+  line-height: 1.3;
+  color: var(--af-text-dim);
+}
+
+/* escort: one hull bar per convoy ship, slanted segments like the gauges */
+.gs-hulls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.9rem;
+}
+.gs-hull {
+  --hull: var(--af-ok);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--af-fs-xs);
+  color: var(--af-text-dim);
+}
+.gs-hull.is-warn {
+  --hull: var(--af-warn);
+}
+.gs-hull.is-crit {
+  --hull: var(--af-bad);
+}
+.gs-hull-track {
+  display: inline-flex;
+  gap: 2px;
+}
+.gs-hull-track i {
+  width: 7px;
+  height: 9px;
+  background: rgba(232, 237, 244, 0.12);
+  transform: skewX(-18deg);
+}
+.gs-hull-track i.is-on {
+  background: var(--hull);
+}
+
+/* relay: the three steps of the chain as pips */
+.gs-steps {
+  display: flex;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gs-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex: 1;
+  min-width: 0;
+  padding: 0.1rem 0.35rem;
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--af-text-dim);
+  background: rgba(10, 21, 33, 0.65);
+}
+.gs-step i {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid currentColor;
+  transform: rotate(45deg);
+}
+.gs-step.is-done {
+  color: var(--af-ok);
+}
+.gs-step.is-done i {
+  background: currentColor;
+}
+.gs-step.is-current {
+  color: var(--af-text);
+  box-shadow: inset 0 -2px 0 var(--tone);
+}
+.gs-step.is-current i {
+  color: var(--tone);
+}
+
+/* a short screen with a full left column (Hud, leftColumn.ts): the chips fold so they end clear of the
+   radio – first the hint lines (the objectives band says the same), then the hull / step rows (the head
+   keeps the state, the lamp and the distance), then they move up beside the event chips (Hud measures
+   where those end: --gs-left) */
+:is([data-left-fit='hints'], [data-left-fit='rows'], [data-left-fit='beside'], [data-left-fit='aside']) > .gs-chips:not(.gs-chips--inline) .gs-next,
+:is([data-left-fit='rows'], [data-left-fit='beside'], [data-left-fit='aside']) > .gs-chips:not(.gs-chips--inline) :is(.gs-hulls, .gs-steps) {
+  display: none;
+}
+[data-left-fit='beside'] > .gs-chips:not(.gs-chips--inline) {
+  top: calc(var(--hud-tl-bottom, var(--af-edge) + 10rem) + 0.4rem);
+  left: var(--gs-left, var(--af-edge));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-chip {
+    animation: none;
+  }
+}
+:root[data-reduced-motion] .gs-chip {
+  animation: none;
+}

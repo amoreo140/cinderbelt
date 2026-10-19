@@ -1,0 +1,112 @@
+/*
+ * Cinderbelt – design tokens (the "Hull language" design system (Jazyk trupu)).
+ * The colour values match tokens.ts (checked by tokens.test.ts).
+ * Rules: the Hull language design system.
+ */
+:root {
+  /* — colours: materials — */
+  --af-hull: #d9dee6;
+  --af-hull-hi: #eef1f5;
+  --af-hull-shade: #aab3c0;
+  --af-ink: #16202c;
+  --af-ink-soft: #4a5666;
+  --af-band: #1b222d;
+  --af-band-hi: #283141;
+  --af-screen: #0a1521;
+  --af-screen-line: #1d3a52;
+
+  /* — colours: trims and lights — */
+  --af-trim: #f27a2c;
+  --af-trim-deep: #c4561a;
+  --af-titan: #4aa8ea;
+  --af-glow: #62d9f4;
+  --af-ok: #6be38a;
+  --af-warn: #ffb547;
+  --af-bad: #ff5a4a;
+  --af-fuel: #f4c64e;
+  --af-shield: #7cc8ff; /* ship shield (bubble, gauge, shield hit) */
+  --af-tractor: #b98cff; /* tractor beam (M3.6): beam, status lamp, towed object */
+  --af-ore-rich: #ffcf5c; /* rich ore (Mining 2.0): radar ring, map mark, nugget pop */
+  --af-quiet: #9db0c8; /* Quiet sector (sectors §5.1); Guarded = ok, Contested = warn, Pirate = bad */
+  --af-text: #e8edf4;
+  --af-text-dim: #93a0b3;
+
+  /* darker signal variants for text on a light plate (contrast ≥ 4.5 : 1) */
+  --af-ok-ink: #156a30;
+  --af-warn-ink: #8a5300;
+  --af-bad-ink: #b3261a;
+  --af-trim-ink: #9a3f0c;
+
+  /* — ring accent (switched via [data-ring]) — */
+  --af-ring-a: #4fd6c8;
+  --af-ring-b: #8f7dff;
+
+  /* — typography — */
+  --af-font-display: 'Archivo Variable', 'Bahnschrift', 'Segoe UI', sans-serif;
+  /* Archive widths: narrow template tags, medium controls, wide headings (like the logo) */
+  --af-stretch-label: 74%;
+  --af-stretch-control: 88%;
+  --af-stretch-wide: 118%;
+  --af-track-label: 0.07em;
+  --af-font-text: 'Atkinson Hyperlegible Next Variable', 'Segoe UI', system-ui, sans-serif;
+  /* modular scale 1.2 from 0.8125 rem (13 px) */
+  --af-fs-xs: 0.6875rem;  /* 11 px – keycaps, units */
+  --af-fs-sm: 0.75rem;    /* 12 px – descriptions */
+  --af-fs-md: 0.8125rem;  /* 13 px – HUD body */
+  --af-fs-lg: 0.9375rem;  /* 15 px – hub body, buttons */
+  --af-fs-xl: 1.125rem;   /* 18 px – credits, section headings */
+  --af-fs-2xl: 1.375rem;  /* 22 px – station name */
+  --af-fs-3xl: 1.75rem;   /* 28 px – big readout (speed) */
+  --af-lh-tight: 1.15;
+  --af-lh: 1.45;
+
+  /* — space (4 px grid) — */
+  --af-s1: 0.25rem;
+  --af-s2: 0.5rem;
+  --af-s3: 0.75rem;
+  --af-s4: 1rem;
+  --af-s5: 1.5rem;
+  --af-s6: 2rem;
+  --af-edge: 1rem; /* HUD distance from the screen edge */
+
+  /* — shape: bevels (like the edges of hull plates) — */
+  --af-cut-sm: 5px;
+  --af-cut: 9px;
+  --af-cut-lg: 18px;
+  --af-trim-w: 3px;
+  --af-seam: rgba(22, 32, 44, 0.16);
+  --af-seam-dark: rgba(232, 237, 244, 0.07);
+
+  /* — motion: mechanical, no floating — */
+  --af-dur-snap: 90ms;
+  --af-dur-clamp: 160ms;
+  --af-dur-hatch: 240ms;
+  --af-ease-clamp: cubic-bezier(0.7, 0, 0.18, 1); /* a start-up and a hard stop like a clamp */
+  --af-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* UI scaling (game setting / browser) */
+  --af-ui-scale: 1;
+}
+
+[data-ring='1'] { --af-ring-a: #4fd6c8; --af-ring-b: #8f7dff; }
+[data-ring='2'] { --af-ring-a: #ff5fa2; --af-ring-b: #ff9a4a; }
+[data-ring='3'] { --af-ring-a: #3fe0a8; --af-ring-b: #5fd3ff; }
+[data-ring='4'] { --af-ring-a: #d0476e; --af-ring-b: #a05cc8; }
+
+html {
+  /* 100 % respects the font size set in the browser */
+  font-size: calc(100% * var(--af-ui-scale));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --af-dur-snap: 0ms;
+    --af-dur-clamp: 0ms;
+    --af-dur-hatch: 0ms;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

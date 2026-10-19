@@ -1,0 +1,432 @@
+/*
+ * Hangar modal (M4a T5): the career overlay sheet (band frame, hull plate body – overlays.css) with
+ * the ships as plate cards in rows: silhouette display, identity + log, meters display, actions.
+ * Free and next slots are thin hatched rows; "New ship" is a section under them.
+ */
+.hg-sheet {
+  width: min(62rem, 100%);
+}
+.hg-backdrop {
+  z-index: 30;
+}
+
+/* ───────────── head ───────────── */
+.hg-head {
+  align-items: center;
+  gap: 1.4rem;
+}
+.hg-title {
+  flex: 1;
+  min-width: 0;
+}
+.hg-slots {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 0.6rem;
+  align-items: baseline;
+  color: var(--af-text);
+}
+.hg-slots .af-label {
+  color: var(--af-text-dim);
+}
+.hg-slots b {
+  font-size: var(--af-fs-lg);
+  font-variant-numeric: tabular-nums;
+}
+.hg-slots small {
+  grid-column: 1 / -1;
+  justify-self: end;
+  color: var(--af-text-dim);
+  font-size: var(--af-fs-sm);
+}
+
+/* ───────────── body ───────────── */
+.hg-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-top: 0.75rem;
+}
+.hg-lead {
+  margin: 0;
+  color: var(--af-ink-soft);
+  font-size: var(--af-fs-sm);
+}
+.hg-blocked {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.8rem;
+  font-weight: 700;
+}
+.hg-dim {
+  margin: 0;
+  color: var(--af-ink-soft);
+}
+.hg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.hg-slots-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 0.4rem;
+}
+
+/* ───────────── ship card ───────────── */
+.hg-card.af-panel {
+  --edge: var(--af-hull-shade);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 13.5rem 8.6rem;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.4rem 0.75rem 0.4rem 0.5rem;
+}
+.hg-card.is-active {
+  --fill: linear-gradient(180deg, #f8f9fb 0%, var(--af-hull-hi) 45%, #dde2ea 100%);
+}
+.hg-card.is-active.af-trim-left {
+  padding-left: calc(0.6rem + var(--af-trim-w));
+}
+.hg-sil.af-panel {
+  display: grid;
+  place-items: center;
+  width: 5.5rem;
+  height: 5.5rem;
+  padding: 0.25rem;
+}
+/* the silhouette scales down into the compact card (the hull lip must not be cut by the panel):
+   one definite cell, so the max sizes below resolve against the panel's content box */
+.hg-sil.af-panel {
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+}
+.hg-sil > .af-sil {
+  max-width: 100%;
+  max-height: 100%;
+}
+.hg-id {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.hg-kicker {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  color: var(--af-ink-soft);
+}
+.hg-where {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+}
+.hg-where.is-here {
+  color: var(--af-ok-ink);
+}
+.hg-class {
+  color: var(--af-ink-soft);
+  font-size: var(--af-fs-sm);
+}
+.hg-class b {
+  color: var(--af-ink);
+  font-variant-numeric: tabular-nums;
+}
+.hg-dot {
+  margin: 0 0.4rem;
+}
+.hg-log {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--af-ink);
+  font-size: var(--af-fs-sm);
+}
+.hg-log .af-label,
+.hg-class .af-label {
+  color: var(--af-ink-soft);
+  margin-right: 0.2rem;
+}
+.hg-meters.af-panel {
+  padding: 0.4rem 0.6rem 0.45rem;
+}
+.hg-meters .af-gauge + .af-gauge,
+.hg-meters .af-gauge + .hg-nocargo,
+.hg-meters .hg-nocargo + .af-gauge {
+  margin-top: 0.2rem;
+}
+.hg-nocargo {
+  display: flex;
+  justify-content: space-between;
+  color: var(--af-text-dim);
+  font-size: var(--af-fs-sm);
+  /* the height of a compact gauge, so the three rows line up across cards */
+  min-height: 1.55rem;
+}
+.hg-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+}
+.hg-active-note {
+  color: var(--af-ink-soft);
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+}
+.hg-loan {
+  grid-column: 2 / -1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin: -0.35rem 0 0;
+  color: var(--af-warn-ink);
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* ───────────── name (inline rename) ───────────── */
+.hg-name {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  max-width: 100%;
+  min-width: 0;
+}
+.hg-name-btn {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 0.15rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-xl);
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: left;
+  cursor: text;
+}
+.hg-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hg-name-btn:hover .hg-name-text {
+  text-decoration: underline dotted 1px;
+  text-underline-offset: 3px;
+}
+.hg-pencil {
+  flex: none;
+  color: var(--af-ink-soft);
+  opacity: 0.7;
+  transition: opacity var(--af-dur-snap) linear;
+}
+.hg-name-btn:hover .hg-pencil,
+.hg-name-btn:focus-visible .hg-pencil {
+  opacity: 1;
+}
+.hg-name-tag {
+  flex: none;
+  color: var(--af-ink-soft);
+}
+.hg-name.is-editing {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.15rem;
+  width: 100%;
+}
+.hg-name-input {
+  width: min(16rem, 100%);
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--af-screen-line);
+  background: var(--af-screen);
+  color: var(--af-text);
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-lg);
+  font-weight: 750;
+}
+.hg-name-input::placeholder {
+  color: var(--af-text-dim);
+  font-weight: 650;
+}
+.hg-name-hint {
+  color: var(--af-ink-soft);
+  font-size: var(--af-fs-xs);
+}
+/* the Shipyard header's name sits on the dark band */
+.hg-name--header .hg-name-btn {
+  color: var(--af-text);
+  font-size: var(--af-fs-lg);
+}
+.hg-name--header .hg-pencil,
+.hg-name--header .hg-name-tag,
+.hg-name--header .hg-name-hint {
+  color: var(--af-text-dim);
+}
+
+/* ───────────── slots ───────────── */
+.hg-slot {
+  --cut: var(--af-cut-sm);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-height: 2.6rem;
+  padding: 0.35rem 0.75rem 0.35rem 0.6rem;
+  clip-path: polygon(
+    var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut)
+  );
+  background: rgba(22, 32, 44, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(22, 32, 44, 0.28);
+}
+.hg-slot-mark {
+  flex: none;
+  width: 5.5rem;
+  height: 1.6rem;
+  background: repeating-linear-gradient(-45deg, rgba(22, 32, 44, 0.16) 0 6px, transparent 6px 12px);
+  box-shadow: inset 0 0 0 1px rgba(22, 32, 44, 0.3);
+}
+.hg-slot.is-free .hg-slot-mark {
+  /* a bay with floor marks: dashed edge in the glow of the hangar grid, dimmed for the plate */
+  background: none;
+  box-shadow: none;
+  outline: 1px dashed #4b7f95;
+  outline-offset: -1px;
+}
+.hg-slot.is-locked {
+  color: var(--af-ink-soft);
+}
+.hg-slot-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.hg-slot-text b {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 750;
+}
+.hg-slot-text small {
+  color: var(--af-ink-soft);
+  font-size: var(--af-fs-sm);
+}
+.hg-slot.is-locked .hg-slot-text small {
+  color: var(--af-warn-ink);
+}
+
+/* ───────────── new ship ───────────── */
+.hg-new {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.1rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--af-hull-shade);
+  box-shadow: inset 0 1px 0 var(--af-hull-hi);
+}
+.hg-new-text {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+}
+.hg-new .af-heading {
+  flex: none;
+  margin: 0;
+}
+.hg-new-text p {
+  margin: 0;
+  color: var(--af-ink-soft);
+  font-size: var(--af-fs-sm);
+  line-height: 1.35;
+}
+.hg-new-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+.hg-cockpit .af-btn-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.hg-cockpit-icon img {
+  display: block;
+  width: 1.35rem;
+  height: 1.35rem;
+}
+.hg-cockpit-src {
+  color: var(--af-text-dim);
+  font-weight: 600;
+}
+
+/* ───────────── confirmations ───────────── */
+.hg-confirm-cost {
+  margin: 0.5rem 0 0;
+  font-size: var(--af-fs-md);
+}
+.hg-confirm-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  font-size: var(--af-fs-md);
+}
+.hg-confirm-loan {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin: 0.5rem 0 0;
+  color: var(--af-warn-ink);
+  font-size: var(--af-fs-md);
+}
+
+/* ───────────── station hub: overview row, shipyard header ───────────── */
+.yd-ship {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-width: 0;
+  margin-left: auto;
+  margin-right: 1.2rem;
+}
+.yd-ship-id {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 0;
+  max-width: 24rem;
+}
+.yd-ship-log {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--af-text-dim);
+  font-size: var(--af-fs-xs);
+}
+.yd-ship-buttons {
+  display: flex;
+  gap: 0.4rem;
+}
+
+@media (max-height: 760px) {
+  .hg-sil.af-panel {
+    width: 5rem;
+    height: 5rem;
+  }
+  .hg-body {
+    gap: 0.45rem;
+  }
+}

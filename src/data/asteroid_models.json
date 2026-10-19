@@ -1,0 +1,14 @@
+{
+  "asteroid_iron_a": { "center": [-0.201328, 0.303556, -0.010386], "radius": 2.06907 },
+  "asteroid_iron_b": { "center": [0.078376, 0.481477, 0.056398], "radius": 3.801952 },
+  "asteroid_iron_c": { "center": [0.347423, 0.422049, 0.088205], "radius": 3.217098 },
+  "asteroid_copper_a": { "center": [-0.100536, 0.250184, -0.006563], "radius": 2.075208 },
+  "asteroid_copper_b": { "center": [-0.050252, 0.416068, -0.182512], "radius": 3.60039 },
+  "asteroid_copper_c": { "center": [0.171711, 0.268745, 0.200509], "radius": 2.960847 },
+  "asteroid_ice_a": { "center": [-0.117628, 0.099292, -0.339857], "radius": 2.498532 },
+  "asteroid_ice_b": { "center": [0.290038, 0.431194, -0.048559], "radius": 4.105316 },
+  "asteroid_ice_c": { "center": [0.353235, 0.469894, -0.207367], "radius": 3.615775 },
+  "asteroid_titanium_a": { "center": [-0.465141, 0.08627, 0.003324], "radius": 2.341282 },
+  "asteroid_titanium_b": { "center": [-0.249568, -0.146557, -0.092453], "radius": 3.419535 },
+  "asteroid_titanium_c": { "center": [-0.260475, 0.189039, 0.013781], "radius": 3.205792 }
+}

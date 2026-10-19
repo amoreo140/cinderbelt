@@ -1,0 +1,1102 @@
+/*
+ * Components of the design language (prefix af-).
+ * Shape rule: containers have all 4 corners cut (like an armour plate),
+ * controls only 2 opposite ones (top left + bottom right).
+ */
+
+/* ───────────── base ───────────── */
+.af-root,
+#ui {
+  font-family: var(--af-font-text);
+  font-size: var(--af-fs-md);
+  line-height: var(--af-lh);
+  color: var(--af-text);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+.af-root *,
+#ui * {
+  box-sizing: border-box;
+}
+.af-display {
+  font-family: var(--af-font-display);
+}
+.af-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* cut shapes – the --cut variable sets the size of the bevel */
+.af-cut4 {
+  clip-path: polygon(
+    var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut)
+  );
+}
+.af-cut2 {
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+
+/* ───────────── focus ─────────────
+ * Corner brackets are reserved for the part tier (T1/T2), so focus is a solid cyan
+ * line with an offset. The element itself is not clipped (only its ::before has the
+ * clip-path), so the outline is never cut off.
+ */
+.af-focusable {
+  position: relative;
+}
+.af-focusable:focus {
+  outline: none;
+}
+.af-focusable:focus-visible {
+  outline: 2px solid var(--af-glow);
+  outline-offset: 3px;
+}
+.af-plate .af-focusable:focus-visible,
+.af-on-plate .af-focusable:focus-visible {
+  outline-color: #0b6f8c;
+}
+
+/* stencil label – narrow Archivo, capitals; only for short marks (1–3 words) */
+.af-label {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+}
+
+/* ───────────── panels ───────────── */
+.af-panel {
+  --cut: var(--af-cut);
+  --edge: var(--af-band-hi);
+  --fill: var(--af-band);
+  position: relative;
+  isolation: isolate;
+  background: var(--edge);
+  padding: var(--af-s3) var(--af-s4);
+}
+.af-panel::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background: var(--fill);
+  clip-path: inherit;
+}
+/* light hull plate */
+.af-plate {
+  --edge: #f6f8fb;
+  --fill: linear-gradient(180deg, var(--af-hull-hi) 0%, var(--af-hull) 38%, #cfd5de 100%);
+  color: var(--af-ink);
+}
+/* dark structural band */
+.af-band {
+  --edge: #323c4d;
+  --fill: linear-gradient(180deg, #212936 0%, var(--af-band) 100%);
+  color: var(--af-text);
+}
+/* recessed screen */
+.af-screen {
+  --edge: #050b12;
+  --fill: radial-gradient(120% 90% at 50% 0%, #10243a 0%, var(--af-screen) 70%);
+  color: var(--af-text);
+}
+.af-screen::before {
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.45), inset 0 0 0 1px var(--af-screen-line);
+}
+.af-panel.af-translucent {
+  --edge: rgba(50, 60, 77, 0.85);
+  --fill: linear-gradient(180deg, rgba(33, 41, 54, 0.9) 0%, rgba(27, 34, 45, 0.86) 100%);
+}
+
+/* trim – an orange strip along the top or left edge */
+.af-trim-top > .af-trim,
+.af-trim-left > .af-trim {
+  position: absolute;
+  background: var(--trim, var(--af-trim));
+  pointer-events: none;
+}
+.af-trim-top > .af-trim {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--af-trim-w);
+}
+.af-trim-left > .af-trim {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--af-trim-w);
+}
+.af-tier-2 {
+  --trim: var(--af-titan);
+}
+
+/* bolts in the plate corners */
+.af-bolts > .af-bolt {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffffff 0 18%, #8d97a6 40%, #5b6574 100%);
+  box-shadow: 0 0.5px 0 rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+.af-band.af-bolts > .af-bolt,
+.af-screen.af-bolts > .af-bolt {
+  background: radial-gradient(circle at 35% 35%, #6b7a90 0 20%, #2b3443 70%);
+  box-shadow: none;
+}
+.af-bolt--tl { top: 6px; left: calc(var(--cut) + 6px); }
+.af-bolt--tr { top: 6px; right: calc(var(--cut) + 6px); }
+.af-bolt--bl { bottom: 6px; left: calc(var(--cut) + 6px); }
+.af-bolt--br { bottom: 6px; right: calc(var(--cut) + 6px); }
+
+/* seam between plates (a pressed dividing line) */
+.af-seam {
+  height: 2px;
+  border: 0;
+  margin: var(--af-s3) 0;
+  background: linear-gradient(180deg, var(--af-seam) 0 1px, rgba(255, 255, 255, 0.7) 1px 2px);
+}
+.af-band .af-seam,
+.af-screen .af-seam {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0 1px, var(--af-seam-dark) 1px 2px);
+}
+
+/* panel / section heading */
+.af-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--af-s2);
+  margin: 0 0 var(--af-s2);
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-lg);
+  font-weight: 750;
+  line-height: var(--af-lh-tight);
+}
+.af-heading::before {
+  content: '';
+  width: 12px;
+  height: var(--af-trim-w);
+  background: var(--trim, var(--af-trim));
+  flex: none;
+}
+.af-heading-aside {
+  margin-left: auto;
+  font-family: var(--af-font-text);
+  font-weight: 400;
+  font-size: var(--af-fs-sm);
+  opacity: 0.75;
+}
+
+/* ───────────── keys ───────────── */
+.af-key {
+  --cut: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.6em;
+  height: 1.6em;
+  padding: 0 0.35em;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-xs);
+  font-weight: 750;
+  line-height: 1;
+  color: var(--af-ink);
+  background: linear-gradient(180deg, #f7f9fb 0%, #c9d0da 100%);
+  box-shadow: inset 0 -2px 0 #8e98a7;
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  white-space: nowrap;
+  flex: none;
+}
+.af-key-dark {
+  color: var(--af-text);
+  background: linear-gradient(180deg, #3a4558 0%, #1f2632 100%);
+  box-shadow: inset 0 -2px 0 #0d1118;
+}
+.af-keyhint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: var(--af-fs-sm);
+}
+
+/* ───────────── buttons ───────────── */
+.af-btn {
+  --cut: 7px;
+  --fill: linear-gradient(180deg, #2f3949 0%, #222a37 100%);
+  --edge-shadow: inset 0 0 0 1px #3c4759, inset 0 -2px 0 #11161e;
+  --fg: var(--af-text);
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--af-s2);
+  min-height: 2.25rem;
+  padding: 0 var(--af-s3);
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-md);
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
+}
+.af-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--fill);
+  box-shadow: var(--edge-shadow);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  transition: filter var(--af-dur-snap) linear;
+}
+.af-btn:hover:not([aria-disabled='true'])::before {
+  filter: brightness(1.18);
+}
+.af-btn:active:not([aria-disabled='true']) {
+  transform: translateY(1px);
+}
+.af-btn:active:not([aria-disabled='true'])::before {
+  filter: brightness(0.92);
+  box-shadow: var(--edge-shadow), inset 0 2px 0 rgba(0, 0, 0, 0.25);
+}
+.af-btn-label {
+  flex: 1;
+  white-space: nowrap;
+}
+.af-btn-aside {
+  font-family: var(--af-font-text);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.af-btn--block {
+  display: flex;
+  width: 100%;
+}
+.af-btn--sm {
+  --cut: 5px;
+  min-height: 1.75rem;
+  padding: 0 var(--af-s2);
+  font-size: var(--af-fs-sm);
+  gap: var(--af-s1);
+}
+.af-btn--lg {
+  --cut: 10px;
+  min-height: 2.75rem;
+  padding: 0 var(--af-s4);
+  font-size: var(--af-fs-lg);
+}
+/* primary action – orange trim */
+.af-btn--primary {
+  --fill: linear-gradient(180deg, #ff9450 0%, var(--af-trim) 55%, #e06a1f 100%);
+  --edge-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -3px 0 var(--af-trim-deep);
+  --fg: #1a0e05;
+}
+.af-btn--primary .af-key {
+  color: var(--af-trim);
+  background: linear-gradient(180deg, #2c3442 0%, #161b24 100%);
+  box-shadow: inset 0 -2px 0 #000;
+}
+/* ghost – outline */
+.af-btn--ghost {
+  --fill: transparent;
+  --edge-shadow: inset 0 0 0 1.5px currentColor;
+  --fg: inherit;
+}
+.af-btn--ghost:hover:not([aria-disabled='true'])::before {
+  filter: none;
+  background: rgba(127, 140, 160, 0.16);
+}
+/* destructive – warning chevrons along the left edge */
+.af-btn--danger {
+  --fill:
+    repeating-linear-gradient(-45deg, var(--af-warn) 0 5px, #1b1408 5px 10px) left / 9px 100% no-repeat,
+    linear-gradient(180deg, #3a2226 0%, #2a171a 100%);
+  --edge-shadow: inset 0 0 0 1px #5c2c31, inset 0 -2px 0 #120708;
+  --fg: #ffb4ab;
+  padding-left: calc(var(--af-s3) + 9px);
+}
+/* unavailable – hatching */
+.af-btn[aria-disabled='true'] {
+  --fill: repeating-linear-gradient(-45deg, rgba(120, 132, 150, 0.22) 0 4px, rgba(120, 132, 150, 0.1) 4px 8px);
+  --edge-shadow: inset 0 0 0 1px rgba(120, 132, 150, 0.35);
+  --fg: rgba(147, 160, 179, 0.85);
+  cursor: not-allowed;
+}
+.af-plate .af-btn[aria-disabled='true'],
+.af-on-plate .af-btn[aria-disabled='true'] {
+  --fill: repeating-linear-gradient(-45deg, rgba(74, 86, 102, 0.16) 0 4px, rgba(74, 86, 102, 0.06) 4px 8px);
+  --edge-shadow: inset 0 0 0 1px rgba(74, 86, 102, 0.35);
+  --fg: #5d6878;
+}
+.af-btn[aria-disabled='true'] .af-key {
+  opacity: 0.6;
+}
+.af-btn[aria-disabled='true'] .af-btn-aside {
+  opacity: 0.75;
+}
+
+/* switch (segmented buttons – quantity, source) */
+.af-segmented {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 2px;
+  padding: 2px;
+  background: var(--af-band);
+  --cut: 6px;
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.af-segmented-opt {
+  position: relative;
+  min-width: 2.5rem;
+  padding: 0.3rem 0.7rem;
+  border: 0;
+  background: transparent;
+  color: var(--af-text-dim);
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-sm);
+  font-weight: 650;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.af-segmented-opt:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--af-glow);
+}
+.af-segmented-opt:hover {
+  color: var(--af-text);
+  background: var(--af-band-hi);
+}
+.af-segmented-opt[aria-pressed='true'] {
+  color: var(--af-ink);
+  background: linear-gradient(180deg, var(--af-hull-hi), var(--af-hull));
+  box-shadow: inset 0 -2px 0 var(--af-trim);
+}
+
+/* ───────────── tabs (tab rail) ───────────── */
+.af-tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  padding: 0 var(--af-s3);
+}
+.af-tab {
+  --cut: 8px;
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 2.4rem;
+  padding: 0 0.85rem 0 0.6rem;
+  border: 0;
+  background: none;
+  color: var(--af-text-dim);
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-lg);
+  font-weight: 650;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.af-tab::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--af-band-hi);
+  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%, 0 var(--cut));
+  transition: transform var(--af-dur-clamp) var(--af-ease-clamp), background var(--af-dur-snap) linear;
+  transform-origin: bottom;
+  transform: scaleY(0.88);
+}
+.af-tab:hover:not([aria-disabled='true']) {
+  color: var(--af-text);
+}
+.af-tab:hover:not([aria-disabled='true'])::before {
+  background: #34405a;
+}
+.af-tab[aria-selected='true'] {
+  color: var(--af-ink);
+}
+.af-tab[aria-selected='true']::before {
+  transform: none;
+  background:
+    linear-gradient(var(--af-trim), var(--af-trim)) top / 100% var(--af-trim-w) no-repeat,
+    linear-gradient(180deg, var(--af-hull-hi) 0%, var(--af-hull-hi) 100%);
+}
+.af-tab[aria-disabled='true'] {
+  cursor: not-allowed;
+  color: #6c788a;
+}
+.af-tab[aria-disabled='true']::before {
+  background: repeating-linear-gradient(-45deg, rgba(108, 120, 138, 0.18) 0 4px, transparent 4px 8px);
+}
+.af-tab[aria-disabled='true'] .af-key {
+  opacity: 0.5;
+}
+.af-tab-lock {
+  width: 10px;
+  height: 11px;
+  opacity: 0.8;
+}
+
+/* ───────────── segmented gauge ───────────── */
+.af-gauge {
+  --seg: var(--af-glow);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  column-gap: var(--af-s3);
+  row-gap: 3px;
+}
+.af-gauge + .af-gauge {
+  margin-top: var(--af-s2);
+}
+.af-gauge-label {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  color: var(--af-text-dim);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.af-gauge-value {
+  justify-self: end;
+  font-size: var(--af-fs-md);
+  font-weight: 700;
+  color: var(--af-text);
+}
+.af-gauge-value small {
+  font-weight: 400;
+  color: var(--af-text-dim);
+  font-size: var(--af-fs-sm);
+}
+.af-gauge-track {
+  grid-column: 1 / -1;
+  position: relative;
+  display: flex;
+  gap: 2px;
+  height: 10px;
+  padding: 0 3px;
+}
+.af-gauge-seg {
+  flex: 1;
+  transform: skewX(-24deg);
+  background: rgba(130, 150, 175, 0.16);
+}
+.af-gauge-seg.is-on {
+  background: var(--seg);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--seg) 55%, transparent);
+}
+.af-gauge-ticks {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 4px;
+  margin: 0 3px;
+}
+.af-gauge-ticks i {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 4px;
+  background: rgba(147, 160, 179, 0.5);
+}
+.af-gauge-ticks i:nth-child(2) {
+  height: 5px;
+  background: rgba(147, 160, 179, 0.8);
+}
+.af-gauge--fuel { --seg: var(--af-fuel); }
+.af-gauge--energy { --seg: var(--af-glow); }
+.af-gauge--cargo { --seg: var(--af-hull); }
+.af-gauge--hull { --seg: var(--af-ok); }
+.af-gauge--shield { --seg: var(--af-shield); }
+.af-gauge--heat { --seg: var(--af-warn); }
+.af-gauge.is-warn .af-gauge-value { color: var(--af-warn); }
+/* warning: empty segments get a warning outline (the full ones keep their colour – fuel is yellow) */
+.af-gauge.is-warn .af-gauge-seg:not(.is-on) { box-shadow: inset 0 0 0 1px rgba(255, 181, 71, 0.55); background: rgba(255, 181, 71, 0.1); }
+.af-gauge.is-crit { --seg: var(--af-bad); }
+.af-gauge.is-crit .af-gauge-value { color: var(--af-bad); }
+.af-gauge.is-crit .af-lamp {
+  animation: af-blink 0.9s steps(2, jump-none) infinite;
+}
+.af-gauge--compact .af-gauge-track {
+  height: 7px;
+}
+.af-gauge--compact .af-gauge-ticks {
+  display: none;
+}
+
+/* ───────────── lamp (state) ───────────── */
+.af-lamp {
+  --lamp: var(--af-ok);
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fff 0 15%, var(--lamp) 45%);
+  box-shadow: 0 0 6px var(--lamp);
+  flex: none;
+}
+.af-lamp--off { --lamp: #4a5566; box-shadow: none; background: #3a4352; }
+.af-lamp--bad { --lamp: var(--af-bad); }
+.af-lamp--warn { --lamp: var(--af-warn); }
+.af-lamp--info { --lamp: var(--af-glow); }
+
+/* ───────────── readout with a unit ───────────── */
+.af-readout {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25em;
+  white-space: nowrap;
+}
+.af-readout-value {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.af-readout-unit {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: 0.72em;
+  font-weight: 600;
+  opacity: 0.7;
+}
+.af-readout--lg .af-readout-value {
+  font-size: var(--af-fs-3xl);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+.af-readout--lg .af-readout-unit {
+  font-size: var(--af-fs-sm);
+}
+.af-readout-label {
+  display: block;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  color: var(--af-text-dim);
+}
+
+/* ───────────── resource ───────────── */
+.af-res {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+.af-res-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
+  flex: none;
+}
+.af-res-amount {
+  font-weight: 700;
+}
+.af-res-name {
+  color: inherit;
+}
+.af-res--tag {
+  --cut: 5px;
+  padding: 2px 8px 2px 4px;
+  background: rgba(10, 21, 33, 0.72);
+  box-shadow: inset 0 0 0 1px var(--af-screen-line);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.af-plate .af-res--tag,
+.af-on-plate .af-res--tag {
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 0 0 1px var(--af-seam);
+}
+.af-res-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+}
+
+/* ───────────── part ───────────── */
+.af-part {
+  --cut: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 2px 8px 2px 2px;
+  white-space: nowrap;
+  background: rgba(10, 21, 33, 0.72);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.af-plate .af-part,
+.af-on-plate .af-part {
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 0 0 1px var(--af-seam);
+}
+.af-part-icon {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+/* tier corner brackets (like the part icon frames): colour and shape = tier */
+.af-tier-frame {
+  --t: var(--trim, var(--af-trim));
+  display: inline-grid;
+  place-items: center;
+  padding: 3px;
+  flex: none;
+  background:
+    linear-gradient(var(--t), var(--t)) top left / 6px 2px no-repeat,
+    linear-gradient(var(--t), var(--t)) top left / 2px 6px no-repeat,
+    linear-gradient(var(--t), var(--t)) top right / 6px 2px no-repeat,
+    linear-gradient(var(--t), var(--t)) top right / 2px 6px no-repeat,
+    linear-gradient(var(--t), var(--t)) bottom left / 6px 2px no-repeat,
+    linear-gradient(var(--t), var(--t)) bottom left / 2px 6px no-repeat,
+    linear-gradient(var(--t), var(--t)) bottom right / 6px 2px no-repeat,
+    linear-gradient(var(--t), var(--t)) bottom right / 2px 6px no-repeat;
+}
+/* T2: a square frame – longer arms (readable without colour too) */
+.af-tier-2 .af-tier-frame,
+.af-tier-frame.af-tier-2 {
+  background:
+    linear-gradient(var(--t), var(--t)) top left / 11px 2px no-repeat,
+    linear-gradient(var(--t), var(--t)) top left / 2px 11px no-repeat,
+    linear-gradient(var(--t), var(--t)) top right / 11px 2px no-repeat,
+    linear-gradient(var(--t), var(--t)) top right / 2px 11px no-repeat,
+    linear-gradient(var(--t), var(--t)) bottom left / 11px 2px no-repeat,
+    linear-gradient(var(--t), var(--t)) bottom left / 2px 11px no-repeat,
+    linear-gradient(var(--t), var(--t)) bottom right / 11px 2px no-repeat,
+    linear-gradient(var(--t), var(--t)) bottom right / 2px 11px no-repeat;
+}
+.af-part-tier {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  color: var(--trim, var(--af-trim));
+}
+.af-plate .af-part-tier,
+.af-on-plate .af-part-tier {
+  color: var(--af-trim-ink);
+}
+.af-plate .af-tier-2 .af-part-tier,
+.af-on-plate .af-tier-2 .af-part-tier {
+  color: #1c5f8f;
+}
+.af-part-count {
+  font-weight: 700;
+}
+.af-part--compact {
+  gap: 0.25rem;
+  padding-right: 6px;
+}
+.af-part--compact .af-part-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* ───────────── credits (a label on the hull) ───────────── */
+.af-credits {
+  --cut: 7px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  padding: 0.3rem 0.8rem 0.3rem 1rem;
+  color: var(--af-ink);
+  background:
+    linear-gradient(var(--af-trim), var(--af-trim)) left / 4px 100% no-repeat,
+    linear-gradient(180deg, var(--af-hull-hi) 0%, var(--af-hull) 100%);
+  box-shadow: inset 0 -2px 0 var(--af-hull-shade);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  font-size: var(--af-fs-xl);
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.af-credits-unit {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  font-size: var(--af-fs-sm);
+  font-weight: 750;
+  letter-spacing: var(--af-track-label);
+  color: var(--af-trim-ink);
+}
+
+/* ───────────── odometer (credits and counters whose digits roll) ─────────────
+   Each character sits in a clipped cell; a changed one drops in from above (value up) or rises
+   from below (value down) in one clamp step, the old character (::before, not in the text) leaves
+   on the other side. Tabular figures: the width does not move while a digit rolls. */
+.af-odo {
+  display: inline-block;
+  white-space: pre;
+  font-variant-numeric: tabular-nums;
+}
+.af-odo-cell {
+  display: inline-block;
+  clip-path: inset(0 -0.1em);
+}
+.af-odo-ch {
+  position: relative;
+  display: inline-block;
+}
+.af-odo-ch[data-from] {
+  animation: af-odo-drop var(--af-dur-clamp) var(--af-ease-clamp) both;
+}
+.af-odo-ch[data-from][data-dir='down'] {
+  animation-name: af-odo-rise;
+}
+.af-odo-ch[data-from]::before {
+  content: attr(data-from);
+  content: attr(data-from) / '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  text-align: center;
+}
+.af-odo-ch[data-dir='down']::before {
+  top: -100%;
+}
+@keyframes af-odo-drop {
+  from {
+    transform: translateY(-100%);
+  }
+}
+@keyframes af-odo-rise {
+  from {
+    transform: translateY(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .af-odo-ch[data-from] {
+    animation: none;
+  }
+}
+/* the game's own reduced-motion setting (App sets it on <html>; the kit on a wrapper) */
+[data-reduced-motion] .af-odo-ch[data-from] {
+  animation: none;
+}
+
+/* ───────────── ring ───────────── */
+.af-ring {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+.af-ring-swatch {
+  --cut: 4px;
+  width: 1.3rem;
+  height: 1.3rem;
+  background: linear-gradient(135deg, var(--af-ring-a) 0 50%, var(--af-ring-b) 50% 100%);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  display: grid;
+  place-items: center;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-xs);
+  font-weight: 800;
+  color: #0b1018;
+  flex: none;
+}
+.af-ring-name {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 750;
+}
+
+/* ───────────── tooltip ───────────── */
+.af-tip-layer {
+  position: fixed;
+  z-index: 50;
+  max-width: 18rem;
+  padding: 0.35rem 0.6rem 0.35rem 0.75rem;
+  color: var(--af-text);
+  background:
+    linear-gradient(var(--af-warn), var(--af-warn)) left / 3px 100% no-repeat,
+    var(--af-band);
+  box-shadow: 0 0 0 1px #3c4759, 0 6px 16px rgba(0, 0, 0, 0.45);
+  font-size: var(--af-fs-sm);
+  line-height: 1.35;
+  /* multi-line tips (part description + where to get it) break at line feeds */
+  white-space: pre-line;
+  pointer-events: none;
+  animation: af-latch var(--af-dur-clamp) var(--af-ease-clamp) both;
+}
+/* technical term with a glossary tooltip (Term) – dotted underline, keyboard focusable */
+.af-term {
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
+  cursor: help;
+}
+.af-term:hover {
+  text-decoration-color: currentColor;
+}
+.af-tip-layer.is-info {
+  background:
+    linear-gradient(var(--af-glow), var(--af-glow)) left / 3px 100% no-repeat,
+    var(--af-band);
+}
+
+/* ───────────── toast ───────────── */
+.af-toast {
+  --cut: 8px;
+  --lamp: var(--af-glow);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  max-width: min(36rem, calc(100vw - 2rem));
+  padding: 0.55rem 1rem 0.55rem 0.7rem;
+  color: var(--af-text);
+  background:
+    linear-gradient(var(--lamp), var(--lamp)) bottom / 100% 2px no-repeat,
+    linear-gradient(180deg, #252e3c 0%, var(--af-band) 100%);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  font-size: var(--af-fs-lg);
+  font-weight: 600;
+  line-height: 1.3;
+  animation: af-drop var(--af-dur-hatch) var(--af-ease-clamp) both;
+}
+.af-toast .af-lamp {
+  width: 9px;
+  height: 9px;
+}
+.af-toast--ok { --lamp: var(--af-ok); }
+.af-toast--error { --lamp: var(--af-bad); }
+
+/* ───────────── modal window ───────────── */
+.af-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: var(--af-s4);
+  pointer-events: auto;
+  background:
+    radial-gradient(80% 70% at 50% 45%, rgba(10, 21, 33, 0.55) 0%, rgba(4, 7, 12, 0.85) 100%);
+  animation: af-fade var(--af-dur-clamp) linear both;
+}
+.af-backdrop > [role='dialog'] {
+  width: min(30rem, 100%);
+}
+.af-modal {
+  --cut: var(--af-cut-lg);
+  width: 100%;
+  padding: 0;
+  animation: af-clamp var(--af-dur-hatch) var(--af-ease-clamp) both;
+}
+.af-modal-title {
+  display: flex;
+  align-items: center;
+  gap: var(--af-s2);
+  margin: 0;
+  padding: 0.85rem var(--af-s5) 0.75rem;
+  background: var(--af-band);
+  color: var(--af-text);
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-wide);
+  font-size: var(--af-fs-xl);
+  font-weight: 800;
+}
+.af-modal-title {
+  box-shadow: inset 0 calc(-1 * var(--af-trim-w)) 0 var(--af-trim);
+}
+.af-hazard {
+  height: 7px;
+  background: repeating-linear-gradient(-45deg, var(--af-warn) 0 8px, #1b1408 8px 16px);
+}
+.af-modal-body {
+  padding: var(--af-s4) var(--af-s5);
+  font-size: var(--af-fs-lg);
+  line-height: var(--af-lh);
+}
+.af-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--af-s2);
+  padding: 0 var(--af-s5) var(--af-s4);
+}
+
+/* ───────────── ship silhouette (HP on the cells) ───────────── */
+.af-sil {
+  display: block;
+  overflow: visible;
+}
+/* hull outline under the cells (SL2 E1 T10): the shell's dark plate joins the cells into one hull,
+   the lip runs around it in the tier accent (T1 iron trim, T2 titan blue) */
+.af-sil-hull {
+  fill: var(--af-band);
+  stroke: var(--af-trim);
+  stroke-linejoin: miter;
+  stroke-miterlimit: 3;
+}
+.af-sil-hull--2 {
+  stroke: var(--af-titan);
+}
+.af-sil-well {
+  fill: rgba(147, 160, 179, 0.14);
+}
+.af-sil-hp {
+  fill: var(--af-hull);
+  opacity: 0.82;
+}
+.af-sil-cell.is-warn .af-sil-hp {
+  fill: var(--af-warn);
+  opacity: 1;
+}
+.af-sil-cell.is-crit .af-sil-hp {
+  fill: var(--af-bad);
+  opacity: 1;
+}
+.af-sil-cockpit {
+  fill: var(--af-glow);
+  opacity: 0.9;
+}
+.af-sil-crack {
+  fill: none;
+  stroke: var(--af-screen);
+  stroke-width: 1.3;
+  stroke-linejoin: bevel;
+}
+.af-sil-hatch-bg {
+  fill: rgba(255, 90, 74, 0.08);
+}
+.af-sil-hatch-line {
+  fill: rgba(255, 90, 74, 0.6);
+}
+.af-sil-lost-edge {
+  fill: none;
+  stroke: rgba(255, 90, 74, 0.75);
+  stroke-width: 1;
+}
+.af-sil-tier {
+  fill: none;
+  stroke: var(--af-trim);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+.af-sil-tier--2 {
+  stroke: var(--af-titan);
+}
+.af-sil-tier.is-lost {
+  opacity: 0.3;
+}
+/* lost against the blueprint (M3.8): an empty socket with a broken red outline – the design is
+   still there, the part is not */
+.af-sil-gap {
+  fill: rgba(255, 90, 74, 0.06);
+  stroke: rgba(255, 90, 74, 0.8);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+  shape-rendering: crispEdges;
+}
+/* the moment a part goes: the cell burns white-hot, blinks red twice and leaves the socket */
+.af-sil-lossflash {
+  fill: var(--af-bad);
+  opacity: 0;
+  animation: af-sil-loss 1100ms steps(1, end) both;
+}
+@keyframes af-sil-loss {
+  0% { opacity: 1; fill: #fff4e8; }
+  12% { opacity: 1; fill: var(--af-bad); }
+  30% { opacity: 0.15; }
+  45% { opacity: 1; }
+  62% { opacity: 0.15; }
+  76% { opacity: 0.7; }
+  100% { opacity: 0; }
+}
+/* hit: the cell blinks twice (mechanically, in steps) */
+.af-sil-pulse {
+  animation: af-sil-hit 450ms steps(1, end) both;
+}
+@keyframes af-sil-hit {
+  0% { opacity: 0.2; }
+  25% { opacity: 1; }
+  50% { opacity: 0.35; }
+  75% { opacity: 1; }
+}
+/* the loss replay on the death card – the final state has no animation */
+.af-sil-replay-before {
+  opacity: 0;
+  animation: af-sil-vanish 90ms linear both;
+}
+.af-sil-replay-after {
+  animation: af-fade 90ms linear both;
+}
+.af-sil-replay-flash {
+  fill: #fff4e8;
+  opacity: 0;
+  animation: af-sil-flash 380ms var(--af-ease-out) both;
+}
+@keyframes af-sil-vanish {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes af-sil-flash {
+  from { opacity: 0; }
+  20% { opacity: 0.95; fill: #ffd2a8; }
+  to { opacity: 0; fill: var(--af-bad); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .af-sil-pulse,
+  .af-sil-lossflash,
+  .af-sil-replay-before,
+  .af-sil-replay-after,
+  .af-sil-replay-flash {
+    animation: none !important;
+  }
+}
+
+/* ───────────── animations ───────────── */
+@keyframes af-drop {
+  from { transform: translateY(-14px); opacity: 0; }
+  55% { opacity: 1; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes af-clamp {
+  from { transform: scaleY(0.9); opacity: 0; }
+  60% { opacity: 1; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes af-latch {
+  from { transform: translateY(3px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes af-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes af-blink {
+  50% { opacity: 0.25; }
+}
+@keyframes af-hatch {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes af-slide {
+  from { transform: translateX(-8px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}

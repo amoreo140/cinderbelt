@@ -1,0 +1,280 @@
+/* SL2 E2 shaped armour in the shipyard: the shape strip under the palette, the shaped ghost card, the
+   half hull-point segment and the key help (K). Imported after shipyard.css. */
+
+/* ───────────── shape strip (on the palette plate) ───────────── */
+.yd-shapes {
+  flex: 0 0 auto;
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--af-seam);
+}
+.yd-shapes-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  min-width: 0;
+  padding: 0 0.15rem;
+  color: var(--af-ink-soft);
+  font-size: var(--af-fs-xs);
+}
+.yd-shapes-label {
+  flex: none;
+  color: var(--af-ink);
+}
+.yd-shapes-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.yd-shapes-name b {
+  color: var(--af-ink);
+  font-weight: 700;
+}
+.yd-shapes-head .af-key {
+  align-self: center;
+}
+.yd-shapes-grid {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 2px;
+  margin-top: 0.3rem;
+  /* the focus line of a tile is not cut */
+  padding: 0 3px 3px 0;
+}
+.yd-shape {
+  --cut: 4px;
+  --shape-fill: color-mix(
+    in srgb,
+    var(--af-ink-soft) 40%,
+    var(--af-hull-shade)
+  );
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 1.85rem;
+  padding: 0;
+  border: 0;
+  background: rgba(22, 32, 44, 0.06);
+  cursor: pointer;
+  clip-path: polygon(
+    var(--cut) 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%,
+    0 var(--cut)
+  );
+}
+.yd-shape:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+.yd-shape.is-active {
+  --shape-fill: var(--af-ink-soft);
+  --shape-stroke: 2px;
+  background: var(--af-hull-hi);
+  box-shadow:
+    inset 0 -3px 0 var(--trim, var(--af-trim)),
+    inset 0 0 0 1px var(--af-seam);
+}
+/* the focus line sits outside the clipped tile (clip-path would cut an outline) */
+.yd-shape:focus-visible {
+  clip-path: none;
+}
+
+/* ───────────── shaped ghost card ───────────── */
+.yd-ghost-card.is-shaped {
+  --shape-fill: var(--af-hull);
+  --shape-cell: rgba(147, 160, 179, 0.4);
+  max-width: min(30rem, calc(100% - 1.2rem));
+}
+.yd-ghost-shape {
+  display: grid;
+  place-items: center;
+  min-width: 1.85rem;
+  min-height: 1.85rem;
+}
+.yd-ghost-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 1px;
+}
+.yd-ghost-tip {
+  color: var(--af-glow);
+  font-size: var(--af-fs-xs);
+  font-weight: 600;
+  white-space: normal;
+}
+
+/* ───────────── hull budget: half a point ───────────── */
+.yd-hull-seg.is-half {
+  background: linear-gradient(
+    90deg,
+    var(--af-glow) 50%,
+    var(--af-screen-line) 50%
+  );
+}
+.yd-hull-seg.is-half.is-over {
+  background: linear-gradient(90deg, var(--af-bad) 50%, transparent 50%);
+}
+
+/* ───────────── key help (K) ───────────── */
+.yd-help-btn.af-btn--sm {
+  padding-inline: 0.3rem;
+}
+/* the label is screen-reader only – no gap after the keycap */
+.yd-help-btn {
+  gap: 0;
+}
+.yd-help-dock {
+  position: absolute;
+  z-index: 1;
+  bottom: 0.6rem;
+  left: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  max-width: min(24rem, calc(100% - 1.2rem));
+}
+.yd-help-dock.is-raised {
+  bottom: 4rem;
+}
+.yd-help-dock .af-btn--ghost {
+  --edge-shadow: inset 0 0 0 1.5px rgba(147, 160, 179, 0.55);
+  --fill: rgba(10, 21, 33, 0.72);
+  color: var(--af-text);
+}
+.yd-help-dock .af-btn--ghost.is-on {
+  --edge-shadow: inset 0 0 0 1.5px var(--af-glow);
+  color: var(--af-glow);
+}
+.yd-help {
+  padding: 0.45rem 0.75rem 0.5rem;
+  color: var(--af-text);
+  font-size: var(--af-fs-sm);
+  background: rgba(10, 21, 33, 0.9);
+}
+.yd-help-title {
+  color: var(--af-text-dim);
+}
+.yd-help ul {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0.3rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.yd-help li {
+  display: grid;
+  grid-template-columns: 7.2rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+}
+.yd-help-keys {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+/* ───────────── top row of the hangar view ─────────────
+   Tools left; the restore band and the ghost card in a right column. The row wraps (the right column
+   drops under the tools) instead of the band covering the tool buttons – any width, SK and EN. */
+.yd-view-top {
+  position: absolute;
+  z-index: 1;
+  top: 0.6rem;
+  left: 0.6rem;
+  right: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 6px 0.75rem;
+  pointer-events: none;
+}
+.yd-view-top .yd-view-tools {
+  position: static;
+  flex-wrap: wrap;
+  pointer-events: auto;
+}
+.yd-view-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  margin-left: auto;
+}
+.yd-view-top .yd-restore {
+  position: static;
+  max-width: min(30rem, 100%);
+  pointer-events: auto;
+}
+.yd-view-top .yd-ghost-card {
+  position: static;
+  max-width: min(30rem, 100%);
+}
+
+/* ───────────── bow marker ─────────────
+   It sits in the top row: centred over a wide hangar, and in a narrow one (1280 × 720) right after the
+   tools instead of under the "Top view" button or the right column. */
+.yd-view {
+  container: yard-view / inline-size;
+}
+.yd-view-top .yd-bow {
+  position: absolute;
+  top: -0.05rem;
+  left: 50%;
+}
+@container yard-view (max-width: 65rem) {
+  .yd-view-top .yd-bow {
+    position: static;
+    align-self: center;
+    translate: none;
+  }
+}
+
+/* ───────────── palette detail with the shape strip (armour) ─────────────
+   The strip takes room from the parts list: the description collapses to one line and the advice
+   leaves the effect display (both keep their full text in a tooltip), so 1280 × 720 still lists parts. */
+.yd-pal-detail.is-shaped .yd-pal-what {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--af-fs-sm);
+  line-height: 1.35;
+  color: var(--af-ink);
+  cursor: help;
+}
+.yd-pal-advice {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0 0.15rem;
+  font-size: var(--af-fs-xs);
+  line-height: 1.35;
+  color: var(--af-ink);
+  cursor: help;
+}
+.yd-pal-advice .af-lamp {
+  flex: none;
+  transform: translateY(1px);
+}
+@media (max-height: 820px) {
+  /* the strip already shows each shape's points and HP – the T1 → T2 table gives its rows to the list */
+  .yd-pal-detail.is-shaped > .yd-pal-detail-head,
+  .yd-pal-detail.is-shaped > table {
+    display: none;
+  }
+  .yd-pal-advice span {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+}

@@ -1,0 +1,311 @@
+/*
+ * In-game career overlays: the "Where I left off" card and Storages. The same material as the hub: a hull
+ * plate in a dark structural frame with cut corners.
+ */
+.co-backdrop {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: radial-gradient(80% 70% at 50% 45%, rgba(6, 10, 18, 0.62) 0%, rgba(3, 5, 10, 0.86) 100%);
+  pointer-events: auto;
+  z-index: 7;
+  animation: af-fade var(--af-dur-clamp) linear both;
+}
+.co-backdrop--light {
+  background: rgba(4, 7, 12, 0.5);
+}
+.co-sheet {
+  --cut: 22px;
+  display: flex;
+  flex-direction: column;
+  width: min(52rem, 100%);
+  max-height: 100%;
+  background: linear-gradient(180deg, #232b38 0%, var(--af-band) 120px);
+  clip-path: polygon(
+    var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut)
+  );
+  filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.6));
+  animation: af-clamp var(--af-dur-hatch) var(--af-ease-clamp) both;
+}
+.co-storages {
+  width: min(46rem, 100%);
+}
+.co-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.3rem 0.8rem 1.6rem;
+}
+.co-kicker {
+  display: block;
+  color: var(--af-text-dim);
+  margin-bottom: 0.2rem;
+}
+.co-title {
+  margin: 0;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-wide);
+  font-size: var(--af-fs-2xl);
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--af-text);
+}
+.co-played {
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+  color: var(--af-text-dim);
+}
+.co-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0 6px;
+  padding: 1rem 1.3rem 1.1rem;
+  color: var(--af-ink);
+  font-size: var(--af-fs-md);
+  box-shadow: inset 0 var(--af-trim-w) 0 var(--af-trim);
+  background:
+    radial-gradient(circle, #8b95a4 0 2px, transparent 2.6px) 10px 12px / 6px 6px no-repeat,
+    radial-gradient(circle, #8b95a4 0 2px, transparent 2.6px) calc(100% - 10px) 12px / 6px 6px no-repeat,
+    linear-gradient(180deg, var(--af-hull-hi) 0%, var(--af-hull) 160px, #d2d8e0 100%);
+  background-attachment: local, local, local;
+  scrollbar-width: thin;
+  scrollbar-color: var(--af-hull-shade) transparent;
+}
+.co-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1.3rem 0.95rem 1.6rem;
+}
+.grow {
+  flex: 1;
+}
+.co-dim {
+  margin: 0;
+  color: var(--af-ink-soft);
+  font-size: var(--af-fs-sm);
+}
+
+/* return card */
+.co-activity {
+  padding: 0.7rem 1rem 0.75rem;
+  margin-bottom: 1rem;
+}
+.co-activity p {
+  margin: 0.15rem 0 0;
+  font-size: var(--af-fs-lg);
+  line-height: 1.4;
+}
+.co-activity p:first-of-type {
+  font-weight: 700;
+}
+.co-screen-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--af-text-dim);
+}
+.co-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 1.3rem;
+}
+@media (max-width: 680px) {
+  .co-columns {
+    grid-template-columns: 1fr;
+  }
+}
+.co-slips {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.co-next {
+  margin-bottom: 0.9rem;
+}
+.co-next strong {
+  font-size: var(--af-fs-lg);
+}
+.co-journal {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.co-journal li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  background: linear-gradient(180deg, var(--af-seam) 0 1px, rgba(255, 255, 255, 0.65) 1px 2px, transparent 2px) top / 100% 2px no-repeat;
+}
+.co-ago {
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+  white-space: nowrap;
+}
+
+/* storages */
+.co-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+.co-search {
+  --cut: 6px;
+  flex: 1;
+  min-width: 12rem;
+  height: 2rem;
+  padding: 0 0.7rem;
+  border: 0;
+  font: inherit;
+  color: var(--af-text);
+  background: var(--af-screen);
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.5), inset 0 0 0 1px var(--af-screen-line);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.co-search::placeholder {
+  color: var(--af-text-dim);
+}
+.co-search:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--af-glow);
+}
+.co-storage-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.co-storage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.65rem 0 0.75rem;
+  background: linear-gradient(180deg, var(--af-seam) 0 1px, rgba(255, 255, 255, 0.65) 1px 2px, transparent 2px) top / 100% 2px no-repeat;
+}
+.co-storage-head {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.co-storage-head strong {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-lg);
+  font-weight: 750;
+}
+.co-here {
+  --cut: 4px;
+  padding: 1px 6px;
+  color: var(--af-ok-ink);
+  box-shadow: inset 0 0 0 1px rgba(21, 106, 48, 0.45);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.co-items {
+  align-items: center;
+}
+/* ship rows (M4a): the active ship and the ships in station hangars, above the storages */
+.co-ships {
+  margin-bottom: 0.4rem;
+}
+.co-ships > .af-label {
+  color: var(--af-ink-soft);
+}
+.co-ship-list {
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.co-ship {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0;
+  background: linear-gradient(180deg, var(--af-seam) 0 1px, rgba(255, 255, 255, 0.65) 1px 2px, transparent 2px) top / 100% 2px no-repeat;
+}
+.co-ship-name {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-lg);
+  font-weight: 750;
+}
+.co-ship-where {
+  font-weight: 700;
+}
+.co-active {
+  --cut: 4px;
+  padding: 1px 6px;
+  color: var(--af-trim-ink);
+  box-shadow: inset 0 0 0 1px var(--af-trim);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.co-item-toggle {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity var(--af-dur-snap) linear;
+}
+.co-item-toggle[aria-pressed='true'] {
+  opacity: 1;
+}
+.co-courier {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.65rem 0.8rem;
+}
+.co-courier-row {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  align-items: center;
+  gap: 0.6rem;
+}
+.co-courier-row > .af-label {
+  color: var(--af-text-dim);
+}
+.co-courier .af-res--tag,
+.co-courier .af-part {
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px var(--af-screen-line);
+  color: var(--af-text);
+}
+.co-courier-foot {
+  display: flex;
+}
+.co-quote {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  color: var(--af-text);
+}
+.co-quote .af-label {
+  color: var(--af-text-dim);
+  margin-left: 0.4rem;
+}
+.co-transit {
+  margin-top: 0.9rem;
+}
+.co-transit > .af-label {
+  color: var(--af-ink-soft);
+}
+.co-transit-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+}
+.co-locked {
+  margin-top: 0.8rem;
+}

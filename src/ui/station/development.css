@@ -1,0 +1,515 @@
+/* Development tab of the home station (M4c "Development"): Forge Index, module rows, the module plate with
+   the paint shop and the trophy hall; the paint chip of the Hangar card (the hub's tab rail with eight
+   tabs is in hub.css – this file loads with the lazy Development tab). "Hull language" (Jazyk trupu): rows like the
+   crafting recipes, future rows hatched like locked tiers. */
+
+/* the tab fills the hub body: the rows and the module plate scroll on their own */
+.hub-body:has(> .hub-page > .dv) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.hub-body:has(> .hub-page > .dv) > .hub-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.dv {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+/* Forge Index – a forge-heat gauge in a display, seven segments */
+.dv-forge {
+  flex: none;
+  padding: 0.5rem 0.85rem 0.55rem;
+}
+.dv-forge .af-gauge-ticks {
+  display: none;
+}
+.dv-forge .af-gauge-seg {
+  height: 0.8rem;
+}
+
+.dv-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 14.5rem minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: start;
+}
+
+/* module rows */
+.dv-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 100%;
+  overflow-y: auto;
+  margin: -5px;
+  padding: 5px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--af-hull-shade) transparent;
+}
+.dv-rows-title {
+  margin: 0 0 0.3rem 0.2rem;
+  color: var(--af-ink-soft);
+}
+.dv-row {
+  --cut: 6px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 0.55rem;
+  align-items: center;
+  padding: 4px 8px 4px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--af-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.dv-row .dv-icon {
+  grid-row: 1 / 3;
+}
+.dv-row-text {
+  display: grid;
+  min-width: 0;
+}
+.dv-row-name {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 750;
+  font-size: var(--af-fs-md);
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dv-row-effect {
+  font-size: var(--af-fs-xs);
+  line-height: 1.2;
+  color: var(--af-ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dv-row-state {
+  grid-column: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  justify-self: start;
+  margin-top: 1px;
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--af-ink-soft);
+}
+.dv-row-state.is-owned {
+  color: var(--af-ok-ink);
+}
+.dv-row-price {
+  color: var(--af-ink);
+}
+.dv-row-price.is-short {
+  color: var(--af-bad-ink);
+}
+.dv-row:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+.dv-row.is-selected {
+  background:
+    linear-gradient(var(--af-trim), var(--af-trim)) left / var(--af-trim-w) 100% no-repeat,
+    var(--af-hull-hi);
+  box-shadow: inset 0 -1px 0 var(--af-seam);
+}
+/* a module of a later milestone: hatched like a locked tier */
+.dv-row--future {
+  color: var(--af-ink-soft);
+  background: repeating-linear-gradient(-45deg, rgba(22, 32, 44, 0.06) 0 4px, transparent 4px 8px);
+}
+.dv-row--future:hover {
+  background:
+    repeating-linear-gradient(-45deg, rgba(22, 32, 44, 0.06) 0 4px, transparent 4px 8px),
+    rgba(255, 255, 255, 0.35);
+}
+.dv-row--future.is-selected {
+  background:
+    linear-gradient(var(--af-trim), var(--af-trim)) left / var(--af-trim-w) 100% no-repeat,
+    repeating-linear-gradient(-45deg, rgba(22, 32, 44, 0.07) 0 4px, transparent 4px 8px),
+    var(--af-hull-hi);
+}
+.dv-row--future .dv-icon img {
+  filter: grayscale(0.85) brightness(0.85);
+  opacity: 0.75;
+}
+
+/* module icon: the art tile; a dark tile with a plate glyph when it is missing */
+.dv-icon {
+  --cut: 4px;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 2.6rem;
+  height: 2.6rem;
+  background:
+    linear-gradient(var(--af-screen-line), var(--af-screen-line)) center / 45% 2px no-repeat,
+    linear-gradient(var(--af-screen-line), var(--af-screen-line)) center / 2px 45% no-repeat,
+    var(--af-screen);
+  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
+}
+.dv-icon img {
+  width: 100%;
+  height: 100%;
+}
+.dv-icon--lg {
+  width: 3.6rem;
+  height: 3.6rem;
+}
+
+/* the selected module's plate */
+.dv-detail {
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  min-height: 0;
+  padding: 0.85rem 0.95rem 0.85rem;
+}
+.dv-detail-body {
+  min-height: 0;
+  overflow-y: auto;
+  margin: -5px -0.65rem -5px -5px;
+  padding: 5px 0.65rem 5px 5px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--af-hull-shade) transparent;
+}
+.dv-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.dv-head-text {
+  flex: 1;
+  min-width: 0;
+}
+.dv-name {
+  margin: 0;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-wide);
+  font-size: var(--af-fs-xl);
+  font-weight: 800;
+  line-height: 1.1;
+}
+.dv-effect {
+  margin: 0.2rem 0 0;
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.dv-head .af-btn {
+  flex: none;
+  align-self: flex-start;
+}
+
+.dv-facts {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0 0 0.85rem;
+}
+.dv-facts > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--af-seam);
+}
+.dv-facts dt {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  color: var(--af-ink-soft);
+}
+.dv-facts dd {
+  margin: 0;
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.dv-later {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0.55rem 0.7rem;
+  color: var(--af-ink-soft);
+  font-weight: 700;
+  background: repeating-linear-gradient(-45deg, rgba(22, 32, 44, 0.07) 0 4px, transparent 4px 8px);
+  box-shadow: inset 0 0 0 1px var(--af-hull-shade);
+}
+.dv-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+.dv-actions .af-btn {
+  min-width: 11rem;
+}
+.dv-note {
+  margin: 0.6rem 0 0;
+  font-size: var(--af-fs-sm);
+}
+.dv-waiting {
+  margin-top: 1rem;
+}
+.dv-waiting > .dv-note {
+  margin: 0 0 0.45rem;
+}
+
+/* paint shop */
+.dv-field {
+  display: grid;
+  gap: 0.3rem;
+  margin-bottom: 0.8rem;
+}
+.dv-field-label {
+  color: var(--af-ink-soft);
+}
+.dv-ships {
+  display: grid;
+  gap: 2px;
+}
+.dv-ship {
+  --cut: 6px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.35rem 0.6rem 0.35rem 0.45rem;
+  border: 0;
+  background: rgba(255, 255, 255, 0.35);
+  color: var(--af-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.dv-ship:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+.dv-ship[aria-pressed='true'] {
+  background:
+    linear-gradient(var(--af-trim), var(--af-trim)) left / var(--af-trim-w) 100% no-repeat,
+    var(--af-hull-hi);
+  box-shadow: inset 0 -1px 0 var(--af-seam);
+}
+.dv-ship-name {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 750;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dv-ship-where {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  color: var(--af-ink-soft);
+  white-space: nowrap;
+}
+
+/* a paint chip: the hull colour of the paint in a small plate */
+.dv-swatch {
+  --cut: 3px;
+  display: inline-block;
+  flex: none;
+  width: 0.95rem;
+  height: 0.95rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), transparent 55%, rgba(0, 0, 0, 0.18)),
+    var(--paint);
+  box-shadow: inset 0 0 0 1px rgba(10, 21, 33, 0.45);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.dv-swatch--lg {
+  --cut: 5px;
+  width: 2.2rem;
+  height: 1.7rem;
+}
+.dv-swatches {
+  justify-self: start;
+}
+.dv-swatch-opt {
+  display: inline-grid;
+  place-items: center;
+  min-width: 0;
+  padding: 0.3rem 0.35rem 0.45rem;
+}
+/* the ship's own paint: a small notch under the chip */
+.dv-swatch-opt.is-current::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: 0.7rem;
+  height: 2px;
+  translate: -50% 0;
+  background: var(--af-text-dim);
+}
+.dv-swatch-opt[aria-pressed='true'].is-current::after {
+  background: var(--af-ink-soft);
+}
+.dv-paint-name {
+  margin: 0.1rem 0 0;
+  font-size: var(--af-fs-sm);
+}
+
+/* trophy hall: six pedestals (3 × 2) and the list with pin toggles */
+.dv-hall .af-heading {
+  margin-top: 0;
+}
+.dv-pedestals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin-bottom: 0.9rem;
+}
+.dv-pedestal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.1rem;
+  min-height: 3.6rem;
+  padding: 0.35rem 0.5rem 0.45rem;
+  background: linear-gradient(180deg, var(--af-hull-hi), var(--af-hull) 70%, var(--af-hull-shade));
+  box-shadow: inset 0 -3px 0 var(--af-band-hi);
+}
+.dv-pedestal--captain {
+  box-shadow: inset 0 -3px 0 var(--af-trim);
+}
+.dv-pedestal--fortress {
+  box-shadow: inset 0 -3px 0 var(--af-bad-ink);
+}
+.dv-pedestal.is-empty {
+  justify-content: center;
+  background: repeating-linear-gradient(-45deg, rgba(22, 32, 44, 0.06) 0 4px, transparent 4px 8px), #d5dbe3;
+  box-shadow: inset 0 0 0 1px var(--af-hull-shade);
+}
+.dv-pedestal-no {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.45rem;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  color: var(--af-ink-soft);
+}
+.dv-pedestal-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--af-ink-soft);
+}
+.dv-pedestal-title {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-sm);
+  font-weight: 750;
+  line-height: 1.15;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.dv-pedestal-empty {
+  font-size: var(--af-fs-xs);
+  color: var(--af-ink-soft);
+  text-align: center;
+}
+.dv-pin {
+  width: 0.55rem;
+  height: 0.7rem;
+  color: var(--af-trim-ink);
+}
+.dv-trophies {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dv-trophies li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.4rem 0.1rem;
+  border-top: 1px solid var(--af-seam);
+}
+.dv-trophies li:first-child {
+  border-top: 0;
+}
+.dv-trophy-text {
+  display: grid;
+  min-width: 0;
+}
+.dv-trophy-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-weight: 700;
+}
+.dv-trophy-kind {
+  color: var(--af-ink-soft);
+}
+.dv-trophy-sub {
+  font-size: var(--af-fs-xs);
+  color: var(--af-ink-soft);
+}
+.dv-trophies.is-greyed {
+  opacity: 0.6;
+}
+.dv-trophies li.is-pinned .dv-trophy-kind {
+  color: var(--af-trim-ink);
+}
+
+.dv-confirm-body {
+  margin: 0;
+}
+
+/* the paint chip on a Hangar card */
+.dv-paint-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+.dv-res {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.hg-kicker .dv-paint-chip {
+  font-size: var(--af-fs-sm);
+  font-weight: 600;
+}

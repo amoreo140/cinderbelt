@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <title>Map note: ore</title>
+  <polygon points="5,7.4 10.4,3.4 17.6,4.6 21.2,10.6 18.6,18.6 10.6,20.8 3.6,15.6" fill="#aab3c0" fill-opacity="0.22" stroke="#aab3c0" stroke-width="2" stroke-linejoin="round"/>
+  <polygon points="7.6,15.4 11.4,9 16.6,8 14.2,11.6 17.4,14.8 11.2,17" fill="#ffcf5c"/>
+  <polyline points="11.4,9 14.2,11.6 11.2,17" fill="none" stroke="#0a1521" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.55"/>
+</svg>

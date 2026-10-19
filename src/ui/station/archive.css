@@ -1,0 +1,223 @@
+/*
+ * Archive in the hub: the tree as a recessed board of nodes on a plate – branches in columns, levels in rows.
+ * Node = a small plate with cut corners; an unlocked one glows with a green light, a ready one has an
+ * azure outline, a node from a later version is hatched like a locked tab.
+ */
+.ar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.ar-top {
+  display: flex;
+  align-items: center;
+  gap: var(--af-s4);
+}
+.ar-data {
+  display: flex;
+  gap: 1.4rem;
+  padding: 0.5rem 0.9rem;
+  color: var(--af-text);
+}
+.ar-hint {
+  margin: 0;
+  color: var(--af-ink-soft);
+  font-size: var(--af-fs-sm);
+  line-height: 1.35;
+}
+.ar-tree {
+  display: grid;
+  grid-template-columns: 1.6rem repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+.ar-corner {
+  display: block;
+}
+.ar-branch-head {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2px;
+  padding: 0 0.15rem 0.25rem;
+  border-bottom: 2px solid var(--af-ink);
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-sm);
+  font-weight: 750;
+  line-height: 1.1;
+}
+.ar-license {
+  color: var(--af-warn-ink);
+}
+.ar-level {
+  align-self: center;
+  color: var(--af-ink-soft);
+}
+.ar-cell {
+  display: grid;
+  gap: 3px;
+  padding: 3px 0;
+}
+.ar-cell.is-licensed {
+  opacity: 0.6;
+}
+.ar-node {
+  --cut: 5px;
+  position: relative;
+  display: grid;
+  gap: 2px;
+  min-height: 3.2rem;
+  padding: 0.3rem 0.4rem 0.3rem 0.45rem;
+  border: 0;
+  text-align: left;
+  color: var(--af-ink);
+  background: linear-gradient(180deg, var(--af-hull-hi), #e3e8ee);
+  box-shadow: inset 0 0 0 1px var(--af-hull-shade);
+  font: inherit;
+  cursor: pointer;
+  clip-path: polygon(
+    var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut)
+  );
+}
+.ar-node:hover {
+  background: #ffffff;
+}
+.ar-node-name {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  line-height: 1.15;
+}
+.ar-node-cost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--af-ink-soft);
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.ar-node--owned {
+  background: linear-gradient(180deg, #e4f3e8, #d2e7d8);
+  box-shadow: inset 0 0 0 1px #8fbf9d;
+}
+.ar-node--ready {
+  box-shadow: inset 0 0 0 2px #0b6f8c;
+}
+.ar-node--future {
+  color: var(--af-ink-soft);
+  background:
+    repeating-linear-gradient(-45deg, rgba(22, 32, 44, 0.06) 0 4px, transparent 4px 8px),
+    #d5dbe3;
+}
+.ar-node.is-key {
+  box-shadow: inset 0 3px 0 var(--af-trim), inset 0 0 0 1px var(--af-hull-shade);
+}
+.ar-node.is-selected {
+  outline: 2px solid #0b6f8c;
+  outline-offset: 2px;
+  clip-path: none;
+}
+.ar-detail {
+  display: flex;
+  align-items: center;
+  gap: var(--af-s4);
+  padding: 0.7rem 0.9rem 0.75rem 1.1rem;
+}
+.ar-detail-main {
+  flex: 1;
+  min-width: 0;
+}
+.ar-detail-kind {
+  color: var(--af-ink-soft);
+}
+.ar-detail-name {
+  margin: 0.1rem 0 0.2rem;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-wide);
+  font-size: var(--af-fs-xl);
+  font-weight: 800;
+  line-height: 1.1;
+}
+.ar-detail-effect {
+  margin: 0;
+  line-height: 1.4;
+}
+.ar-detail-reason {
+  margin: 0.25rem 0 0;
+  color: var(--af-warn-ink);
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+}
+.ar-owned {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  color: var(--af-ok-ink);
+}
+.ar-bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--af-s4);
+}
+.ar-plans {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px 1rem;
+  margin: 0.3rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.ar-plans li {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.ar-plans li.is-started,
+.ar-plans li.is-done {
+  color: var(--af-ink);
+}
+.ar-plan-count {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+.ar-plan-pips {
+  display: inline-flex;
+  gap: 2px;
+}
+.ar-plan-pips i {
+  width: 6px;
+  height: 9px;
+  transform: skewX(-18deg);
+  background: rgba(22, 32, 44, 0.15);
+}
+.ar-plan-pips i.is-on {
+  background: var(--af-ink);
+}
+.ar-plans li.is-done .ar-plan-pips i {
+  background: var(--af-ok-ink);
+}
+.ar-keys {
+  margin: 0.3rem 0 0;
+  font-size: var(--af-fs-sm);
+}
+
+/* hub with 7 tabs (Archive): narrower tabs so they fit the plate width */
+.hub .af-tabs {
+  gap: 2px;
+  padding: 0 var(--af-s2);
+}
+.hub .af-tab {
+  gap: 0.35rem;
+  padding: 0 0.55rem 0 0.45rem;
+  font-size: var(--af-fs-md);
+}

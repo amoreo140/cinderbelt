@@ -1,0 +1,295 @@
+/*
+ * Templates modal (M4a T6): the career-overlay sheet (overlays.css – a hull plate in a dark frame)
+ * with the template list on the left and the save / import column on the right.
+ */
+.tp-sheet {
+  width: min(58rem, 100%);
+}
+.tp-sheet:focus {
+  outline: none;
+}
+.tp-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.tp-inline > .co-sheet {
+  animation: none;
+}
+.tp-lead {
+  margin: 0.35rem 0 0;
+  max-width: 38rem;
+  color: var(--af-text-dim);
+  font-size: var(--af-fs-sm);
+  line-height: 1.4;
+}
+.tp-slots {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+  flex: none;
+  color: var(--af-text-dim);
+}
+.tp-slots b {
+  color: var(--af-text);
+  font-size: var(--af-fs-xl);
+  font-variant-numeric: tabular-nums;
+}
+.tp-slots.is-full b {
+  color: var(--af-warn);
+}
+.tp-body {
+  min-height: 14rem;
+  container-type: inline-size;
+}
+
+/* locked by the Archive */
+.tp-locked {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem;
+  color: var(--af-text);
+}
+.tp-locked-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--af-fs-lg);
+}
+.tp-locked-hint {
+  color: var(--af-text-dim);
+  font-size: var(--af-fs-sm);
+}
+
+.tp-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 16.5rem;
+  gap: 1.3rem;
+  align-items: start;
+}
+/* a narrow sheet (large UI font, small window) stacks the save / import column under the list */
+@container (max-width: 40rem) {
+  .tp-columns {
+    grid-template-columns: 1fr;
+  }
+}
+.tp-empty {
+  padding: 0.6rem 0;
+}
+
+/* template rows: seams between rows, the silhouette in a small screen */
+.tp-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tp-row {
+  display: grid;
+  grid-template-columns: 4.6rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.35rem 0.8rem;
+  padding: 0.6rem 0;
+  background: linear-gradient(180deg, var(--af-seam) 0 1px, rgba(255, 255, 255, 0.65) 1px 2px, transparent 2px) top / 100% 2px no-repeat;
+}
+.tp-row:first-child {
+  padding-top: 0;
+  background: none;
+}
+.tp-sil {
+  display: grid;
+  place-items: center;
+  width: 4.6rem;
+  height: 4rem;
+  padding: 0;
+}
+.tp-sil-empty {
+  width: 1.4rem;
+  height: 1.4rem;
+  box-shadow: inset 0 0 0 1px var(--af-screen-line);
+}
+.tp-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.tp-name {
+  overflow: hidden;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-lg);
+  font-weight: 750;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.tp-facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0;
+  color: var(--af-ink-soft);
+  font-size: var(--af-fs-sm);
+  font-variant-numeric: tabular-nums;
+}
+.tp-facts > * + *::before {
+  content: '·';
+  margin: 0 0.4rem;
+}
+.tp-locked-parts {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--af-warn-ink);
+  font-weight: 700;
+}
+.tp-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.25rem;
+}
+.tp-apply {
+  align-self: center;
+}
+.tp-rename {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* fields: dark recessed screens on the plate */
+.tp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.tp-field > .af-label {
+  color: var(--af-ink-soft);
+}
+.tp-input {
+  --cut: 6px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 2.2rem;
+  padding: 0 0.7rem;
+  border: 0;
+  color: var(--af-text);
+  font: inherit;
+  font-weight: 700;
+  background: var(--af-screen);
+  box-shadow:
+    inset 0 2px 0 rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px var(--af-screen-line);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  caret-color: var(--af-glow);
+}
+.tp-input::placeholder {
+  color: #6d7f96;
+  font-weight: 400;
+}
+.tp-input:focus-visible,
+.tp-code:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--af-glow);
+}
+.tp-input[aria-invalid='true'] {
+  box-shadow:
+    inset 0 2px 0 rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px var(--af-bad);
+}
+.tp-rename-input {
+  flex: 1;
+  height: 1.9rem;
+}
+.tp-code {
+  height: auto;
+  padding: 0.45rem 0.6rem;
+  resize: none;
+  font-family: var(--af-font-text);
+  font-size: var(--af-fs-xs);
+  font-weight: 400;
+  line-height: 1.35;
+  word-break: break-all;
+}
+
+/* save / import column */
+.tp-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-left: 1.1rem;
+  background: linear-gradient(90deg, var(--af-seam) 0 1px, rgba(255, 255, 255, 0.65) 1px 2px, transparent 2px) left / 2px 100% no-repeat;
+}
+@container (max-width: 40rem) {
+  .tp-side {
+    padding-left: 0;
+    padding-top: 1rem;
+    background: linear-gradient(180deg, var(--af-seam) 0 1px, rgba(255, 255, 255, 0.65) 1px 2px, transparent 2px) top / 100% 2px no-repeat;
+  }
+}
+.tp-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.tp-box .af-heading {
+  margin: 0;
+}
+.tp-box + .tp-box {
+  padding-top: 1rem;
+  background: linear-gradient(180deg, var(--af-seam) 0 1px, rgba(255, 255, 255, 0.65) 1px 2px, transparent 2px) top / 100% 2px no-repeat;
+}
+.tp-feedback {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: 0;
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+  line-height: 1.35;
+}
+.tp-feedback .af-lamp {
+  margin-top: 0.3em;
+  flex: none;
+}
+.tp-feedback.is-ok {
+  color: var(--af-ok-ink);
+}
+.tp-feedback.is-bad {
+  color: var(--af-bad-ink);
+}
+
+/* export code under its row */
+.tp-export {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.65rem 0.8rem;
+}
+.tp-export-label {
+  color: var(--af-text-dim);
+}
+.tp-code--out {
+  box-sizing: border-box;
+  width: 100%;
+  border: 0;
+  color: var(--af-glow);
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 0 0 1px var(--af-screen-line);
+}
+.tp-export-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.tp-copy-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--af-text);
+  font-size: var(--af-fs-sm);
+}

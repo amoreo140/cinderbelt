@@ -1,0 +1,223 @@
+/* Part explanations – description on the plate, "On your ship" in a sunken display (the "Hull language" design system (Jazyk trupu),
+   ch. 8/9: numbers live in screens, Δ green better / red worse, always with a sign and a unit). */
+
+/* ───────────── description ───────────── */
+.pi-about {
+  max-width: 34rem;
+}
+.pi-about p {
+  margin: 0;
+  line-height: var(--af-lh);
+}
+.pi-what {
+  font-size: var(--af-fs-md);
+  color: var(--af-ink);
+}
+.pi-about .pi-variant {
+  margin-top: 0.2rem;
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+  color: var(--af-ink);
+}
+.pi-about .pi-vs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.6rem;
+  margin-top: 0.2rem;
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.pi-vs-item {
+  white-space: nowrap;
+}
+.pi-vs-item.is-better b {
+  color: var(--af-ok-ink);
+}
+.pi-vs-item.is-worse b {
+  color: var(--af-bad-ink);
+}
+.pi-about .pi-more {
+  margin-top: 0.3rem;
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.pi-about.is-compact .pi-what {
+  font-size: var(--af-fs-sm);
+  line-height: 1.35;
+}
+
+/* ───────────── effect display ───────────── */
+.pi-effect {
+  padding: 0.5rem 0.75rem 0.55rem;
+  font-size: var(--af-fs-sm);
+}
+.pi-effect-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+.pi-effect-head .af-label {
+  color: var(--af-glow);
+}
+.pi-estimate {
+  font-size: var(--af-fs-xs);
+  color: var(--af-text-dim);
+}
+/* the display is dark – the focus line keeps its bright colour even inside a plate */
+.pi-effect .af-focusable:focus-visible {
+  outline-color: var(--af-glow);
+}
+
+.pi-rows {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+/* the display sits inside hub tables and the shipyard palette – its rows keep their own look
+   (selectors one class stronger than .hub-table / .yd-pal-detail) */
+.pi-effect .pi-rows .pi-row,
+.pi-effect .pi-rows .pi-row:hover {
+  background: none;
+}
+.pi-effect .pi-row > th,
+.pi-effect .pi-row > td {
+  width: auto;
+  padding: 3px 0;
+  vertical-align: baseline;
+  white-space: nowrap;
+  font-family: var(--af-font-text);
+  font-stretch: normal;
+  font-size: inherit;
+  border: 0;
+}
+.pi-effect .pi-row > th {
+  width: 100%;
+  padding-right: 0.5rem;
+  text-align: left;
+  font-weight: 600;
+  white-space: normal;
+  color: var(--af-text);
+}
+.pi-effect .pi-row > .pi-before {
+  text-align: right;
+  font-weight: 400;
+  color: var(--af-text-dim);
+}
+.pi-effect .pi-row > .pi-arrow {
+  padding: 0 0.35rem;
+  color: var(--af-text-dim);
+}
+.pi-effect .pi-row > .pi-after {
+  text-align: right;
+  font-weight: 700;
+  color: var(--af-text);
+}
+.pi-effect .pi-row > .pi-delta {
+  min-width: 3.4rem;
+  padding-left: 0.55rem;
+  text-align: right;
+  font-weight: 700;
+  color: var(--af-text-dim);
+}
+.pi-effect .pi-row.is-better > .pi-delta {
+  color: var(--af-ok);
+}
+.pi-effect .pi-row.is-worse > .pi-delta {
+  color: var(--af-bad);
+}
+/* a part that does not fit: the hull value itself turns red */
+.pi-effect .pi-row[data-metric='hull'].is-worse > .pi-after {
+  color: var(--af-bad);
+}
+.pi-effect .pi-row.is-main > th {
+  font-size: var(--af-fs-md);
+}
+/* side rows = the price (mass, hull points) – quieter, one seam above the group */
+.pi-effect .pi-row.is-side > th,
+.pi-effect .pi-row.is-side > .pi-after {
+  font-weight: 500;
+  color: var(--af-text-dim);
+}
+.pi-effect .pi-row.is-first-side > * {
+  border-top: 1px solid var(--af-screen-line);
+  padding-top: 5px;
+}
+
+.pi-advice {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0.45rem 0 0;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--af-screen-line);
+  font-size: var(--af-fs-sm);
+  line-height: 1.4;
+  color: var(--af-text);
+}
+.pi-advice .af-lamp {
+  flex: none;
+  transform: translateY(1px);
+}
+.pi-notes {
+  margin: 0.35rem 0 0;
+  font-size: var(--af-fs-xs);
+  line-height: 1.35;
+  color: var(--af-text-dim);
+}
+
+/* shipyard palette – narrow column: each row on two lines – the label with its Δ, then
+   before → after under it (a long label like "Energy when mining" would not fit beside the numbers) */
+.pi-effect.is-compact {
+  padding: 0.4rem 0.55rem 0.45rem;
+}
+.pi-effect.is-compact .pi-rows,
+.pi-effect.is-compact .pi-rows > tbody {
+  display: block;
+}
+.pi-effect.is-compact .pi-rows .pi-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: baseline;
+  padding: 2px 0;
+}
+.pi-effect.is-compact .pi-row > * {
+  padding: 0;
+}
+.pi-effect.is-compact .pi-row > th {
+  grid-column: 1 / 3;
+  grid-row: 1;
+  width: auto;
+}
+.pi-effect.is-compact .pi-row.is-main > th {
+  font-size: var(--af-fs-sm);
+}
+.pi-effect.is-compact .pi-row > .pi-delta {
+  grid-column: 3;
+  grid-row: 1;
+  min-width: 0;
+  padding-left: 0.5rem;
+}
+.pi-effect.is-compact .pi-row > .pi-before {
+  grid-column: 1;
+  grid-row: 2;
+}
+.pi-effect.is-compact .pi-row > .pi-arrow {
+  grid-column: 2;
+  grid-row: 2;
+  padding: 0 0.3rem;
+}
+.pi-effect.is-compact .pi-row > .pi-after {
+  grid-column: 3;
+  grid-row: 2;
+}
+.pi-effect.is-compact .pi-row.is-first-side {
+  margin-top: 3px;
+  padding-top: 4px;
+  border-top: 1px solid var(--af-screen-line);
+}
+.pi-effect.is-compact .pi-row.is-first-side > * {
+  border-top: 0;
+  padding-top: 0;
+}

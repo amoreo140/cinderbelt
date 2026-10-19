@@ -1,0 +1,658 @@
+/*
+ * Map (M, 10.8): a plate with the display on the left and a narrow side panel on the right (layers,
+ * targets, legend). The plate takes about 90 % of the screen (readability pass R5); the display fills
+ * what the side panel leaves and can be zoomed and panned (grab cursor).
+ */
+.hud-map {
+  /* above the radio panel (4), below the training panel (6) and the board overlays (7) */
+  z-index: 5;
+  pointer-events: auto;
+}
+.mp-frame {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 92vw;
+  height: 90vh;
+  max-width: calc(100vw - 1rem);
+}
+.mp-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+  gap: var(--af-s4);
+}
+.mp-screen {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+.mp-stage {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+.mp-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+}
+.mp-canvas:active {
+  cursor: grabbing;
+}
+.mp-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  flex: none;
+  width: 14rem;
+  min-width: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  color: var(--af-ink);
+  font-size: var(--af-fs-sm);
+}
+/* the panel scrolls when it runs out of height – its sections keep their size */
+.mp-side > * {
+  flex-shrink: 0;
+}
+.mp-side-title {
+  margin: 0.2rem 0 0;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-md);
+  font-weight: 750;
+  color: var(--af-ink);
+}
+.mp-layers {
+  display: grid;
+  gap: 2px;
+}
+.mp-layer {
+  --cut: 5px;
+  display: grid;
+  grid-template-columns: 1.2rem 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.28rem 0.45rem;
+  border: 0;
+  text-align: left;
+  color: var(--af-ink-soft);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.mp-layer:hover {
+  background: rgba(22, 32, 44, 0.06);
+}
+.mp-layer[aria-pressed='true'] {
+  color: var(--af-ink);
+  background: var(--af-hull-hi);
+  box-shadow: inset 2px 0 0 var(--af-trim);
+}
+.mp-layer[aria-pressed='false'] .mp-glyph {
+  opacity: 0.35;
+}
+/* layer glyphs (the same shapes as on the display) */
+.mp-glyph {
+  justify-self: center;
+  display: block;
+  width: 12px;
+  height: 12px;
+}
+.mp-glyph--stations {
+  width: 9px;
+  height: 9px;
+  transform: rotate(45deg);
+  background: #4fd6c8;
+  box-shadow: 0 0 0 1.5px var(--af-ink);
+}
+.mp-glyph--signals {
+  border-radius: 50%;
+  border: 1.5px dashed var(--af-warn-ink);
+}
+.mp-glyph--places {
+  border-radius: 50%;
+  border: 1.5px solid #0b6f8c;
+  box-shadow: inset 0 0 0 2.5px var(--af-hull-hi), inset 0 0 0 4px #0b6f8c;
+}
+.mp-glyph--contracts {
+  border-radius: 50%;
+  border: 2px solid #0b6f8c;
+}
+.mp-glyph--fields {
+  border-radius: 50%;
+  background: radial-gradient(circle, #c87a4d 0 2px, rgba(255, 122, 77, 0.35) 2.5px);
+}
+/* sectors: an irregular cell with the Pirate hatching (the colour + pattern grammar of the layer) */
+.mp-glyph--sectors {
+  width: 13px;
+  background: repeating-linear-gradient(-45deg, var(--af-bad-ink) 0 1.5px, transparent 1.5px 4px);
+  border: 1.5px solid var(--af-ink-soft);
+  clip-path: polygon(18% 0, 100% 12%, 88% 78%, 46% 100%, 0 62%);
+}
+.mp-targets {
+  grid-template-columns: minmax(0, 1fr);
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 9rem;
+  overflow-y: auto;
+}
+.mp-target {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.25rem 0.45rem;
+  border: 0;
+  text-align: left;
+  color: var(--af-ink);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+.mp-target:hover {
+  background: rgba(22, 32, 44, 0.06);
+}
+.mp-target-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mp-target-dist {
+  white-space: nowrap;
+  flex: none;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.mp-zoom {
+  display: flex;
+  gap: 4px;
+  margin-top: 0.2rem;
+}
+.mp-zoom-btn {
+  --cut: 5px;
+  min-width: 2rem;
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  color: var(--af-text);
+  background: var(--af-band);
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 700;
+  font-size: var(--af-fs-md);
+  cursor: pointer;
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.mp-zoom-btn:hover {
+  background: var(--af-band-hi);
+}
+.mp-zoom-ship {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+.mp-hint {
+  margin: 0;
+  color: var(--af-ink-soft);
+  line-height: 1.35;
+}
+/* legend built from the active layers: one row per layer, symbols drawn like on the display */
+.mp-legend {
+  display: grid;
+  gap: 0.3rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(22, 32, 44, 0.14);
+  color: var(--af-ink-soft);
+  font-size: var(--af-fs-sm);
+}
+.mp-legend-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.6rem;
+}
+.mp-legend-caption {
+  flex-basis: 100%;
+  color: var(--af-ink);
+  font-weight: 700;
+}
+.mp-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+.mp-legend-icon {
+  flex: none;
+  display: block;
+  background: var(--af-screen, #0a1521);
+  clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px);
+}
+.mp-legend-note {
+  margin: 0;
+  font-style: italic;
+}
+
+/* short screens (720p): a tighter side panel so the legend fits without scrolling */
+@media (max-height: 820px) {
+  .mp-side {
+    gap: 0.3rem;
+  }
+  .mp-layer {
+    padding-block: 0.16rem;
+  }
+  .mp-target {
+    padding-block: 0.12rem;
+  }
+  .mp-legend {
+    gap: 0.15rem;
+    padding-top: 0.3rem;
+    font-size: var(--af-fs-xs);
+  }
+  .mp-legend-group {
+    row-gap: 0.1rem;
+  }
+  .mp-side-title {
+    margin-top: 0;
+  }
+  /* the English hint and legend run longer – smaller type keeps the last row ("Guild Lane") in view */
+  .mp-hint {
+    font-size: var(--af-fs-xs);
+    line-height: 1.25;
+  }
+}
+
+@media (max-width: 1000px) {
+  .mp-body {
+    flex-direction: column;
+  }
+  .mp-side {
+    width: auto;
+    max-height: 32vh;
+  }
+}
+
+/* ───── M4d (T12): Guild layer, notes, route planner ───── */
+/* layer glyphs: the Guild layer = a long hull and a short one in line (a convoy), notes = a pennant */
+.mp-glyph--convoys {
+  width: 14px;
+  height: 7px;
+  background: #2f7fc0;
+  clip-path: polygon(0 20%, 30% 20%, 30% 80%, 0 80%, 0 20%, 40% 0, 86% 0, 100% 50%, 86% 100%, 40% 100%, 40% 0);
+}
+.mp-glyph--notes {
+  width: 11px;
+  height: 12px;
+  background: var(--af-trim-deep);
+  clip-path: polygon(0 0, 100% 30%, 20% 60%, 20% 100%, 0 100%);
+}
+
+/* the note tool: crosshair while placing */
+.mp-stage.is-note-tool .mp-canvas {
+  cursor: crosshair;
+}
+
+/* a target row: the name (centres the view) and "Route here" */
+.mp-target-row {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  min-width: 0;
+}
+.mp-target-row .mp-target {
+  flex: 1;
+  min-width: 0;
+}
+.mp-target-route {
+  --cut: 4px;
+  flex: none;
+  width: 1.6rem;
+  padding: 0;
+  border: 0;
+  color: var(--af-glow);
+  background: var(--af-band);
+  cursor: pointer;
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.mp-target-route:hover {
+  background: var(--af-band-hi);
+}
+/* a route arrow: a line with a head */
+.mp-target-route i {
+  display: block;
+  width: 11px;
+  height: 9px;
+  margin: auto;
+  background: currentColor;
+  clip-path: polygon(0 40%, 55% 40%, 55% 0, 100% 50%, 55% 100%, 55% 60%, 0 60%);
+}
+
+/* tools on the display, bottom right: the route readout above the note tool row */
+.mp-tools {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.6rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+  max-width: calc(100% - 1.2rem);
+  line-height: 1.3;
+  pointer-events: none;
+}
+.mp-tools > *,
+.mp-tool-row > * {
+  pointer-events: auto;
+}
+.mp-tool-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  pointer-events: none;
+}
+.mp-tool-hint {
+  font-size: var(--af-fs-xs);
+  color: var(--af-text-dim);
+  text-shadow: 0 1px 2px var(--af-screen);
+}
+.mp-tool {
+  --cut: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.28rem 0.6rem 0.28rem 0.45rem;
+  border: 0;
+  color: var(--af-text);
+  background: rgba(27, 34, 45, 0.94);
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 700;
+  font-size: var(--af-fs-sm);
+  cursor: pointer;
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.mp-tool:hover {
+  background: var(--af-band-hi);
+}
+.mp-tool[aria-pressed='true'] {
+  color: var(--af-ink);
+  background: linear-gradient(180deg, var(--af-hull-hi), var(--af-hull));
+  box-shadow: inset 0 -2px 0 var(--af-trim);
+}
+.mp-tool:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.mp-tool-icon {
+  display: block;
+  flex: none;
+}
+.mp-tool-count {
+  margin-left: 0.2rem;
+  font-family: var(--af-font-text);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--af-text-dim);
+}
+.mp-tool[aria-pressed='true'] .mp-tool-count {
+  color: var(--af-ink-soft);
+}
+.mp-tool--locked {
+  cursor: default;
+  color: var(--af-text-dim);
+  font-weight: 600;
+}
+.mp-tool--locked.is-flash {
+  animation: mp-flash 0.9s ease-out 1;
+}
+@keyframes mp-flash {
+  0%,
+  40% {
+    color: var(--af-warn);
+    box-shadow: inset 0 -2px 0 var(--af-warn);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mp-tool--locked.is-flash {
+    animation: none;
+    color: var(--af-warn);
+  }
+}
+
+/* the route readout: a dark band like the sector card */
+.mp-route {
+  display: grid;
+  gap: 0.18rem;
+  width: min(20rem, 100%);
+  padding: 0.5rem 0.75rem 0.55rem;
+  color: var(--af-text);
+  font-size: var(--af-fs-sm);
+  box-shadow: inset 0 -2px 0 var(--af-glow);
+}
+.mp-route-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.mp-route-title {
+  flex: none;
+  color: var(--af-glow);
+}
+.mp-route-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 750;
+}
+.mp-route-clear {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.1rem 0.3rem;
+  border: 0;
+  color: var(--af-text-dim);
+  background: transparent;
+  font: inherit;
+  font-size: var(--af-fs-xs);
+  cursor: pointer;
+}
+.mp-route-clear:hover {
+  color: var(--af-text);
+}
+.mp-route-line {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-md);
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+.mp-route-fuel {
+  color: var(--af-fuel);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.mp-route-fuel.is-short {
+  color: var(--af-bad);
+}
+.mp-route-risks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+}
+.mp-route-key {
+  color: var(--af-text-dim);
+}
+.mp-route-safe {
+  color: var(--af-ok);
+}
+.mp-route-mult {
+  color: var(--af-warn);
+  font-size: var(--af-fs-xs);
+}
+.mp-route-ranges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.8rem;
+  font-size: var(--af-fs-xs);
+  color: var(--af-text-dim);
+}
+.mp-range {
+  display: inline-block;
+  width: 1.2rem;
+  height: 0;
+  vertical-align: middle;
+  border-top: 1.5px dashed rgba(244, 198, 78, 0.75);
+}
+.mp-range--round {
+  border-top-style: solid;
+  border-top-color: rgba(244, 198, 78, 0.55);
+}
+
+/* "Route here" on a pinned sector card (the card itself lets the pointer through) */
+.sc-card-route-btn {
+  --cut: 4px;
+  justify-self: start;
+  margin-top: 0.25rem;
+  padding: 0.18rem 0.6rem;
+  border: 0;
+  color: var(--af-ink);
+  background: linear-gradient(180deg, var(--af-hull-hi), var(--af-hull));
+  box-shadow: inset 0 -2px 0 var(--af-glow);
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 700;
+  font-size: var(--af-fs-sm);
+  cursor: pointer;
+  pointer-events: auto;
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+
+/* the note editor popover */
+.mp-note-editor {
+  position: absolute;
+  z-index: 3;
+  width: 300px;
+  line-height: 1.3;
+}
+.mp-note-panel {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.55rem 0.7rem 0.6rem;
+  color: var(--af-text);
+  box-shadow: inset 0 -2px 0 var(--af-trim);
+}
+/* the icons stay on a dark ground (they are drawn for the display) */
+.mp-note-icons .af-segmented-opt {
+  min-width: 0;
+  padding: 0.25rem 0.45rem;
+}
+.mp-note-icons .af-segmented-opt[aria-pressed='true'] {
+  background: var(--af-screen);
+  box-shadow: inset 0 0 0 1.5px var(--af-glow), inset 0 -2px 0 var(--af-trim);
+}
+.mp-note-icon {
+  display: block;
+}
+.mp-note-text {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.2rem 0.5rem;
+}
+.mp-note-text .af-label {
+  grid-column: 1 / -1;
+  color: var(--af-text-dim);
+}
+.mp-note-input {
+  min-width: 0;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--af-screen-line);
+  color: var(--af-text);
+  background: var(--af-screen);
+  font-family: var(--af-font-text);
+  font-size: var(--af-fs-sm);
+}
+.mp-note-input::placeholder {
+  color: var(--af-text-dim);
+  opacity: 0.7;
+}
+.mp-note-count {
+  font-size: var(--af-fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--af-text-dim);
+}
+.mp-note-count.is-over {
+  color: var(--af-bad);
+}
+.mp-note-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+/* where a new note will stand */
+.mp-note-pin {
+  position: absolute;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  border: 1.5px dashed var(--af-hull-hi);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* the zoom buttons on the display, above the scale bar */
+.mp-stage > .mp-zoom {
+  position: absolute;
+  left: 0.6rem;
+  bottom: 2.3rem;
+  z-index: 2;
+  margin: 0;
+  line-height: 1.3;
+}
+.mp-stage > .mp-zoom {
+  align-items: center;
+  max-width: calc(100% - 1.2rem);
+}
+.mp-stage > .mp-zoom .mp-zoom-ship {
+  margin-left: 0.4rem;
+}
+/* the wheel / drag hint sits by the zoom buttons, light on the display */
+.mp-stage > .mp-zoom .mp-hint {
+  max-width: 17rem;
+  margin-left: 0.5rem;
+  font-size: var(--af-fs-xs);
+  line-height: 1.25;
+  color: var(--af-text-dim);
+  text-shadow: 0 1px 2px var(--af-screen);
+}
+.mp-legend-inline {
+  color: var(--af-ink);
+  font-weight: 700;
+}
+
+/* short screens: the eight layer rows a little tighter (M4d added two) */
+@media (max-height: 820px) {
+  .mp-layer {
+    padding-block: 0.1rem;
+  }
+}

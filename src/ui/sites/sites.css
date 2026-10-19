@@ -1,0 +1,314 @@
+/*
+ * M4b world sites and space events (plan T9): the HUD event chips and the derelict terminal.
+ * Imported after ./theme (through the components), so equal specificity resolves in favour of these rules.
+ */
+
+/* ───── HUD event chips: a column under the top-left stack (Hud's NavStack publishes --hud-tl-bottom),
+   outside NAV_ZONE, left of the sector entry notice (which starts at 27rem + the edge) ───── */
+.ev-chips {
+  position: absolute;
+  left: var(--af-edge);
+  top: calc(var(--hud-tl-bottom, var(--af-edge) + 10rem) + 0.4rem);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  /* stacked chips share one width, their timers line up */
+  align-items: stretch;
+  gap: 0.3rem;
+  max-width: min(21rem, calc(100vw - 2 * var(--af-edge)));
+  pointer-events: none;
+}
+.ev-chips--inline {
+  position: static;
+  align-self: start;
+  justify-self: start;
+}
+.ev-chip {
+  --cut: 7px;
+  --tone: var(--af-glow);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 100%;
+  min-height: 1.95rem;
+  padding: 0.25rem 0.5rem 0.3rem 0.65rem;
+  color: var(--af-text);
+  background:
+    linear-gradient(var(--tone), var(--tone)) bottom / 100% 2px no-repeat,
+    linear-gradient(180deg, rgba(37, 46, 60, 0.94) 0%, rgba(27, 34, 45, 0.9) 100%);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  font-size: var(--af-fs-md);
+  line-height: 1.2;
+  animation: af-drop var(--af-dur-hatch) var(--af-ease-clamp) both;
+}
+.ev-chip--warn {
+  --tone: var(--af-warn);
+}
+.ev-chip--danger {
+  --tone: var(--af-bad);
+}
+/* the warning lead: the lamp blinks until the event starts */
+.ev-chip.is-pending .af-lamp {
+  animation: af-blink 0.9s steps(2, jump-none) infinite;
+}
+.ev-chip-icon {
+  display: inline-flex;
+  flex: none;
+}
+.ev-chip-icon svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: var(--tone);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ev-chip-icon .fill {
+  fill: var(--tone);
+  stroke: none;
+}
+.ev-chip-title {
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ev-chip-time {
+  flex: none;
+  min-width: 2.6em;
+  margin-left: auto;
+  padding-left: 0.35rem;
+  border-left: 1px solid rgba(232, 237, 244, 0.12);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+.ev-chip.is-pending .ev-chip-time {
+  color: var(--tone);
+}
+.ev-chip-time.is-open {
+  font-weight: 400;
+  color: var(--af-text-dim);
+}
+
+/* the direction dial: a small recessed screen with the arrow, 0° = the bow (up) */
+.ev-dir {
+  display: inline-block;
+  flex: none;
+  width: 1.4rem;
+  height: 1.4rem;
+}
+.ev-dir svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.ev-dir-ring {
+  fill: var(--af-screen);
+  stroke: #3a4658;
+  stroke-width: 1;
+}
+.ev-dir-tick {
+  stroke: #5a687e;
+  stroke-width: 1;
+}
+.ev-dir-arrow {
+  fill: var(--tone);
+  transition: transform var(--af-dur-clamp) var(--af-ease-clamp);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ev-chip,
+  .ev-chip.is-pending .af-lamp {
+    animation: none;
+  }
+  .ev-dir-arrow {
+    transition: none;
+  }
+}
+:root[data-reduced-motion] .ev-chip,
+:root[data-reduced-motion] .ev-chip.is-pending .af-lamp {
+  animation: none;
+}
+:root[data-reduced-motion] .ev-dir-arrow {
+  transition: none;
+}
+
+/* ───── the derelict terminal: the career-overlay sheet (overlays.css) ───── */
+.dt-sheet {
+  width: min(44rem, 100%);
+}
+.dt-sheet:focus {
+  outline: none;
+}
+.dt-backdrop {
+  z-index: 8;
+}
+.dt-inline > .co-sheet {
+  animation: none;
+}
+.dt-data {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  flex: none;
+  color: var(--af-text-dim);
+}
+.dt-data-value {
+  color: var(--af-text);
+  font-size: var(--af-fs-xl);
+  font-variant-numeric: tabular-nums;
+}
+.dt-data-done {
+  font-size: var(--af-fs-sm);
+}
+.dt-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+/* the station log on a recessed screen */
+.dt-log {
+  padding: 0.65rem 0.9rem 0.75rem;
+  color: var(--af-text);
+}
+.dt-log-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.35rem;
+  color: var(--af-text-dim);
+}
+.dt-log-saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  color: var(--af-ok);
+}
+.dt-log-text {
+  max-height: 7.6rem;
+  margin: 0;
+  overflow-y: auto;
+  font-size: var(--af-fs-md);
+  line-height: 1.5;
+  white-space: pre-line;
+  scrollbar-width: thin;
+  scrollbar-color: var(--af-screen-line) transparent;
+}
+.dt-log-text.is-read {
+  color: var(--af-text-dim);
+}
+
+/* the service */
+.dt-hold {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--af-fs-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--af-ink-soft);
+}
+.dt-hold.is-full {
+  font-weight: 700;
+  color: var(--af-warn-ink);
+}
+.dt-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.45rem 0 0;
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.dt-note--warn {
+  font-weight: 700;
+  color: var(--af-warn-ink);
+}
+.dt-lead {
+  margin: 0.3rem 0 0.2rem;
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.dt-rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0.3rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.dt-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.2rem 0.8rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(22, 32, 44, 0.14);
+}
+.dt-row:last-child {
+  border-bottom: none;
+}
+.dt-row--fab {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+.dt-row-what {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+.dt-row-label {
+  font-weight: 700;
+  color: var(--af-ink);
+}
+.dt-row.is-taken .dt-row-label {
+  font-weight: 400;
+  color: var(--af-ink-soft);
+}
+.dt-row.is-taken .af-part {
+  opacity: 0.55;
+}
+.dt-taken {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+  color: var(--af-ok-ink);
+}
+.dt-reason {
+  grid-column: 1 / -1;
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  color: var(--af-warn-ink);
+}
+.dt-mats {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.3rem;
+}
+.dt-glyph {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: none;
+}
+.dt-glyph svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  fill: none;
+  stroke: var(--af-ink-soft);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}

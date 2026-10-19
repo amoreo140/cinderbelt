@@ -1,0 +1,240 @@
+{
+  "_schema": {
+    "note": "batch D station variants - MERGE these entries into art/blender/data/station_layouts.json (+ src/data copy); the live file is not changed by the art build",
+    "units": "game units = grid cells; local station frame, +X = dock direction, +Y = left",
+    "circles": "list of {x, y, r} collision circles covering the solid structure",
+    "radius": "station radius R (spec 5.4); dock_port lies at (R, 0)",
+    "dockPort": "{x, y}: position of the dock_port node (clamp origin, gameplay plane z = 0)",
+    "clearRadius": "no asteroids inside this radius (R + 12 docking gap)"
+  },
+  "station_d": {
+    "radius": 10.0,
+    "dockPort": {
+      "x": 10.0,
+      "y": 0.0
+    },
+    "clearRadius": 22.0,
+    "circles": [
+      {
+        "x": 0,
+        "y": 0,
+        "r": 2.9
+      },
+      {
+        "x": 2.25,
+        "y": 3.9,
+        "r": 1.25
+      },
+      {
+        "x": 2.95,
+        "y": 5.11,
+        "r": 1.25
+      },
+      {
+        "x": 3.63,
+        "y": 6.28,
+        "r": 1.35
+      },
+      {
+        "x": -4.5,
+        "y": 0.0,
+        "r": 1.25
+      },
+      {
+        "x": -5.9,
+        "y": 0.0,
+        "r": 1.25
+      },
+      {
+        "x": -7.25,
+        "y": 0.0,
+        "r": 1.35
+      },
+      {
+        "x": 2.25,
+        "y": -3.9,
+        "r": 1.25
+      },
+      {
+        "x": 2.95,
+        "y": -5.11,
+        "r": 1.25
+      },
+      {
+        "x": 3.63,
+        "y": -6.28,
+        "r": 1.35
+      },
+      {
+        "x": -2.0,
+        "y": 3.46,
+        "r": 1.3
+      },
+      {
+        "x": -2.7,
+        "y": 4.68,
+        "r": 1.3
+      },
+      {
+        "x": -3.45,
+        "y": 5.98,
+        "r": 0.45
+      },
+      {
+        "x": -4.2,
+        "y": 7.27,
+        "r": 0.8
+      },
+      {
+        "x": -2.0,
+        "y": -3.46,
+        "r": 1.3
+      },
+      {
+        "x": -2.7,
+        "y": -4.68,
+        "r": 1.3
+      },
+      {
+        "x": -3.45,
+        "y": -5.98,
+        "r": 0.45
+      },
+      {
+        "x": -4.2,
+        "y": -7.27,
+        "r": 0.8
+      },
+      {
+        "x": 4.2,
+        "y": 0,
+        "r": 1.0
+      },
+      {
+        "x": 6.0,
+        "y": 0,
+        "r": 1.0
+      },
+      {
+        "x": 7.8,
+        "y": 0,
+        "r": 1.0
+      },
+      {
+        "x": 9.0,
+        "y": 0,
+        "r": 1.0
+      }
+    ]
+  },
+  "station_e": {
+    "radius": 10.0,
+    "dockPort": {
+      "x": 10.0,
+      "y": 0.0
+    },
+    "clearRadius": 22.0,
+    "circles": [
+      {
+        "x": 0,
+        "y": 0,
+        "r": 8.45
+      },
+      {
+        "x": 9.0,
+        "y": 0,
+        "r": 1.0
+      }
+    ]
+  },
+  "outpost_c": {
+    "radius": 6.0,
+    "dockPort": {
+      "x": 6.0,
+      "y": 0.0
+    },
+    "clearRadius": 18.0,
+    "circles": [
+      {
+        "x": -2.7,
+        "y": 0.0,
+        "r": 2.45
+      },
+      {
+        "x": -1.0,
+        "y": 0.2,
+        "r": 1.75
+      },
+      {
+        "x": -2.4,
+        "y": 1.5,
+        "r": 1.4
+      },
+      {
+        "x": -2.4,
+        "y": -1.5,
+        "r": 1.4
+      },
+      {
+        "x": -4.3,
+        "y": 0.0,
+        "r": 1.2
+      },
+      {
+        "x": 1.5,
+        "y": 0,
+        "r": 0.9
+      },
+      {
+        "x": 3.0,
+        "y": 0,
+        "r": 1.0
+      },
+      {
+        "x": 5.0,
+        "y": 0,
+        "r": 1.0
+      }
+    ]
+  },
+  "outpost_d": {
+    "radius": 6.0,
+    "dockPort": {
+      "x": 6.0,
+      "y": 0.0
+    },
+    "clearRadius": 18.0,
+    "circles": [
+      {
+        "x": -1.0,
+        "y": 0,
+        "r": 2.75
+      },
+      {
+        "x": -1.0,
+        "y": 3.1,
+        "r": 0.75
+      },
+      {
+        "x": -1.0,
+        "y": -3.1,
+        "r": 0.75
+      },
+      {
+        "x": 2.2,
+        "y": 0,
+        "r": 0.9
+      },
+      {
+        "x": 3.6,
+        "y": 0,
+        "r": 1.0
+      },
+      {
+        "x": 5.0,
+        "y": 0,
+        "r": 1.0
+      }
+    ]
+  }
+}

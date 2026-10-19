@@ -1,0 +1,93 @@
+/* Vein mining in the flight HUD: the heat bar and the bonus tag (console band, dark background). */
+/* energy | heat on one console row (the console height does not change while mining) */
+.hud-gauge-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.6rem;
+  margin-top: 0.35rem;
+}
+.hud-gauge-pair .af-gauge {
+  min-width: 0;
+}
+.hud-heat.is-idle {
+  opacity: 0.55;
+}
+.hud-heat .af-gauge-label,
+.hud-heat .af-gauge-value,
+.hud-gauge-pair .af-gauge-value {
+  min-width: 0;
+  white-space: nowrap;
+}
+.hud-heat-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.hud-heat-cooling {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--af-bad);
+  font-weight: 700;
+}
+/* bonus: a short slanted tag in the vein heat colour (control shape rule – 2 cut corners) */
+.hud-vein-bonus {
+  padding: 0 0.4rem;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  font-weight: 750;
+  font-size: var(--af-fs-xs);
+  letter-spacing: 0.04em;
+  color: var(--af-band);
+  background: var(--af-warn);
+  clip-path: polygon(var(--af-cut-sm) 0, 100% 0, 100% calc(100% - var(--af-cut-sm)), calc(100% - var(--af-cut-sm)) 100%, 0 100%, 0 var(--af-cut-sm));
+}
+.hud-heat.is-cooling .af-gauge-seg.is-on {
+  animation: hud-heat-blink 0.5s steps(2, jump-none) infinite;
+}
+@keyframes hud-heat-blink {
+  from { opacity: 1; }
+  to { opacity: 0.45; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-heat.is-cooling .af-gauge-seg.is-on {
+    animation: none;
+  }
+}
+
+/* Mining 2.0: a nugget's ore pops at the cargo gauge ("+12,5 Fe") – a short stencil tag that rises
+   into the gauge and goes out; gold = rich ore (--af-ore-rich). */
+.hud-cargo-wrap {
+  position: relative;
+}
+.hud-pop {
+  position: absolute;
+  /* on the cargo row, between its label and its value */
+  right: 6rem;
+  top: -0.2rem;
+  padding: 0.05rem 0.45rem;
+  font-family: var(--af-font-text);
+  font-weight: 700;
+  font-size: var(--af-fs-md);
+  font-variant-numeric: tabular-nums;
+  color: var(--af-band);
+  background: var(--af-ore-rich);
+  clip-path: polygon(var(--af-cut-sm) 0, 100% 0, 100% calc(100% - var(--af-cut-sm)), calc(100% - var(--af-cut-sm)) 100%, 0 100%, 0 var(--af-cut-sm));
+  pointer-events: none;
+  white-space: nowrap;
+  animation: hud-pop-rise 1.6s var(--af-ease-clamp) forwards;
+}
+.hud-pop + .hud-pop {
+  right: 11rem;
+}
+@keyframes hud-pop-rise {
+  0% { transform: translateY(0.6rem); opacity: 0; }
+  12% { transform: translateY(0); opacity: 1; }
+  75% { transform: translateY(-0.2rem); opacity: 1; }
+  100% { transform: translateY(-0.6rem); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-pop {
+    animation: none;
+  }
+}

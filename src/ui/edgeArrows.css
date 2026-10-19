@@ -1,0 +1,124 @@
+/* Edge arrows (EdgeArrowLayer.tsx): a chevron in the mark's colour at the screen edge, a label plate
+   towards the centre. Same plate as the station arrow (.hud-arrow), coloured by --edge-arrow. */
+.af-edge-arrow {
+  --edge-arrow: var(--af-glow);
+  position: absolute;
+  width: 0;
+  height: 0;
+  z-index: 2;
+  pointer-events: none;
+  transition: opacity 120ms linear;
+}
+.af-edge-arrow-head {
+  position: absolute;
+  left: -11px;
+  top: -9px;
+  width: 22px;
+  height: 18px;
+  transform-origin: 11px 9px;
+  background: var(--edge-arrow);
+  clip-path: polygon(0 0, 45% 0, 100% 50%, 45% 100%, 0 100%, 52% 50%);
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.9));
+}
+.af-edge-arrow.is-small .af-edge-arrow-head {
+  left: -8px;
+  top: -7px;
+  width: 16px;
+  height: 14px;
+  transform-origin: 8px 7px;
+}
+.af-edge-arrow-label {
+  --cut: 4px;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  white-space: nowrap;
+  padding: 1px 7px;
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  color: var(--af-text);
+  background: rgba(27, 34, 45, 0.86);
+  box-shadow: inset 2px 0 0 var(--edge-arrow);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.af-edge-arrow-count {
+  color: var(--edge-arrow);
+  font-variant-numeric: tabular-nums;
+}
+
+/* threats (R2): an elongated needle whose tip sits on the edge point */
+.af-edge-arrow.is-needle .af-edge-arrow-head {
+  left: -40px;
+  top: -8px;
+  width: 40px;
+  height: 16px;
+  transform-origin: 40px 8px;
+  clip-path: polygon(0 0, 100% 50%, 0 100%, 22% 50%);
+  filter: drop-shadow(0 0 2px rgba(10, 4, 4, 0.95));
+}
+.af-edge-arrow-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff3ec;
+}
+/* a merged pack: an arc across its directions, centred on the tip */
+.af-edge-arrow-arc {
+  position: absolute;
+  left: -130px;
+  top: -130px;
+  width: 260px;
+  height: 260px;
+  overflow: visible;
+}
+.af-edge-arrow-arc path {
+  fill: none;
+  stroke-linecap: round;
+}
+.af-edge-arrow-arc-shadow {
+  stroke: rgba(10, 4, 4, 0.8);
+  stroke-width: 11;
+}
+.af-edge-arrow-arc-line {
+  stroke: var(--edge-arrow);
+  stroke-width: 6;
+}
+
+/* M4d navigation marks (route, map notes, convoys, Guild relays): an icon in the label; the label text of
+   a map note is the player's own – one line, cut with an ellipsis */
+.af-edge-arrow-icon {
+  flex: none;
+  align-self: center;
+  width: 14px;
+  height: 14px;
+}
+.af-edge-arrow-text {
+  max-width: 16em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* a mark in view: a diamond on the point, the label above it */
+.af-edge-pin {
+  --edge-arrow: var(--af-glow);
+  position: absolute;
+  width: 0;
+  height: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.af-edge-pin-dot {
+  position: absolute;
+  left: -5px;
+  top: -5px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--edge-arrow);
+  background: rgba(10, 21, 33, 0.6);
+  transform: rotate(45deg);
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.9));
+}
+.af-edge-pin-label {
+  left: 0;
+  top: -20px;
+}

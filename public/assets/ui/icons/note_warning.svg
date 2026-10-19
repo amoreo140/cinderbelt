@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <title>Map note: warning</title>
+  <polygon points="12,2.8 21.6,20.2 2.4,20.2" fill="#ffb547" fill-opacity="0.22" stroke="#ffb547" stroke-width="2" stroke-linejoin="round"/>
+  <polyline points="12,9.2 12,14.2" fill="none" stroke="#ffb547" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="12" cy="17.3" r="1.25" fill="#ffb547"/>
+</svg>

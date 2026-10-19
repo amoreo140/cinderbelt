@@ -1,0 +1,95 @@
+/* Radar legend (RadarLegend.tsx): in the controls help (K) and as a hover card over the radar. */
+.af-radar-legend-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--af-s3);
+  margin-bottom: 0.25rem;
+}
+.af-radar-legend-title {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 750;
+  font-size: var(--af-fs-sm);
+  color: var(--af-text);
+}
+.af-radar-legend-rule {
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  color: var(--af-glow);
+  white-space: nowrap;
+}
+.af-radar-legend-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px var(--af-s2);
+  font-size: var(--af-fs-xs);
+  line-height: 1.15;
+  color: var(--af-text-dim);
+}
+.af-radar-legend-list li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 22px;
+}
+.af-radar-legend-glyph {
+  flex: none;
+  display: block;
+  border-radius: 50%;
+  background: var(--af-screen, #0a1521);
+}
+
+.af-radar-legend {
+  width: 18.5rem;
+  padding: 0.5rem 0.7rem 0.55rem;
+  line-height: normal;
+}
+
+/* above the radar, clear of the top centre (toasts, the sector entry notice) and of the key list:
+   pinned while the controls help (K) is open, else while the pointer is on the radar */
+.af-radar-legend--help,
+.af-radar-legend--hover {
+  position: absolute;
+  right: var(--af-edge);
+  bottom: calc(var(--af-edge) + 200px);
+  z-index: 3;
+}
+/* pinned it is a little tighter (short windows: the key list ends right above it): three columns, so
+   the M4b site rows (derelict, graveyard, comet) do not make it taller than before */
+.af-radar-legend--help {
+  width: 28rem;
+}
+.af-radar-legend--help .af-radar-legend-list {
+  grid-template-columns: repeat(3, 1fr);
+  row-gap: 0;
+}
+.af-radar-legend--help {
+  animation: af-clamp var(--af-dur-clamp) var(--af-ease-clamp) both;
+  transform-origin: bottom right;
+}
+
+.hud-radar {
+  pointer-events: auto;
+}
+.af-radar-legend--hover {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 140ms linear, visibility 0s linear 140ms;
+  pointer-events: none;
+}
+.hud-radar:hover + .af-radar-legend--hover {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 140ms linear 250ms, visibility 0s linear 250ms;
+}
+
+/* narrow windows hide the expanded help – the legend goes with it */
+@media (max-width: 760px), (max-height: 520px) {
+  .af-radar-legend--help {
+    display: none;
+  }
+}

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <title>Map note: pirates</title>
+  <polygon points="12,2.6 16.9,3.9 19.6,7.6 19.4,12.4 16.8,14.8 16.8,19.6 7.2,19.6 7.2,14.8 4.6,12.4 4.4,7.6 7.1,3.9" fill="#ff5a4a" fill-opacity="0.26" stroke="#ff5a4a" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="8.9" cy="9.6" r="2.2" fill="#ff5a4a"/>
+  <circle cx="15.1" cy="9.6" r="2.2" fill="#ff5a4a"/>
+  <polygon points="12,11.8 13.2,14 10.8,14" fill="#ff5a4a"/>
+  <polyline points="10.4,16.4 10.4,19.4" fill="none" stroke="#ff5a4a" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="13.6,16.4 13.6,19.4" fill="none" stroke="#ff5a4a" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

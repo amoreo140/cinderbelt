@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <title>Guild relay mast (unpowered)</title>
+  <polyline points="12,21 12,10" fill="none" stroke="#f27a2c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="5.8,21 18.2,21" fill="none" stroke="#f27a2c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="8.6,17.6 12,14.6 15.4,17.6" fill="none" stroke="#f27a2c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="12" cy="6.4" r="3.4" fill="#f27a2c" fill-opacity="0.14" stroke="#f27a2c" stroke-width="2"/>
+</svg>

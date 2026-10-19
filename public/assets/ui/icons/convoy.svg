@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <title>Convoy (trader + tanker), bow +X</title>
+  <polygon points="5.6,12 4.4,9.4 1.8,9.4 0.9,10.6 0.9,13.4 1.8,14.6 4.4,14.6" fill="#7cc8ff" stroke="#0a1521" stroke-width="1.5" stroke-linejoin="round"/>
+  <polygon points="23,12 19.4,7 9.2,7 7.6,8.8 7.6,15.2 9.2,17 19.4,17" fill="#7cc8ff" stroke="#0a1521" stroke-width="1.5" stroke-linejoin="round"/>
+  <polyline points="10.6,12 18.2,12" fill="none" stroke="#0a1521" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.6"/>
+</svg>

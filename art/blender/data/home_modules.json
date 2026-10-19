@@ -1,0 +1,276 @@
+{
+  "_schema": {
+    "station": "modules attach to this station glb (stations/station_home.glb)",
+    "slots": "attach point = EMPTY node `attach_<slot>` on station_home: position {x, y, z} in the station frame (+X dock direction, +Y left, z up = Blender), yawDeg = rotation about the up axis; the module glb origin goes on the empty and its +X along the empty +X",
+    "modules": "file (models/stations/<file>.glb), label, milestone, Index Kovania point (null = cosmetic), defaultSlot, circles = collision circles in the MODULE frame (+X away from the station), circlesAtDefaultSlot = the same circles in the station frame (add them to station_home circles while the module is built)",
+    "nodes": "animated / special child nodes of the module"
+  },
+  "station": "station_home",
+  "slots": {
+    "fl": {
+      "node": "attach_fl",
+      "x": 8.061,
+      "y": 8.061,
+      "z": -0.5,
+      "yawDeg": 45.0
+    },
+    "rl": {
+      "node": "attach_rl",
+      "x": -8.061,
+      "y": 8.061,
+      "z": -0.5,
+      "yawDeg": 135.0
+    },
+    "rr": {
+      "node": "attach_rr",
+      "x": -8.061,
+      "y": -8.061,
+      "z": -0.5,
+      "yawDeg": 225.0
+    },
+    "fr": {
+      "node": "attach_fr",
+      "x": 8.061,
+      "y": -8.061,
+      "z": -0.5,
+      "yawDeg": 315.0
+    },
+    "port": {
+      "node": "attach_port",
+      "x": 0.0,
+      "y": 11.4,
+      "z": -0.5,
+      "yawDeg": 90.0
+    },
+    "aft": {
+      "node": "attach_aft",
+      "x": -13.9,
+      "y": 0.0,
+      "z": -0.5,
+      "yawDeg": 180.0
+    }
+  },
+  "modules": {
+    "paint_shop": {
+      "file": "home_module_paint_shop",
+      "label": "LAKOVNA  paint shop (M4)",
+      "milestone": "M4",
+      "index": null,
+      "defaultSlot": "fl",
+      "circles": [
+        {
+          "x": 2.6,
+          "y": 0,
+          "r": 2.4
+        }
+      ],
+      "circlesAtDefaultSlot": [
+        {
+          "x": 9.899,
+          "y": 9.899,
+          "r": 2.4
+        }
+      ],
+      "nodes": {
+        "Paint_Gantry": "slides along local X (+-1.2) while painting",
+        "paint_bay": "EMPTY, showcase spot of a ship being painted"
+      }
+    },
+    "trophy_hall": {
+      "file": "home_module_trophy_hall",
+      "label": "TROFEJNA SIEN  trophy hall (M4)",
+      "milestone": "M4",
+      "index": null,
+      "defaultSlot": "rl",
+      "circles": [
+        {
+          "x": 2.7,
+          "y": 0,
+          "r": 2.6
+        }
+      ],
+      "circlesAtDefaultSlot": [
+        {
+          "x": -9.97,
+          "y": 9.97,
+          "r": 2.6
+        }
+      ],
+      "nodes": {
+        "trophy_0": "EMPTY on a pedestal top: parent a trophy here; local +X (yaw 135 deg in the module) faces the dock camera (screen down, sim -y) on the default slot rl",
+        "trophy_1": "EMPTY on a pedestal top: parent a trophy here; local +X (yaw 135 deg in the module) faces the dock camera (screen down, sim -y) on the default slot rl",
+        "trophy_2": "EMPTY on a pedestal top: parent a trophy here; local +X (yaw 135 deg in the module) faces the dock camera (screen down, sim -y) on the default slot rl",
+        "trophy_3": "EMPTY on a pedestal top: parent a trophy here; local +X (yaw 135 deg in the module) faces the dock camera (screen down, sim -y) on the default slot rl",
+        "trophy_4": "EMPTY on a pedestal top: parent a trophy here; local +X (yaw 135 deg in the module) faces the dock camera (screen down, sim -y) on the default slot rl",
+        "trophy_5": "EMPTY on a pedestal top: parent a trophy here; local +X (yaw 135 deg in the module) faces the dock camera (screen down, sim -y) on the default slot rl"
+      }
+    },
+    "refinery": {
+      "file": "home_module_refinery",
+      "label": "RAFINERIA  home refinery (M5a, Index 1)",
+      "milestone": "M5a",
+      "index": 1,
+      "defaultSlot": "rr",
+      "circles": [
+        {
+          "x": 2.4,
+          "y": 0,
+          "r": 2.2
+        },
+        {
+          "x": 4.6,
+          "y": 1.5,
+          "r": 1.0
+        },
+        {
+          "x": 4.6,
+          "y": -1.5,
+          "r": 1.0
+        }
+      ],
+      "circlesAtDefaultSlot": [
+        {
+          "x": -9.758,
+          "y": -9.758,
+          "r": 2.2
+        },
+        {
+          "x": -10.253,
+          "y": -12.374,
+          "r": 1.0
+        },
+        {
+          "x": -12.374,
+          "y": -10.253,
+          "r": 1.0
+        }
+      ],
+      "nodes": {
+        "Refinery_Rotor": "spin around local +Y (glTF up)"
+      }
+    },
+    "observatory": {
+      "file": "home_module_observatory",
+      "label": "OBSERVATORIUM  observatory (M5b, Index 2)",
+      "milestone": "M5b",
+      "index": 2,
+      "defaultSlot": "fr",
+      "circles": [
+        {
+          "x": 3.0,
+          "y": 0,
+          "r": 2.6
+        }
+      ],
+      "circlesAtDefaultSlot": [
+        {
+          "x": 10.182,
+          "y": -10.182,
+          "r": 2.6
+        }
+      ],
+      "nodes": {
+        "Obs_Dome": "dome with the slit: turn around local +Y (glTF up), pivot = dome centre",
+        "Obs_Telescope": "child of the dome, pitched 48 deg; may nod around its local Z (glTF)",
+        "scout_bay": "EMPTY on the launch cradle: the scout drone (drones/drone_scout) parks here (origin + landingHeight), launches along +X"
+      }
+    },
+    "laboratory": {
+      "file": "home_module_laboratory",
+      "label": "LABORATORIUM  laboratory (M5b)",
+      "milestone": "M5b",
+      "index": null,
+      "defaultSlot": "port",
+      "circles": [
+        {
+          "x": 3.0,
+          "y": 0,
+          "r": 2.7
+        }
+      ],
+      "circlesAtDefaultSlot": [
+        {
+          "x": 0.0,
+          "y": 14.4,
+          "r": 2.7
+        }
+      ],
+      "nodes": {
+        "Lab_Relic": "Kovaci relic under analysis: slow spin around local +Y + bob; hide when no relic is being analysed"
+      }
+    },
+    "drone_hub": {
+      "file": "home_module_drone_hub",
+      "label": "DRONOVY HUB  drone hub (M5b, Index 3)",
+      "milestone": "M5b",
+      "index": 3,
+      "defaultSlot": "aft",
+      "circles": [
+        {
+          "x": 1.3,
+          "y": 0,
+          "r": 1.6
+        },
+        {
+          "x": 2.75,
+          "y": 1.65,
+          "r": 1.35
+        },
+        {
+          "x": 2.75,
+          "y": -1.65,
+          "r": 1.35
+        },
+        {
+          "x": 5.35,
+          "y": 0,
+          "r": 1.35
+        }
+      ],
+      "circlesAtDefaultSlot": [
+        {
+          "x": -15.2,
+          "y": 0.0,
+          "r": 1.6
+        },
+        {
+          "x": -16.65,
+          "y": -1.65,
+          "r": 1.35
+        },
+        {
+          "x": -16.65,
+          "y": 1.65,
+          "r": 1.35
+        },
+        {
+          "x": -19.25,
+          "y": 0.0,
+          "r": 1.35
+        }
+      ],
+      "nodes": {
+        "drone_pad_0..2": "EMPTY landing spots of the 3 extra drone routes (pad tops)",
+        "DroneHub_Radar": "traffic radar on the tower cab, spin around local +Y"
+      }
+    }
+  },
+  "trophies": {
+    "_schema": "trophy models for the trophy_<i> pedestals: file (models/stations/<file>.glb), origin = the pedestal top (parent it to trophy_<i> with identity transform), +X = front; fit = the room on one pedestal (max horizontal extent / max height above the pedestal top) - captain replicas must be scaled into it too",
+    "fit": {
+      "maxExtent": 1.6,
+      "maxHeight": 1.15
+    },
+    "fortress": {
+      "file": "trophy_fortress",
+      "label": "HRDZAVA PEVNOST  fortress trophy (miniature, M4c)",
+      "nodes": {
+        "Trophy_Fortress": "root mesh (one draw call, no vertex colours); may turn slowly around local +Y (glTF up)"
+      }
+    }
+  },
+  "futureModules": {
+    "forge_vyhen": "M6b",
+    "_note": "all six slots have a default module after M5b; the Vyhen (Index 4) needs a new slot or replaces one (decide in M6b)"
+  }
+}

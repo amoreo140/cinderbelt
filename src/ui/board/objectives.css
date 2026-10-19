@@ -1,0 +1,175 @@
+/* Objectives: the band in the flight HUD (below the navigation band) and the full panel (G). */
+
+/* in the flight HUD it sits in the top-left stack under the navigation band (.hud-tl) */
+.ob-band {
+  width: min(27rem, calc(100vw - 2 * var(--af-edge)));
+  padding: 0.4rem 0.75rem 0.45rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.ob-line {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: var(--af-fs-sm);
+  color: var(--af-text-dim);
+}
+.ob-line.is-main {
+  color: var(--af-text);
+  font-size: var(--af-fs-md);
+}
+.ob-track {
+  color: var(--af-text-dim);
+  white-space: nowrap;
+}
+.ob-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ob-line.is-main .ob-title {
+  font-weight: 700;
+}
+.ob-progress {
+  font-weight: 700;
+  color: var(--af-glow);
+}
+.ob-where {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+/* direction arrow: a small triangle in azure (live data) */
+.ob-bearing {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 7px solid var(--af-glow);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+.af-plate .ob-bearing,
+.ob-item-where .ob-bearing {
+  border-left-color: var(--af-glow);
+}
+
+/* full panel */
+.ob-panel-wrap {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(4, 7, 12, 0.5);
+  pointer-events: auto;
+  animation: af-fade var(--af-dur-clamp) linear both;
+  z-index: 6;
+}
+.ob-panel {
+  width: min(62rem, calc(100vw - 2 * var(--af-edge)));
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  padding: 1rem 1.2rem 1.1rem;
+  animation: af-clamp var(--af-dur-hatch) var(--af-ease-clamp) both;
+}
+.ob-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.2rem 0.2rem 0.8rem;
+}
+.ob-panel-title {
+  margin: 0;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-wide);
+  font-size: var(--af-fs-2xl);
+  font-weight: 800;
+}
+.ob-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.1rem;
+}
+@media (max-width: 760px) {
+  .ob-columns {
+    grid-template-columns: 1fr;
+  }
+}
+.ob-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+}
+.ob-empty {
+  margin: 0;
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.ob-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.55rem 0 0.6rem;
+  background: linear-gradient(180deg, var(--af-seam) 0 1px, rgba(255, 255, 255, 0.65) 1px 2px, transparent 2px) top / 100% 2px no-repeat;
+}
+.ob-item-track {
+  color: var(--af-ink-soft);
+}
+.ob-item.is-training .ob-item-track {
+  color: var(--af-trim-ink);
+}
+.ob-item-title {
+  font-size: var(--af-fs-lg);
+  line-height: 1.3;
+  color: var(--af-ink);
+  text-wrap: pretty;
+}
+.ob-item-why,
+.ob-item-note {
+  margin: 0;
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.ob-item-why .af-label {
+  color: var(--af-ink);
+  margin-right: 0.2rem;
+}
+.ob-item-where {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.25rem 0.6rem;
+  font-size: var(--af-fs-sm);
+}
+.ob-item-where .af-label {
+  color: var(--af-text-dim);
+}
+.ob-item-actions {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.15rem;
+}
+
+/* "First Day" advice – a band below the objectives band (not the main toast) */
+.ob-hint {
+  position: absolute;
+  left: var(--af-edge);
+  /* under the top-left stack (Hud's NavStack measures it) */
+  top: calc(var(--hud-tl-bottom, var(--af-edge) + 10rem) + 0.4rem);
+  max-width: min(27rem, calc(100vw - 2 * var(--af-edge)));
+  pointer-events: none;
+}
+.ob-hint .af-toast {
+  align-items: center;
+}
+.ob-hint--docked {
+  top: 4.4rem;
+  left: calc((100vw - min(40rem, calc(100vw - 2 * var(--af-edge))) - var(--af-edge)) / 2);
+  translate: -50% 0;
+}

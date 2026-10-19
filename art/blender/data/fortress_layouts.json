@@ -1,0 +1,106 @@
+{
+  "_schema": {
+    "units": "game units; local fortress frame, +X = front (launch bay), +Y = left, gameplay plane z = 0",
+    "circles": "list of {x, y, r} collision circles covering the solid structure",
+    "spawn": "{x, y}: spawn_0 node (reinforcements launch toward +X)",
+    "turrets": "turret mount points {x, y, z, yawDeg} (z = height above the gameplay plane)",
+    "shieldGens": "{x, y} of the shield generator towers (destroy first)",
+    "core": "{x, y, z} of fortress_core",
+    "clearRadius": "no asteroids inside this radius"
+  },
+  "hrdzava_pevnost": {
+    "circles": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "r": 9.6
+      },
+      {
+        "x": 7.2,
+        "y": 0.0,
+        "r": 3.2
+      },
+      {
+        "x": 9.9,
+        "y": 0.0,
+        "r": 3.2
+      },
+      {
+        "x": -9.6,
+        "y": 5.4,
+        "r": 2.2
+      },
+      {
+        "x": -9.6,
+        "y": -5.4,
+        "r": 2.2
+      },
+      {
+        "x": 6.4,
+        "y": 7.6,
+        "r": 1.8
+      },
+      {
+        "x": 6.4,
+        "y": -7.6,
+        "r": 1.8
+      },
+      {
+        "x": -5.2,
+        "y": 9.4,
+        "r": 1.8
+      },
+      {
+        "x": -5.2,
+        "y": -9.4,
+        "r": 1.8
+      }
+    ],
+    "spawn": {
+      "x": 12.6,
+      "y": 0.0
+    },
+    "turrets": [
+      {
+        "x": 6.29,
+        "y": 6.986,
+        "z": 2.75,
+        "yawDeg": 48.0
+      },
+      {
+        "x": 6.29,
+        "y": -6.986,
+        "z": 2.75,
+        "yawDeg": -48.0
+      },
+      {
+        "x": -4.7,
+        "y": 8.141,
+        "z": 2.75,
+        "yawDeg": 120.0
+      },
+      {
+        "x": -4.7,
+        "y": -8.141,
+        "z": 2.75,
+        "yawDeg": -120.0
+      }
+    ],
+    "shieldGens": [
+      {
+        "x": -9.6,
+        "y": 5.4
+      },
+      {
+        "x": -9.6,
+        "y": -5.4
+      }
+    ],
+    "core": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 3.05
+    },
+    "clearRadius": 27.21453585041149
+  }
+}

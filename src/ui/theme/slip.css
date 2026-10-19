@@ -1,0 +1,212 @@
+/*
+ * ContractSlip – the contract slip (long-term design 10.3): a pressed plate bolted onto the hub
+ * plate, trim in the faction colour, the reward in a recessed display. A plate, not paper.
+ */
+.af-slip {
+  --edge: var(--af-hull-shade);
+  --fill: linear-gradient(180deg, #f3f5f8 0%, #e3e8ee 60%, #d6dce4 100%);
+  --trim: var(--af-trim);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.6rem 0.75rem 0.65rem 0.95rem;
+  min-width: 0;
+}
+.af-slip--institute {
+  --trim: #2fb6d6;
+}
+.af-slip.is-ready {
+  --edge: var(--af-ok-ink);
+}
+.af-slip.is-active {
+  --edge: #6c7d93;
+}
+
+.af-slip-head {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.af-slip-emblem {
+  width: 1.9rem;
+  height: 1.9rem;
+  flex: none;
+}
+.af-slip-kind {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  min-width: 0;
+}
+.af-slip-type {
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink);
+}
+.af-slip-faction {
+  font-size: var(--af-fs-xs);
+  color: var(--af-ink-soft);
+}
+.af-slip-state {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--af-ink-soft);
+}
+.af-slip.is-ready .af-slip-state {
+  color: var(--af-ok-ink);
+}
+
+.af-slip-title {
+  margin: 0;
+  font-size: var(--af-fs-md);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--af-ink);
+  text-wrap: pretty;
+}
+
+.af-slip-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.af-slip-tag,
+.af-slip-risk {
+  --cut: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px;
+  color: var(--af-ink-soft);
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 0 0 1px var(--af-seam);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  white-space: nowrap;
+}
+.af-slip-tag--warn {
+  color: var(--af-warn-ink);
+  box-shadow: inset 0 0 0 1px rgba(138, 83, 0, 0.45);
+}
+.af-slip-tag--info {
+  color: #0b5f78;
+  box-shadow: inset 0 0 0 1px rgba(11, 95, 120, 0.35);
+}
+/* risk: two slanted marks as gauge segments (state = shape + text, not just colour) */
+.af-slip-risk i {
+  width: 5px;
+  height: 9px;
+  transform: skewX(-18deg);
+  box-shadow: inset 0 0 0 1px rgba(74, 86, 102, 0.55);
+}
+.af-slip-risk--1 i:first-child,
+.af-slip-risk--2 i {
+  background: var(--af-warn);
+  box-shadow: inset 0 0 0 1px var(--af-warn-ink);
+}
+.af-slip-risk--1,
+.af-slip-risk--2 {
+  color: var(--af-warn-ink);
+}
+
+.af-slip-next {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink);
+}
+.af-slip-bar {
+  --cut: 3px;
+  display: block;
+  height: 6px;
+  background: var(--af-screen);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.af-slip-bar i {
+  display: block;
+  height: 100%;
+  background: repeating-linear-gradient(-60deg, var(--af-glow) 0 6px, #3fb5d1 6px 8px);
+  transition: width var(--af-dur-clamp) var(--af-ease-clamp);
+}
+.af-slip.is-ready .af-slip-bar i {
+  background: var(--af-ok);
+}
+
+.af-slip-foot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.6rem;
+  margin-top: 0.1rem;
+}
+/* the reward in a recessed display */
+.af-slip-reward {
+  --cut: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.25rem 0.6rem 0.25rem 0.55rem;
+  color: var(--af-text);
+  background: radial-gradient(120% 120% at 50% 0%, #12273d 0%, var(--af-screen) 75%);
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.5), inset 0 0 0 1px var(--af-screen-line);
+}
+.af-slip-credits {
+  font-size: var(--af-fs-lg);
+  font-weight: 800;
+  white-space: nowrap;
+}
+.af-slip-credits small {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  color: var(--af-trim);
+}
+.af-slip-reward .af-part {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px var(--af-screen-line);
+}
+.af-slip-rep {
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  color: var(--af-text-dim);
+  white-space: nowrap;
+}
+.af-slip-side {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+.af-slip-meta {
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+  color: var(--af-ink);
+  white-space: nowrap;
+}
+.af-slip-note {
+  font-size: var(--af-fs-xs);
+  color: var(--af-ink-soft);
+}
+.af-slip-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 0.35rem;
+}
+
+/* compact slip (the return card, objectives) */
+.af-slip--compact {
+  gap: 0.3rem;
+  padding: 0.45rem 0.6rem 0.5rem 0.8rem;
+}
+.af-slip--compact .af-slip-emblem {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+.af-slip--compact .af-slip-title {
+  font-size: var(--af-fs-sm);
+}
+.af-slip--compact .af-slip-credits {
+  font-size: var(--af-fs-md);
+}

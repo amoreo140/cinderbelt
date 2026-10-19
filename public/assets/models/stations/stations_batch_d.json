@@ -1,0 +1,576 @@
+{
+ "_schema": {
+  "about": "art audit 2026-10-16 batch D (structures and screens): dock clamp v2, caged beacons, station variants, hangar platform v2 + hangar bay. glTF coordinates (+X = dock / bow, +Y = up).",
+  "integration": "DROP-IN = same file + node contract, rebuild shows it; SMALL CODE = path list / manifest copy",
+  "files": "per file: integration, tris (shipped GLB incl. children), nodes (name -> glTF position), notes",
+  "layouts": "new station layouts: art/blender/data/station_layouts_batch_d.json (merge into station_layouts.json + the src/data copy)"
+ },
+ "files": {
+  "dock_clamp": {
+   "file": "assets/models/stations/dock_clamp.glb",
+   "tris": 2928,
+   "nodes": {
+    "Clamp_Jaw_L": [
+     -0.25,
+     -0.15,
+     -1.17
+    ],
+    "Clamp_Jaw_R": [
+     -0.25,
+     -0.15,
+     1.17
+    ],
+    "guide_light_0": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "guide_light_1": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "guide_light_2": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "guide_light_3": [
+     0.0,
+     0.0,
+     -0.0
+    ]
+   },
+   "bytes": 75240,
+   "integration": "DROP-IN",
+   "notes": "origin = dock_port, extent x -2.4..0.6, y -1.5..1.5 (Blender) unchanged; guide_light_0..3 unchanged (left+right pair, index grows along +X). New: Clamp_Jaw_L / Clamp_Jaw_R (pivot = outer hinge, closed = rest pose). Optional animation: open = rotate +35 deg (L) / -35 deg (R) about local +Y while the ship is out of range, close during the docking latch.",
+   "jaws": {
+    "openDeg": {
+     "Clamp_Jaw_L": 35,
+     "Clamp_Jaw_R": -35
+    },
+    "axis": "local +Y"
+   }
+  },
+  "outpost_a": {
+   "file": "assets/models/stations/outpost_a.glb",
+   "tris": 5286,
+   "nodes": {
+    "beacon_0": [
+     3.4,
+     0.35,
+     -0.85
+    ],
+    "beacon_1": [
+     3.4,
+     0.35,
+     0.85
+    ],
+    "beacon_2": [
+     -3.4,
+     2.45,
+     -0.0
+    ],
+    "dock_port": [
+     6.0,
+     0.0,
+     -0.0
+    ]
+   },
+   "bytes": 137944,
+   "integration": "DROP-IN",
+   "notes": "caged beacon lamps: beacon_<i> = the lamp lens only (same order + colours, positions moved <= ~0.3 to sit on a surface); the cage housing is part of the static mesh. Other nodes unchanged."
+  },
+  "station_home": {
+   "file": "assets/models/stations/station_home.glb",
+   "tris": 66376,
+   "nodes": {
+    "attach_aft": [
+     -13.9,
+     -0.5,
+     -0.0
+    ],
+    "attach_fl": [
+     8.061,
+     -0.5,
+     -8.061
+    ],
+    "attach_fr": [
+     8.061,
+     -0.5,
+     8.061
+    ],
+    "attach_port": [
+     0.0,
+     -0.5,
+     -11.4
+    ],
+    "attach_rl": [
+     -8.061,
+     -0.5,
+     -8.061
+    ],
+    "attach_rr": [
+     -8.061,
+     -0.5,
+     8.061
+    ],
+    "beacon_0": [
+     11.3,
+     1.75,
+     -1.18
+    ],
+    "beacon_1": [
+     11.3,
+     1.75,
+     1.18
+    ],
+    "beacon_2": [
+     0.0,
+     6.52,
+     -0.0
+    ],
+    "beacon_3": [
+     -13.1,
+     -0.3,
+     -4.1
+    ],
+    "beacon_4": [
+     -13.1,
+     -0.3,
+     4.1
+    ],
+    "beacon_5": [
+     2.6,
+     0.12,
+     8.3
+    ],
+    "beacon_6": [
+     -2.6,
+     0.12,
+     8.3
+    ],
+    "beacon_7": [
+     0.0,
+     -4.0,
+     -0.0
+    ],
+    "dock_port": [
+     14.0,
+     0.0,
+     -0.0
+    ],
+    "ring_rotor": [
+     0.0,
+     0.0,
+     -0.0
+    ]
+   },
+   "bytes": 1692884,
+   "integration": "DROP-IN",
+   "notes": "caged beacon lamps: beacon_<i> = the lamp lens only (same order + colours, positions moved <= ~0.3 to sit on a surface); the cage housing is part of the static mesh. Other nodes unchanged."
+  },
+  "station_a": {
+   "file": "assets/models/stations/station_a.glb",
+   "tris": 26374,
+   "nodes": {
+    "beacon_0": [
+     7.4,
+     0.32,
+     -0.95
+    ],
+    "beacon_1": [
+     7.4,
+     0.32,
+     0.95
+    ],
+    "beacon_2": [
+     0.0,
+     4.23,
+     -0.0
+    ],
+    "beacon_3": [
+     -9.1,
+     2.02,
+     -3.2
+    ],
+    "beacon_4": [
+     -9.1,
+     2.02,
+     3.2
+    ],
+    "dock_port": [
+     10.0,
+     0.0,
+     -0.0
+    ],
+    "ring_rotor": [
+     0.0,
+     0.0,
+     -0.0
+    ]
+   },
+   "bytes": 680324,
+   "integration": "DROP-IN",
+   "notes": "caged beacon lamps: beacon_<i> = the lamp lens only (same order + colours, positions moved <= ~0.3 to sit on a surface); the cage housing is part of the static mesh. Other nodes unchanged."
+  },
+  "station_b": {
+   "file": "assets/models/stations/station_b.glb",
+   "tris": 19058,
+   "nodes": {
+    "beacon_0": [
+     7.3,
+     1.52,
+     -0.91
+    ],
+    "beacon_1": [
+     7.3,
+     1.52,
+     0.91
+    ],
+    "beacon_2": [
+     0.0,
+     5.45,
+     -0.0
+    ],
+    "beacon_3": [
+     -4.8,
+     2.02,
+     -3.1
+    ],
+    "beacon_4": [
+     -4.8,
+     2.02,
+     3.1
+    ],
+    "dock_port": [
+     10.0,
+     0.0,
+     -0.0
+    ],
+    "ring_rotor": [
+     0.0,
+     2.3,
+     -0.0
+    ]
+   },
+   "bytes": 488572,
+   "integration": "DROP-IN",
+   "notes": "caged beacon lamps: beacon_<i> = the lamp lens only (same order + colours, positions moved <= ~0.3 to sit on a surface); the cage housing is part of the static mesh. Other nodes unchanged."
+  },
+  "station_c": {
+   "file": "assets/models/stations/station_c.glb",
+   "tris": 17796,
+   "nodes": {
+    "beacon_0": [
+     7.3,
+     1.52,
+     -0.91
+    ],
+    "beacon_1": [
+     7.3,
+     1.52,
+     0.91
+    ],
+    "beacon_2": [
+     1.1,
+     4.95,
+     -3.0
+    ],
+    "beacon_3": [
+     1.1,
+     4.98,
+     3.0
+    ],
+    "beacon_4": [
+     -6.0,
+     2.95,
+     -0.0
+    ],
+    "dock_port": [
+     10.0,
+     0.0,
+     -0.0
+    ]
+   },
+   "bytes": 419844,
+   "integration": "DROP-IN",
+   "notes": "caged beacon lamps: beacon_<i> = the lamp lens only (same order + colours, positions moved <= ~0.3 to sit on a surface); the cage housing is part of the static mesh. Other nodes unchanged."
+  },
+  "outpost_b": {
+   "file": "assets/models/stations/outpost_b.glb",
+   "tris": 5984,
+   "nodes": {
+    "beacon_0": [
+     3.4,
+     0.35,
+     -0.85
+    ],
+    "beacon_1": [
+     3.4,
+     0.35,
+     0.85
+    ],
+    "beacon_2": [
+     0.2,
+     2.6,
+     -1.4
+    ],
+    "dock_port": [
+     6.0,
+     0.0,
+     -0.0
+    ]
+   },
+   "bytes": 159140,
+   "integration": "DROP-IN",
+   "notes": "caged beacon lamps: beacon_<i> = the lamp lens only (same order + colours, positions moved <= ~0.3 to sit on a surface); the cage housing is part of the static mesh. Other nodes unchanged."
+  },
+  "station_d": {
+   "file": "assets/models/stations/station_d.glb",
+   "tris": 23794,
+   "nodes": {
+    "beacon_0": [
+     7.3,
+     1.52,
+     -0.91
+    ],
+    "beacon_1": [
+     7.3,
+     1.52,
+     0.91
+    ],
+    "beacon_2": [
+     0.0,
+     4.552,
+     -0.0
+    ],
+    "beacon_3": [
+     -4.225,
+     0.97,
+     -7.318
+    ],
+    "beacon_4": [
+     -4.225,
+     0.97,
+     7.318
+    ],
+    "beacon_5": [
+     0.0,
+     -4.5,
+     -0.0
+    ],
+    "dock_port": [
+     10.0,
+     0.0,
+     -0.0
+    ]
+   },
+   "bytes": 604948,
+   "integration": "SMALL CODE",
+   "kind": "station",
+   "rings": [
+    1,
+    2,
+    3
+   ],
+   "role": "research (Institute)",
+   "faction": "institute",
+   "label": "Institute research station",
+   "labelSk": "V\u00fdskumn\u00e1 stanica In\u0161tit\u00fatu",
+   "radius": 10.0,
+   "notes": "no ring_rotor; beacon_<i> blink like every station; layout in station_layouts_batch_d.json"
+  },
+  "station_e": {
+   "file": "assets/models/stations/station_e.glb",
+   "tris": 25266,
+   "nodes": {
+    "beacon_0": [
+     7.4,
+     0.38,
+     -0.95
+    ],
+    "beacon_1": [
+     7.4,
+     0.38,
+     0.95
+    ],
+    "beacon_2": [
+     0.35,
+     4.03,
+     -0.35
+    ],
+    "beacon_3": [
+     6.777,
+     1.91,
+     -1.793
+    ],
+    "beacon_4": [
+     6.777,
+     1.91,
+     1.793
+    ],
+    "dock_port": [
+     10.0,
+     0.0,
+     -0.0
+    ]
+   },
+   "bytes": 673620,
+   "integration": "SMALL CODE",
+   "kind": "station",
+   "rings": [
+    2
+   ],
+   "role": "trade (fortified frontier post)",
+   "faction": "freeTraders",
+   "label": "Fortified frontier trade post",
+   "labelSk": "Opevnen\u00e1 hrani\u010dn\u00e1 obchodn\u00e1 stanica",
+   "radius": 10.0,
+   "notes": "no ring_rotor; beacon_<i> blink like every station; layout in station_layouts_batch_d.json"
+  },
+  "outpost_c": {
+   "file": "assets/models/stations/outpost_c.glb",
+   "tris": 5178,
+   "nodes": {
+    "beacon_0": [
+     3.4,
+     0.35,
+     -0.85
+    ],
+    "beacon_1": [
+     3.4,
+     0.35,
+     0.85
+    ],
+    "beacon_2": [
+     -3.4,
+     3.165,
+     -0.0
+    ],
+    "beacon_3": [
+     -4.2,
+     1.235,
+     -1.938
+    ],
+    "dock_port": [
+     6.0,
+     0.0,
+     -0.0
+    ]
+   },
+   "bytes": 127424,
+   "integration": "SMALL CODE",
+   "kind": "outpost",
+   "rings": [
+    3
+   ],
+   "role": "outpost (ice-moored)",
+   "faction": "guild",
+   "label": "Ice-moored outpost",
+   "labelSk": "Hliadka ukotven\u00e1 v \u013eade",
+   "radius": 6.0,
+   "notes": "no ring_rotor; beacon_<i> blink like every station; layout in station_layouts_batch_d.json"
+  },
+  "outpost_d": {
+   "file": "assets/models/stations/outpost_d.glb",
+   "tris": 5930,
+   "nodes": {
+    "beacon_0": [
+     3.4,
+     0.35,
+     -0.85
+    ],
+    "beacon_1": [
+     3.4,
+     0.35,
+     0.85
+    ],
+    "beacon_2": [
+     -1.0,
+     6.09,
+     -0.0
+    ],
+    "beacon_3": [
+     -2.6,
+     1.113,
+     -1.0
+    ],
+    "beacon_4": [
+     -2.6,
+     1.113,
+     1.0
+    ],
+    "dock_port": [
+     6.0,
+     0.0,
+     -0.0
+    ]
+   },
+   "bytes": 152720,
+   "integration": "SMALL CODE",
+   "kind": "outpost",
+   "rings": [
+    2
+   ],
+   "role": "outpost (armoured relay)",
+   "faction": "guild",
+   "label": "Armoured relay outpost",
+   "labelSk": "Obrnen\u00e1 rel\u00e9ov\u00e1 hliadka",
+   "radius": 6.0,
+   "notes": "no ring_rotor; beacon_<i> blink like every station; layout in station_layouts_batch_d.json"
+  },
+  "hangar_platform": {
+   "file": "assets/models/stations/hangar_platform.glb",
+   "tris": 4146,
+   "nodes": {},
+   "bytes": 103788,
+   "integration": "DROP-IN",
+   "notes": "17 x 17, 15 x 15 floor clean, floor top z -0.37 (glTF y), all geometry below glTF y 0.5 (HangarView GANTRY_CUT 0.55 ghosts nothing now - the clipping can stay or go). Pedestal down to the bay deck (glTF y -1.90)."
+  },
+  "hangar_bay": {
+   "file": "assets/models/stations/hangar_bay.glb",
+   "tris": 36674,
+   "nodes": {
+    "Arm_0": [
+     -3.0,
+     -1.6,
+     -13.0
+    ],
+    "Arm_0_Head": [
+     -2.5,
+     0.15,
+     -10.15
+    ],
+    "Arm_0_Tip": [
+     -2.5,
+     -0.4,
+     -9.7
+    ],
+    "Arm_1": [
+     3.5,
+     -1.6,
+     13.0
+    ],
+    "Arm_1_Head": [
+     4.0,
+     0.15,
+     10.15
+    ],
+    "Arm_1_Tip": [
+     4.0,
+     -0.4,
+     9.7
+    ]
+   },
+   "bytes": 842056,
+   "integration": "SMALL CODE",
+   "notes": "add to the hangar yard group (same frame as hangar_platform: origin = platform centre, +X = bow). Height rule: every vertex at horizontal distance r from the centre stays below glTF y = -0.37 + 0.6 (r - 8.5) (camera orbit 360, pitch >= 35, FOV 34) - verified at build. Bay door opens to space on +X (the far side at the default yaw). Optional animation: Arm_<i> slides along local X on its rail (range in railX), Arm_<i>_Head turns about local +Y; Arm_<i>_Tip = weld-spark origin.",
+   "railX": [
+    -8.0,
+    8.0
+   ],
+   "deckY": -1.9
+  }
+ }
+}

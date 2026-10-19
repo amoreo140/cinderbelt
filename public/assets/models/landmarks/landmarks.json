@@ -1,0 +1,456 @@
+{
+  "_schema": {
+    "units": "model units; world size = modelSize * scale (uniform). glTF axes: +Y up, front (camera side at yaw 0) = +Z.",
+    "depth": "world units of the model ORIGIN below the gameplay plane (three: y = -depth). topClearance = depth - worldSize.y / 2 (keep > ~650 so nothing pokes through the debris layers at 420-620).",
+    "visibleWithin": "where the landmark is on screen, as its anchor minus the camera target on the plane (+x east, +y north = screen up): dy range through dx 0, dx range at dy = centreDy (the offset at which it sits mid-screen = depth / tan 55 = 0.70 x depth). The view footprint at depth D is centred 0.70 D NORTH of the target, about +-0.95 D wide and +-0.7 D deep: a deep landmark shows while it lies ahead (north) of the player and slides out at the bottom once the player passes over it. default = camera distance 48, max = 210; pitch 55, vFOV 50, 16:9.",
+    "haze": "suggested mix toward the zone haze colour (zoneLook haze): albedo / emissive share. Do not apply the full depth-layer haze (0.8+) - the emissive accents must survive.",
+    "glows": "optional additive sprites (vfx/glow_soft.png) at the glow_<i> empties; size in world units.",
+    "nodes": "child nodes: *_Beacons / *_Lights blink, *_Glyphs pulse emission, Forge_Ring spins."
+  },
+  "camera": {
+    "pitchDeg": 55,
+    "vfovDeg": 50,
+    "aspect": 1.7777777777777777,
+    "defaultDistance": 48,
+    "maxDistance": 210
+  },
+  "landmarks": [
+    {
+      "id": "guild_relay",
+      "file": "guild_relay.glb",
+      "ring": 1,
+      "tris": 3664,
+      "nodes": [
+        "Relay_Beacons",
+        "glow_0"
+      ],
+      "modelSize": [
+        90.6,
+        150.5,
+        90.6
+      ],
+      "modelBounds": {
+        "min": [
+          -45.3,
+          -81.0,
+          -45.3
+        ],
+        "max": [
+          45.3,
+          69.5,
+          45.3
+        ]
+      },
+      "scale": 3.4,
+      "worldSize": [
+        308.0,
+        511.7,
+        308.0
+      ],
+      "depth": 1100,
+      "topClearance": 864,
+      "count": 1,
+      "where": "1 instance at radius 900-1200 from home at a seeded angle in the eastern half (-70..+70 deg from east): the gas-giant compass sits north-west, so the two never overlap on screen and the player gets two bearings",
+      "yawDeg": [
+        -30,
+        30
+      ],
+      "visibleWithin": {
+        "default": {
+          "dx": [
+            -1410,
+            1410
+          ],
+          "dy": [
+            -70,
+            2410
+          ],
+          "centreDy": 770
+        },
+        "max": {
+          "dx": [
+            -1550,
+            1550
+          ],
+          "dy": [
+            -140,
+            2550
+          ],
+          "centreDy": 770
+        }
+      },
+      "haze": {
+        "albedo": 0.5,
+        "emissive": 0.15
+      },
+      "emissive": "Relay_Beacons: crown ring of 6 red lamps (blink 1 s, staggered), green/red wing tips (nav), amber top lamp (slow 2.5 s pulse) and 3 red antenna tips; warm window ring on the hub stays lit (baked in the root). glow_0 = amber halo at the top lamp.",
+      "glows": [
+        {
+          "node": "glow_0",
+          "color": "#ffb347",
+          "size": 40,
+          "opacity": 0.7,
+          "pulse": "2.5 s"
+        }
+      ],
+      "nameSuggestion": {
+        "sk": "Starý stožiar Cechu",
+        "en": "Old Guild relay mast"
+      }
+    },
+    {
+      "id": "rust_ring_shard",
+      "file": "rust_ring_shard.glb",
+      "ring": 2,
+      "tris": 5648,
+      "nodes": [
+        "Shard_Lights",
+        "glow_0",
+        "glow_1",
+        "glow_2"
+      ],
+      "modelSize": [
+        232.2,
+        99.9,
+        73.2
+      ],
+      "modelBounds": {
+        "min": [
+          -116.1,
+          -52.0,
+          -39.5
+        ],
+        "max": [
+          116.1,
+          47.9,
+          33.7
+        ]
+      },
+      "scale": 3.4,
+      "worldSize": [
+        789.5,
+        339.7,
+        248.9
+      ],
+      "depth": 1400,
+      "topClearance": 1237,
+      "count": 3,
+      "where": "3 shards of the same broken ring: radius 2400-3200, angles 120 deg apart + seeded jitter (+-25 deg); give each a different yaw so they read as different pieces",
+      "yawDeg": [
+        -180,
+        180
+      ],
+      "visibleWithin": {
+        "default": {
+          "dx": [
+            -1860,
+            1860
+          ],
+          "dy": [
+            -140,
+            3190
+          ],
+          "centreDy": 980
+        },
+        "max": {
+          "dx": [
+            -1990,
+            1990
+          ],
+          "dy": [
+            -210,
+            3320
+          ],
+          "centreDy": 980
+        }
+      },
+      "haze": {
+        "albedo": 0.5,
+        "emissive": 0.15
+      },
+      "emissive": "Shard_Lights: ~20 pirate red lamps on both rim walls + one on the snapped spoke tip - blink irregularly (0.6-1.4 s, random phase), let a few stay dark. Root: three districts of warm windows (pirate squats, window_warm) among dim dead ones (der_window) on the habitat floor. glow_0/1 = warm halos over the two big lit districts, glow_2 = red halo on the spoke tip.",
+      "glows": [
+        {
+          "node": "glow_0",
+          "color": "#ffb060",
+          "size": 70,
+          "opacity": 0.5
+        },
+        {
+          "node": "glow_1",
+          "color": "#ffb060",
+          "size": 70,
+          "opacity": 0.5
+        },
+        {
+          "node": "glow_2",
+          "color": "#ff2a12",
+          "size": 40,
+          "opacity": 0.8
+        }
+      ],
+      "nameSuggestion": {
+        "sk": "Zlomený prstenec",
+        "en": "Broken ring shard"
+      }
+    },
+    {
+      "id": "crystal_spire",
+      "file": "crystal_spire.glb",
+      "ring": 3,
+      "tris": 2928,
+      "nodes": [
+        "glow_0",
+        "glow_1",
+        "glow_2",
+        "glow_3"
+      ],
+      "modelSize": [
+        189.4,
+        286.5,
+        100.6
+      ],
+      "modelBounds": {
+        "min": [
+          -96.1,
+          -56.1,
+          -56.0
+        ],
+        "max": [
+          93.3,
+          230.4,
+          44.6
+        ]
+      },
+      "scale": 3.0,
+      "worldSize": [
+        568.2,
+        859.5,
+        301.8
+      ],
+      "depth": 1500,
+      "topClearance": 809,
+      "count": 4,
+      "where": "4 walls at radius 5000-7200, angles 90 deg apart + seeded jitter; avoid the nebula cores (radiation sources) - a wall reads best a little off a core, never on it",
+      "yawDeg": [
+        -35,
+        35
+      ],
+      "visibleWithin": {
+        "default": {
+          "dx": [
+            -1990,
+            1990
+          ],
+          "dy": [
+            -160,
+            3420
+          ],
+          "centreDy": 1050
+        },
+        "max": {
+          "dx": [
+            -2130,
+            2130
+          ],
+          "dy": [
+            -230,
+            3560
+          ],
+          "centreDy": 1050
+        }
+      },
+      "haze": {
+        "albedo": 0.5,
+        "emissive": 0.15
+      },
+      "emissive": "Crystals use the violet gradient swatches (emissive root -> pale tip) with bright violet edge seams on the tallest prisms (tier_glow_cr); the cleft between the two rows is a glowing teal blade (reactor_glow) peeking between the crystals = the inner glow; teal fissures in the root ridge. glow_0..2 = teal halos along the cleft (slow 4-6 s breathing, out of phase), glow_3 = violet halo at the crown.",
+      "glows": [
+        {
+          "node": "glow_0",
+          "color": "#5ce1ff",
+          "size": 90,
+          "opacity": 0.55,
+          "pulse": "4-6 s"
+        },
+        {
+          "node": "glow_1",
+          "color": "#5ce1ff",
+          "size": 90,
+          "opacity": 0.55,
+          "pulse": "4-6 s"
+        },
+        {
+          "node": "glow_2",
+          "color": "#5ce1ff",
+          "size": 90,
+          "opacity": 0.55,
+          "pulse": "4-6 s"
+        },
+        {
+          "node": "glow_3",
+          "color": "#8a40ff",
+          "size": 110,
+          "opacity": 0.5
+        }
+      ],
+      "nameSuggestion": {
+        "sk": "Kryštálová stena",
+        "en": "Crystal wall"
+      }
+    },
+    {
+      "id": "dead_forge",
+      "file": "dead_forge.glb",
+      "ring": 4,
+      "tris": 7792,
+      "nodes": [
+        "Forge_Glyphs",
+        "Forge_Ring",
+        "glow_0"
+      ],
+      "modelSize": [
+        156.5,
+        109.3,
+        165.4
+      ],
+      "modelBounds": {
+        "min": [
+          -73.5,
+          -53.8,
+          -94.7
+        ],
+        "max": [
+          83.0,
+          55.5,
+          70.7
+        ]
+      },
+      "scale": 5.0,
+      "worldSize": [
+        782.5,
+        546.5,
+        827.0
+      ],
+      "depth": 2100,
+      "topClearance": 1822,
+      "count": 2,
+      "where": "2 instances at radius 9000-11000 on opposite sides (seeded angle); it is the \"Vyhasnutie\" memorial of the star-smiths - keep it clear of workshops so it is never mistaken for one",
+      "yawDeg": [
+        -180,
+        180
+      ],
+      "visibleWithin": {
+        "default": {
+          "dx": [
+            -2580,
+            2580
+          ],
+          "dy": [
+            -40,
+            4430
+          ],
+          "centreDy": 1470
+        },
+        "max": {
+          "dx": [
+            -2720,
+            2720
+          ],
+          "dy": [
+            -110,
+            4570
+          ],
+          "centreDy": 1470
+        }
+      },
+      "haze": {
+        "albedo": 0.5,
+        "emissive": 0.15
+      },
+      "emissive": "Cinder: ember crack network (ember 1.8, a few hot kov_ember 4.0) baked in the root. Forge_Glyphs: long-short-short ember dashes on the claw ribs - slow dying pulse (6-8 s, intensity 0.4-1.0). Forge_Ring: spin around local +Y, ~0.01 rad/s. glow_0 = big dim ember halo behind the cinder (size ~1.6x the sphere).",
+      "glows": [
+        {
+          "node": "glow_0",
+          "color": "#ff4a10",
+          "size": 420,
+          "opacity": 0.35,
+          "pulse": "6-8 s"
+        }
+      ],
+      "nameSuggestion": {
+        "sk": "Vyhasnutá výheň",
+        "en": "Extinguished Forge"
+      }
+    },
+    {
+      "id": "gas_giant",
+      "file": null,
+      "ring": 1,
+      "reuse": {
+        "planet": "planets.json -> gas_giant (albedo 4096x2048)",
+        "rings": "models/planets/gas_giant_rings.glb (radii 1.28-2.35 planet radii, tilt with the planet)"
+      },
+      "radius": 520,
+      "depth": 2500,
+      "count": 1,
+      "where": "WORLD-ANCHORED (not camera-following) at home + (-1150, +2270) (sim x, y; +y = north = screen up), depth 2500: at home it sits exactly where the current backdrop puts it (upper left, zoneLook offset (-1150, 520) + the 0.70 x depth look-ahead), and it stays on screen from anywhere in ring 1 while sliding with true parallax - flying toward home moves it toward its home position. Today ZoneEnvironment keeps it at a fixed screen offset with a saturating parallax lag (PARALLAX_LIMIT 1600) and keepOffCenter(), so it cannot work as a compass; the small moon can stay camera-following.",
+      "anchor": [
+        -1150,
+        2270
+      ],
+      "visibleWithin": {
+        "default": {
+          "dx": [
+            -3090,
+            3090
+          ],
+          "dy": [
+            -60,
+            5320
+          ],
+          "centreDy": 1751
+        },
+        "max": {
+          "dx": [
+            -3230,
+            3230
+          ],
+          "dy": [
+            -130,
+            5460
+          ],
+          "centreDy": 1751
+        }
+      },
+      "haze": {
+        "albedo": 0.35,
+        "emissive": 0.0
+      },
+      "nameSuggestion": {
+        "sk": "Plynný obor",
+        "en": "Gas giant"
+      }
+    }
+  ],
+  "echoColumn": {
+    "file": "echo_column.glb",
+    "texture": "vfx/echo_column.png",
+    "tris": 144,
+    "mesh": "unit column: 3 crossed quads through the axis, width 1 (x), height 2 (glTF y -1..1), origin = the beacon; UV u across (core at u 0.5), v along (beacon at v 0.5, the top end samples the top row of the image). Own material AF_EchoColumn (not the atlas, texture embedded).",
+    "scale": {
+      "width": 14,
+      "height": 700
+    },
+    "tiltDeg": {
+      "vertical": 0,
+      "compass": 35
+    },
+    "note": "Place at the Ozvena beacon (ozvena_beacon.glb origin) scaled (14, 700, 14): the column runs 700 u up and 700 u down. Rising toward the camera it is seen as a long ray from far away even when the beacon is off-screen; the downward half shows when the beacon is north of the view. Render additive, unlit, no depth write, double-sided (or rotate one quad around Y to face the camera and drop the other two). Fade it out when the camera is within ~60 u horizontally of the beacon (else the beam passes the camera) and pulse it with the Kovaci rhythm (long-short-short, 1.6 s) by modulating the colour; optionally scroll a brightness band up along v. Hide for undiscovered Echoes or show only after the first signal fix (design choice). GEOMETRY: with the 55 deg camera vertical lines converge to vanishing points just above / below the frame, so a VERTICAL column only reaches the screen for beacons ahead (north, the down-ray crosses the view) or within ~2 screen widths; beacons far east/west or south stay invisible. COMPASS option (tiltDeg.compass): rotate the column about three.js X by +35 deg (= 90 - pitch; the top leans toward the camera, the lower half points down-north along the view direction) and draw only the lower half (v < 0.5): the down-ray then converges on the screen centre from ANY beacon in front of the camera - every Echo shoots a ray that enters from its side of the screen and points at the ship (preview landmark-echo_column-compass.png).",
+    "colors": {
+      "core": "#fff2e0",
+      "halo": "#ff8a5c (= map ECHO_COLOR)",
+      "fringe": "#9e6bff"
+    }
+  }
+}

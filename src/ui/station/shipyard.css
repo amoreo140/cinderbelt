@@ -1,0 +1,912 @@
+/*
+ * Shipyard – the hangar console around the 3D platform (the "Hull language" design system (Jazyk trupu), chapter 8). The hub stretches to the full
+ * width, the centre is transparent (the 3D scene is below it), around it are dark frame bands, plates and displays.
+ */
+
+.hub.hub--yard {
+  left: var(--af-edge);
+  width: auto;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.5));
+}
+.hub--yard .hub-frame {
+  background: none;
+}
+.hub--yard .hub-head {
+  align-items: center;
+  padding: 0.5rem 1.4rem 0.4rem 1.6rem;
+  background: linear-gradient(180deg, #232b38 0%, var(--af-band) 100%);
+}
+.hub--yard .hub-name {
+  margin: 0;
+  font-size: 1.35rem;
+}
+.hub--yard .hub-ident {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+}
+.hub--yard .hub-kind {
+  order: 2;
+}
+.hub--yard .hub-frame > .af-tabs {
+  background: var(--af-band);
+}
+.hub--yard .hub-foot {
+  gap: 0.5rem;
+  padding: 0.5rem 1.2rem 0.6rem;
+  background: var(--af-band);
+}
+.hub--yard .hub-foot .af-btn--primary {
+  min-width: 13rem;
+}
+
+/* ───────────── layout ───────────── */
+.yd {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 17rem minmax(0, 1fr) 17.5rem;
+  /* ledge below the tabs – the active tab joins onto it */
+  border-top: 4px solid var(--af-hull-hi);
+}
+.yd > * {
+  min-height: 0;
+}
+.yd-left,
+.yd-side,
+.yd-bottom {
+  background: var(--af-band);
+}
+.yd-left {
+  padding: 6px 0 6px 6px;
+  display: flex;
+}
+.yd-side {
+  padding: 6px 6px 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+.yd-center {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-width: 0;
+}
+.yd-bottom {
+  padding: 6px 6px 6px;
+}
+
+/* ───────────── hangar area (overlays above the 3D) ───────────── */
+.yd-view {
+  position: relative;
+  overflow: hidden;
+  cursor: crosshair;
+  touch-action: none;
+  pointer-events: auto;
+  /* recessed window into the hangar – the frame shadow inwards */
+  box-shadow:
+    inset 0 0 0 1px rgba(98, 217, 244, 0.16),
+    inset 0 10px 18px -8px rgba(0, 0, 0, 0.7),
+    inset 0 -10px 18px -8px rgba(0, 0, 0, 0.7);
+}
+.yd-view.is-grab {
+  cursor: grab;
+}
+.yd-view.is-grab:active {
+  cursor: grabbing;
+}
+.yd-bow {
+  position: absolute;
+  top: 0.55rem;
+  left: 50%;
+  translate: -50% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  color: var(--af-glow);
+  pointer-events: none;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+.yd-bow-arrow {
+  font-size: 0.7rem;
+  line-height: 1;
+}
+.yd-view-tools {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  display: flex;
+  gap: 6px;
+  color: var(--af-text);
+}
+.yd-view-tools .af-btn--ghost {
+  --edge-shadow: inset 0 0 0 1.5px rgba(147, 160, 179, 0.55);
+  --fill: rgba(10, 21, 33, 0.72);
+}
+.yd-view-tools .af-btn--ghost.is-on {
+  --edge-shadow: inset 0 0 0 1.5px var(--af-glow);
+  color: var(--af-glow);
+}
+/* mirror mode: the trim orange of the axis line on the hangar floor */
+.yd-view-tools .af-btn--ghost.yd-mirror.is-on {
+  --edge-shadow: inset 0 0 0 1.5px var(--af-trim);
+  color: var(--af-trim);
+}
+.yd-ghost-card {
+  --cut: 6px;
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 3px 10px 3px 3px;
+  color: var(--af-text);
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+  background: rgba(10, 21, 33, 0.82);
+  box-shadow: inset 0 0 0 1px var(--af-screen-line);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  pointer-events: none;
+}
+.yd-ghost-card .af-keyhint {
+  color: var(--af-text-dim);
+  font-weight: 400;
+}
+.yd-ghost-label {
+  position: absolute;
+  z-index: 2;
+  translate: -50% -100%;
+  padding: 0.3rem 0.6rem 0.3rem 0.75rem;
+  color: var(--af-text);
+  font-size: var(--af-fs-sm);
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+  background:
+    linear-gradient(var(--af-bad), var(--af-bad)) left / 3px 100% no-repeat,
+    var(--af-band);
+  box-shadow: 0 0 0 1px #3c4759, 0 6px 16px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+.yd-hints {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 0.9rem;
+  min-width: 0;
+  color: var(--af-text-dim);
+  font-size: var(--af-fs-xs);
+}
+.yd-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+.yd-mouse {
+  --cut: 3px;
+  padding: 1px 5px;
+  color: var(--af-text);
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 700;
+  background: linear-gradient(180deg, #3a4558 0%, #1f2632 100%);
+  box-shadow: inset 0 -2px 0 #0d1118;
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+
+/* ───────────── palette ───────────── */
+.yd-palette {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0.7rem 0.6rem 0.6rem;
+}
+.yd-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.15rem;
+}
+.yd-panel-head .af-heading {
+  margin: 0;
+}
+.yd-tier-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.yd-tier-toggle .af-segmented-opt {
+  min-width: 2.2rem;
+  padding: 0.2rem 0.5rem;
+}
+/* the part list scrolls on its own – the T1 → T2 comparison stays pinned below it (14 parts) */
+.yd-pal-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 0.5rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--af-hull-shade) transparent;
+  /* the row focus line is not clipped while scrolling */
+  padding: 3px 3px 3px 0;
+}
+.yd-pal-list > .yd-pal-row {
+  flex: 0 0 auto;
+}
+.yd-pal-row {
+  --cut: 5px;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto 1.6rem;
+  align-items: center;
+  gap: 6px;
+  min-height: 2.05rem;
+  padding: 1px 6px 1px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--af-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.yd-pal-row:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+.yd-pal-row.is-selected {
+  background: var(--af-hull-hi);
+  box-shadow: inset 0 -1px 0 var(--af-seam);
+}
+.yd-pal-row > .af-trim {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--af-trim-w);
+  background: var(--trim, var(--af-trim));
+}
+.yd-pal-key {
+  display: inline-flex;
+  width: 1.85rem;
+}
+.yd-pal-icon {
+  padding: 2px;
+}
+.yd-pal-icon img {
+  display: block;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.yd-pal-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--af-font-display);
+  font-stretch: 80%;
+  font-size: var(--af-fs-md);
+  font-weight: 700;
+}
+.yd-pal-tags {
+  display: inline-flex;
+  gap: 3px;
+}
+.yd-tag {
+  padding: 0 3px;
+  font-size: 0.625rem;
+  line-height: 1.35;
+  color: var(--af-ink-soft);
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.yd-tag--craft,
+.yd-tag--buy {
+  color: var(--af-warn-ink);
+}
+.yd-tag--unavailable {
+  color: var(--af-bad-ink);
+}
+.yd-unique {
+  width: 0.5rem;
+  height: 0.5rem;
+  align-self: center;
+  margin: 0 2px;
+  background: var(--af-ink-soft);
+  rotate: 45deg;
+}
+.yd-pal-count {
+  text-align: right;
+  font-size: var(--af-fs-lg);
+  font-weight: 800;
+}
+.yd-pal-count.is-out {
+  color: var(--af-ink-soft);
+  font-weight: 400;
+}
+.yd-pal-detail,
+.yd-pal-hint {
+  flex: 0 0 auto;
+  margin-top: auto;
+  padding-top: 0.55rem;
+}
+.yd-pal-hint {
+  margin-bottom: 0;
+  font-size: var(--af-fs-sm);
+  line-height: 1.4;
+  color: var(--af-ink-soft);
+}
+.yd-pal-detail {
+  font-size: var(--af-fs-sm);
+}
+/* the explanation never widens the palette column */
+.yd-palette,
+.yd-pal-detail {
+  min-width: 0;
+}
+.yd-pal-info {
+  display: grid;
+  gap: 0.4rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--af-seam);
+}
+.yd-pal-detail-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--af-seam);
+  color: var(--af-ink-soft);
+}
+.yd-pal-source {
+  text-align: right;
+  font-size: var(--af-fs-xs);
+}
+.yd-pal-detail table {
+  width: 100%;
+  margin-top: 0.25rem;
+  border-collapse: collapse;
+}
+.yd-pal-detail th {
+  padding: 1px 0;
+  text-align: left;
+  font-weight: 400;
+  color: var(--af-ink-soft);
+}
+.yd-pal-detail td {
+  width: 3.2rem;
+  text-align: right;
+  color: var(--af-ink-soft);
+}
+.yd-pal-detail td.is-current {
+  color: var(--af-ink);
+  font-weight: 800;
+}
+
+/* ───────────── properties (display) ───────────── */
+.yd-stats {
+  /* with a long cost of changes the properties display gives way first (it scrolls), down to its
+     heading and the hull budget; then the cost list scrolls - the total always stays in view */
+  flex: 0 100 auto;
+  min-height: 4.5rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--af-screen-line) transparent;
+  padding: 0.5rem 0.8rem 0.55rem;
+  font-size: var(--af-fs-sm);
+}
+.yd-stats .af-heading {
+  margin-bottom: 0.3rem;
+}
+.yd-stats .af-heading-aside {
+  font-family: var(--af-font-display);
+  font-weight: 750;
+  font-size: var(--af-fs-md);
+  color: var(--af-glow);
+  opacity: 1;
+}
+/* hull budget: "HULL 31 / 48 pt · cockpit T2" and a segment for every point */
+.yd-hull {
+  margin: 0 0 0.45rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--af-screen-line);
+}
+.yd-hull-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+.yd-hull-label {
+  color: var(--af-text-dim);
+}
+.yd-hull-points {
+  font-size: var(--af-fs-md);
+  font-weight: 700;
+  color: var(--af-text);
+}
+.yd-hull-cockpit {
+  color: var(--af-text-dim);
+}
+.yd-hull .af-lamp {
+  align-self: center;
+  margin-left: auto;
+}
+.yd-hull.is-over .yd-hull-points {
+  color: var(--af-bad);
+}
+.yd-hull-track {
+  display: grid;
+  gap: 1px;
+  height: 0.45rem;
+  margin-top: 0.3rem;
+}
+.yd-hull-seg {
+  background: var(--af-screen-line);
+  transform: skewX(-18deg);
+}
+.yd-hull-seg.is-on {
+  background: var(--af-glow);
+}
+.yd-hull-seg.is-over {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--af-bad);
+}
+.yd-hull-seg.is-on.is-over {
+  background: var(--af-bad);
+}
+.yd-stat {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 2.9rem;
+  align-items: baseline;
+  gap: 0.4rem;
+  line-height: 1.34;
+}
+.yd-stat-label {
+  color: var(--af-text-dim);
+}
+.yd-stat-value {
+  font-size: var(--af-fs-md);
+  font-weight: 700;
+  color: var(--af-text);
+  white-space: nowrap;
+}
+.yd-stat-value small,
+.yd-thrust-accel small,
+.yd-energy small {
+  font-size: var(--af-fs-xs);
+  font-weight: 600;
+  color: var(--af-text-dim);
+}
+.yd-delta {
+  text-align: right;
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.yd-delta.is-better {
+  color: var(--af-ok);
+}
+.yd-delta.is-worse {
+  color: var(--af-bad);
+}
+.yd-delta.is-same {
+  color: var(--af-text-dim);
+}
+.yd-subhead {
+  margin: 0.2rem 0 0.05rem;
+  padding-top: 0.2rem;
+  color: var(--af-text-dim);
+  border-top: 1px solid var(--af-seam-dark);
+}
+/* thrust cross – directions as on the ship (bow up) */
+.yd-thrust-cross {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1.9rem minmax(0, 1fr);
+  grid-template-areas:
+    'up up up'
+    'left hub right'
+    'down down down';
+  align-items: center;
+  gap: 1px 4px;
+}
+.yd-thrust {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+.yd-thrust--up { grid-area: up; justify-self: center; }
+.yd-thrust--down { grid-area: down; justify-self: center; }
+.yd-thrust--left { grid-area: left; justify-self: end; }
+.yd-thrust--right { grid-area: right; justify-self: start; }
+.yd-thrust-arrow {
+  width: 0.55rem;
+  height: 0.5rem;
+  align-self: center;
+  background: var(--af-glow);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.yd-thrust--down .yd-thrust-arrow { rotate: 180deg; }
+.yd-thrust--left .yd-thrust-arrow { rotate: -90deg; }
+.yd-thrust--right .yd-thrust-arrow { rotate: 90deg; }
+.yd-thrust-accel {
+  font-size: var(--af-fs-md);
+  font-weight: 800;
+}
+.yd-thrust .yd-delta {
+  font-size: var(--af-fs-xs);
+}
+.yd-thrust.is-none {
+  opacity: 0.45;
+}
+.yd-thrust.is-none .yd-thrust-arrow {
+  background: var(--af-bad);
+}
+.yd-thrust-hub {
+  grid-area: hub;
+  justify-self: center;
+  width: 1.15rem;
+  height: 1.6rem;
+  /* ship silhouette (bow up) with the centre-of-mass cross */
+  background:
+    linear-gradient(var(--af-trim), var(--af-trim)) center / 100% 1.5px no-repeat,
+    linear-gradient(var(--af-trim), var(--af-trim)) center / 1.5px 100% no-repeat;
+  clip-path: polygon(50% 0, 100% 30%, 100% 100%, 0 100%, 0 30%);
+  box-shadow: inset 0 0 0 1.5px var(--af-screen-line);
+  background-color: rgba(98, 217, 244, 0.12);
+}
+.yd-cap-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 0.7rem;
+}
+.yd-cap-grid .yd-stat {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.3rem;
+}
+.yd-cap-grid .yd-stat-value {
+  text-align: right;
+}
+.yd-cap-grid .yd-delta {
+  min-width: 0;
+  font-size: var(--af-fs-xs);
+}
+.yd-cap-grid .yd-delta.is-same {
+  display: none;
+}
+.yd-cap-grid .yd-stat:has(.yd-delta.is-same) {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+.yd-energy {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.yd-energy-eq {
+  flex: 1;
+  font-size: var(--af-fs-md);
+  color: var(--af-text-dim);
+}
+.yd-energy-eq .is-gen {
+  color: var(--af-ok);
+  font-weight: 700;
+}
+.yd-energy-eq .is-use {
+  color: var(--af-text);
+  font-weight: 700;
+}
+.yd-energy-eq b {
+  color: var(--af-text);
+  font-weight: 800;
+}
+.yd-energy.is-alert .yd-energy-eq b {
+  color: var(--af-bad);
+}
+
+/* ───────────── cost of changes (plate) ───────────── */
+.yd-cost {
+  flex: 0 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0.65rem 0.8rem 0.7rem;
+  font-size: var(--af-fs-sm);
+}
+.yd-cost-body {
+  flex: 0 1 auto;
+  min-height: 2.5rem;
+  margin-right: -0.4rem;
+  padding-right: 0.4rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--af-ink-soft) transparent;
+}
+.yd-cost .af-heading {
+  margin-bottom: 0.25rem;
+}
+.yd-cost-lines {
+  margin: 0;
+}
+.yd-cost-line {
+  display: grid;
+  grid-template-columns: 5.4rem minmax(0, 1fr);
+  gap: 0.4rem;
+  padding: 2px 0;
+  border-top: 1px solid var(--af-seam);
+  line-height: 1.35;
+}
+.yd-cost-line:first-child {
+  border-top: 0;
+}
+.yd-cost-line dt {
+  color: var(--af-ink-soft);
+}
+.yd-cost-line dd {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.4rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.yd-cost-line.is-empty dd {
+  color: var(--af-ink-soft);
+  font-weight: 400;
+}
+.yd-cost-credits {
+  white-space: nowrap;
+}
+.yd-acquire {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 0.35rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--af-seam);
+  color: var(--af-ink-soft);
+}
+.yd-acquire-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  color: var(--af-ink);
+  font-weight: 700;
+}
+.yd-acquire .af-segmented-opt {
+  min-width: 0;
+  padding: 0.15rem 0.45rem;
+  font-size: var(--af-fs-xs);
+}
+.yd-cost-total {
+  flex: none;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    'label sum'
+    'label left';
+  align-items: baseline;
+  column-gap: 0.6rem;
+  margin-top: 0.4rem;
+  padding: 0.4rem 0.6rem 0.35rem;
+  background:
+    linear-gradient(var(--af-trim), var(--af-trim)) left / 3px 100% no-repeat,
+    rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 0 0 1px var(--af-seam);
+}
+.yd-cost-total .af-label {
+  grid-area: label;
+  align-self: center;
+  color: var(--af-ink-soft);
+}
+.yd-cost-sum {
+  grid-area: sum;
+  justify-self: end;
+  font-size: var(--af-fs-xl);
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.yd-cost-left {
+  grid-area: left;
+  justify-self: end;
+  font-size: var(--af-fs-xs);
+  color: var(--af-ink-soft);
+}
+.yd-cost-total.is-short .yd-cost-sum,
+.yd-cost-total.is-short .yd-cost-left {
+  color: var(--af-bad-ink);
+}
+
+/* ───────────── check (display below the platform) ───────────── */
+.yd-check {
+  /* fixed height – the changing number of reports must not shift the 3D view above it */
+  display: flex;
+  flex-direction: column;
+  height: 5.9rem;
+  padding: 0.45rem 0.8rem 0.5rem;
+  font-size: var(--af-fs-sm);
+}
+.yd-check-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.9rem;
+  margin-bottom: 0.25rem;
+}
+.yd-check-head > .af-label {
+  color: var(--af-text-dim);
+  margin-right: 0.2rem;
+}
+.yd-basic {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--af-text);
+}
+.yd-basic.is-bad {
+  color: var(--af-bad);
+}
+.yd-msgs {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  scrollbar-width: thin;
+}
+.yd-msg {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 1px 0;
+  line-height: 1.4;
+}
+.yd-msg .af-lamp {
+  transform: translateY(-1px);
+}
+.yd-msg.is-ok {
+  color: var(--af-text-dim);
+}
+.yd-msg-btn {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0 4px 0 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.yd-msg-btn:hover span:last-child {
+  text-decoration: underline;
+  text-decoration-color: rgba(232, 237, 244, 0.4);
+  text-underline-offset: 2px;
+}
+.yd-msg.is-focus.is-error {
+  background: rgba(255, 90, 74, 0.14);
+}
+.yd-msg.is-focus.is-warning {
+  background: rgba(255, 181, 71, 0.14);
+}
+
+/* ───────────── foot ───────────── */
+.yd-history {
+  display: inline-flex;
+  gap: 4px;
+}
+
+@media (max-width: 1120px) {
+  .yd {
+    grid-template-columns: 15rem minmax(0, 1fr) 16rem;
+  }
+  .yd-pal-tags {
+    display: none;
+  }
+  .yd-hints {
+    visibility: hidden;
+  }
+}
+
+/* ───── restore to design (M3.8): the ship lost parts against its blueprint ───── */
+.yd-restore {
+  --cut: 7px;
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: min(30rem, calc(100% - 15rem));
+  padding: 0.45rem 0.5rem 0.45rem 0.75rem;
+  background: rgba(10, 21, 33, 0.86);
+  box-shadow: inset 3px 0 0 var(--af-bad);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  color: var(--af-text);
+}
+.yd-restore.is-applied {
+  box-shadow: inset 3px 0 0 var(--af-ok);
+}
+.yd-restore-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 1px;
+}
+.yd-restore-text b {
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+}
+.yd-restore-text small {
+  overflow: hidden;
+  font-size: var(--af-fs-xs);
+  color: var(--af-text-dim);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.yd-restore .af-btn {
+  flex: none;
+}
+
+/* Guild loan parts on the draft (saboteur fixes): a badge at the bottom left of the hangar */
+.yd-loan {
+  --cut: 7px;
+  position: absolute;
+  bottom: 0.6rem;
+  left: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: min(32rem, calc(100% - 1.2rem));
+  padding: 0.45rem 0.5rem 0.45rem 0.75rem;
+  background: rgba(10, 21, 33, 0.86);
+  box-shadow: inset 3px 0 0 var(--af-warn);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.yd-loan .yd-restore-text small {
+  white-space: normal;
+}
+.yd-loan .af-btn {
+  flex: none;
+}
+
+/* Group selection chip (Shipyard 2.0) – bottom right of the hangar, the selection's azure band. */
+.yd-sel {
+  --cut: 7px;
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  max-width: min(26rem, calc(100% - 1.2rem));
+  padding: 0.4rem 0.75rem 0.4rem 0.85rem;
+  color: var(--af-text);
+  font-size: var(--af-fs-sm);
+  background: rgba(10, 21, 33, 0.86);
+  box-shadow: inset 3px 0 0 var(--af-glow);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  pointer-events: none;
+}
+.yd-sel small {
+  color: var(--af-text-dim);
+}
+.yd-prompt-loose {
+  margin: 0.6rem 0 0;
+  padding-left: 0.6rem;
+  color: var(--af-text);
+  box-shadow: inset 3px 0 0 var(--af-bad);
+}

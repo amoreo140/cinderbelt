@@ -1,0 +1,791 @@
+/* Station hub – a light hull plate set in a dark structural frame (like the station modules). */
+
+.hub {
+  position: absolute;
+  top: var(--af-edge);
+  right: var(--af-edge);
+  bottom: var(--af-edge);
+  width: min(40rem, calc(100vw - 2 * var(--af-edge)));
+  pointer-events: auto;
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.55));
+  animation: hub-in var(--af-dur-hatch) var(--af-ease-clamp) both;
+}
+@keyframes hub-in {
+  from { transform: translateX(28px); opacity: 0; }
+  40% { opacity: 1; }
+  to { transform: none; opacity: 1; }
+}
+.hub-frame {
+  --cut: 22px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #232b38 0%, var(--af-band) 120px);
+  clip-path: polygon(
+    var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut)
+  );
+}
+
+/* header */
+.hub-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--af-s4);
+  padding: 1.1rem 1.4rem 0.8rem 1.6rem;
+}
+.hub-kind {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 600;
+  color: var(--af-text-dim);
+}
+.hub-kind .af-ring-swatch {
+  width: 1.1rem;
+  height: 1.1rem;
+  font-size: 0.625rem;
+}
+.hub-name {
+  margin: 0.25rem 0 0;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-wide);
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--af-text);
+}
+.hub-head .af-credits {
+  margin-bottom: 0.15rem;
+}
+
+/* tabs blend into the plate */
+.hub-frame > .af-tabs {
+  padding: 0 0.85rem;
+}
+
+/* body – a hull plate with rivets in the corners */
+.hub-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0 6px;
+  padding: 1.1rem 1.3rem 1.2rem;
+  color: var(--af-ink);
+  font-size: var(--af-fs-lg);
+  background:
+    radial-gradient(circle, #8b95a4 0 2px, transparent 2.6px) 9px 9px / 6px 6px no-repeat,
+    radial-gradient(circle, #8b95a4 0 2px, transparent 2.6px) calc(100% - 9px) 9px / 6px 6px no-repeat,
+    linear-gradient(180deg, var(--af-hull-hi) 0%, var(--af-hull) 140px, #d2d8e0 100%);
+  background-attachment: local, local, local;
+  scrollbar-width: thin;
+  scrollbar-color: var(--af-hull-shade) transparent;
+}
+.hub-page {
+  animation: af-slide var(--af-dur-clamp) var(--af-ease-clamp) both;
+}
+.hub-body section {
+  margin: 0;
+}
+.hub-dim {
+  color: var(--af-ink-soft);
+}
+.hub-note {
+  margin: 0.75rem 0 0;
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+
+/* overview */
+.hub-welcome {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+  padding: 0.7rem 1rem;
+  font-size: var(--af-fs-md);
+  line-height: 1.5;
+}
+.hub-welcome p {
+  margin: 0;
+}
+.hub-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 1.25rem;
+}
+.hub-gauges {
+  padding: 0.8rem 1rem 0.7rem;
+}
+.hub-gauges .af-gauge + .af-gauge {
+  margin-top: 0.7rem;
+}
+.hub-quick {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hub-quick .af-heading {
+  margin-bottom: 2px;
+}
+.hub-lists {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.hub-list-row {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  align-items: center;
+  gap: var(--af-s3);
+  font-size: var(--af-fs-md);
+}
+.hub-list-label {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  color: var(--af-ink-soft);
+}
+.hub-service-tag {
+  --cut: 4px;
+  padding: 2px 7px;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  color: var(--af-ink);
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 0 0 1px var(--af-seam);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+
+/* market */
+.hub-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+}
+.hub-toolbar-label {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  color: var(--af-ink-soft);
+}
+.hub-spacer {
+  flex: 1;
+}
+.hub-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.hub-table thead th {
+  padding: 0 6px 6px;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  text-align: left;
+  color: var(--af-ink-soft);
+  white-space: nowrap;
+}
+.hub-table tbody tr {
+  background: linear-gradient(180deg, var(--af-seam) 0 1px, rgba(255, 255, 255, 0.65) 1px 2px, transparent 2px) top / 100% 2px no-repeat;
+}
+.hub-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+.hub-table tbody th,
+.hub-table td {
+  padding: 7px 6px 6px;
+  text-align: left;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.hub-table tbody th {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 700;
+}
+.hub-table .num {
+  text-align: right;
+  font-weight: 700;
+}
+.hub-table td.is-zero {
+  color: rgba(74, 86, 102, 0.6);
+  font-weight: 400;
+}
+.hub-price-sell {
+  color: var(--af-ok-ink);
+}
+.hub-actions {
+  text-align: right !important;
+}
+.hub-action-pair {
+  display: inline-flex;
+  gap: 3px;
+}
+.hub-action-pair + .hub-action-pair {
+  margin-left: 8px;
+}
+
+/* service */
+.hub-status {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  font-size: var(--af-fs-md);
+}
+.hub-service-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--af-s3);
+  margin: 0.75rem 0;
+}
+.hub-service-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: var(--af-fs-md);
+}
+.hub-service-text strong {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 750;
+}
+.hub-row-buttons {
+  display: inline-flex;
+  gap: 6px;
+}
+.hub-service .hub-gauges {
+  margin-bottom: 0.25rem;
+}
+
+/* foot */
+.hub-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--af-s4);
+  padding: 0.75rem 1.6rem 0.9rem 1.4rem;
+}
+.hub-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  color: var(--af-text-dim);
+}
+.hub-foot .af-btn--primary {
+  min-width: 10.5rem;
+}
+
+/* toast in the dock – in the centre of the free part left of the hub */
+.ui-toast {
+  position: absolute;
+  top: 1.1rem;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.ui-toast--docked {
+  left: calc((100vw - min(40rem, calc(100vw - 2 * var(--af-edge))) - var(--af-edge)) / 2);
+}
+/* the shipyard spans the whole width: the toast goes below its head and tab rail (StationHub publishes
+   --hub-head-bottom) and below the hangar's top row – the tools, the restore band and the ghost card
+   (Shipyard publishes --yard-top-bottom) – over the 3D view */
+.hub--yard ~ .ui-toast--docked {
+  left: 50%;
+  top: max(calc(var(--hub-head-bottom, 6.5rem) + 3.2rem), calc(var(--yard-top-bottom, 0px) + 0.5rem));
+}
+
+@media (max-width: 560px) {
+  .hub-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* parts market */
+.hub-parts-table .af-part {
+  padding-right: 6px;
+}
+/* a part row opens to its explanation (what it does, what it changes on your ship) */
+.hub-parts-hint {
+  margin: 0 0 0.5rem;
+}
+.hub-part-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: -2px 0;
+  padding: 2px 4px 2px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.hub-part-chevron {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 2px solid var(--af-ink-soft);
+  border-bottom: 2px solid var(--af-ink-soft);
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform var(--af-dur-snap) var(--af-ease-clamp);
+}
+.hub-part-toggle:hover .hub-part-chevron {
+  border-color: var(--af-ink);
+}
+.hub-part-toggle[aria-expanded='true'] .hub-part-chevron {
+  transform: translateY(1px) rotate(225deg);
+}
+.hub-parts-table tbody tr.is-open {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+.hub-parts-table tbody tr.hub-part-info {
+  background: rgba(255, 255, 255, 0.35);
+}
+.hub-parts-table tbody tr.hub-part-info:hover {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+.hub-part-info > td {
+  padding: 2px 6px 10px;
+  white-space: normal;
+}
+.hub-part-info-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 0.8rem;
+  align-items: start;
+}
+.hub-not-sold {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  color: var(--af-ink-soft);
+}
+
+/* crafting – the tab fills the hub body instead of scrolling it as a whole: the recipe list and the
+   detail body scroll on their own, so the craft action (count + "Craft") stays pinned at the bottom
+   of the detail plate at any window height */
+.hub-body:has(> .hub-page > .hub-craft) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.hub-body:has(> .hub-page > .hub-craft) > .hub-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.hub-craft {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.hub-craft-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 13.5rem minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+.hub-recipes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 100%;
+  overflow-y: auto;
+  /* room for the focus line inside the scroll box */
+  margin: -5px;
+  padding: 5px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--af-hull-shade) transparent;
+}
+.hub-recipe {
+  --cut: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 3px 10px 3px 3px;
+  border: 0;
+  background: transparent;
+  color: var(--af-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.hub-recipe .af-part {
+  background: transparent;
+  box-shadow: none;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 700;
+}
+.hub-recipe:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+.hub-recipe.is-selected {
+  background:
+    linear-gradient(var(--af-trim), var(--af-trim)) left / var(--af-trim-w) 100% no-repeat,
+    var(--af-hull-hi);
+  box-shadow: inset 0 -1px 0 var(--af-seam);
+}
+.hub-craft-detail {
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  min-height: 0;
+  padding: 0.9rem 1rem 0.85rem;
+}
+.hub-craft-body {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  /* room for the focus line; the scrollbar sits in the plate's right padding */
+  margin: -5px -0.7rem -5px -5px;
+  padding: 5px 0.7rem 5px 5px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--af-hull-shade) transparent;
+}
+.hub-craft-title {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.75rem;
+}
+.hub-craft-title h3 {
+  margin: 0;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-wide);
+  font-size: var(--af-fs-xl);
+  font-weight: 800;
+  line-height: 1.1;
+}
+.hub-craft-icon {
+  padding: 5px;
+}
+.hub-craft-icon img {
+  width: 3.4rem;
+  height: 3.4rem;
+}
+.hub-stats-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.8rem;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.hub-stats-line b {
+  color: var(--af-ink);
+}
+.hub-stats-line small {
+  font-weight: 600;
+}
+.hub-craft-info {
+  display: grid;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+.hub-craft-needs {
+  padding: 0.55rem 0.8rem 0.6rem;
+}
+.hub-craft-needs table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.hub-craft-needs thead th {
+  padding: 0 4px 4px;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  text-align: left;
+  color: var(--af-text-dim);
+}
+.hub-craft-needs thead small {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+.hub-craft-needs td,
+.hub-craft-needs tbody th {
+  padding: 4px;
+  text-align: left;
+  font-weight: 400;
+  border-top: 1px solid var(--af-seam-dark);
+}
+.hub-craft-needs .num {
+  text-align: right;
+  font-weight: 700;
+}
+.hub-craft-needs td.is-short {
+  color: var(--af-bad);
+}
+.hub-craft-needs td:last-child {
+  width: 1.2rem;
+  text-align: center;
+}
+.hub-craft-fee th {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 650 !important;
+  color: var(--af-text-dim);
+}
+/* pinned action bar under a pressed seam – the body scrolls above it, never beneath it; the detail
+   column is too narrow for the stepper and the button side by side, so the button takes its own row */
+.hub-craft-actions {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.45rem;
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--af-seam);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.hub-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.hub-stepper .hub-toolbar-label {
+  margin-right: 4px;
+}
+.hub-stepper-value {
+  min-width: 1.8rem;
+  text-align: center;
+  font-size: var(--af-fs-xl);
+  font-weight: 800;
+}
+.hub-stepper-max {
+  margin-left: 4px;
+  font-size: var(--af-fs-sm);
+}
+.hub-craft-facts {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  gap: 0.6rem;
+  margin: 0.8rem 0 0;
+  padding: 0.55rem 0 0;
+  border-top: 1px solid var(--af-seam);
+}
+.hub-craft-facts dt {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  color: var(--af-ink-soft);
+}
+.hub-craft-facts dd {
+  margin: 0;
+  font-weight: 700;
+}
+.hub-craft-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.hub-craft-foot .hub-note {
+  margin-top: 0.55rem;
+  max-width: 24rem;
+}
+
+/* repairs */
+.hub-status-aside {
+  margin-left: auto;
+  color: var(--af-text-dim);
+  font-weight: 700;
+}
+.hub-repair-table {
+  margin-top: 0.7rem;
+}
+.hub-part-id {
+  font-size: var(--af-fs-sm);
+  font-weight: 400;
+}
+.hub-hpbar {
+  display: inline-block;
+  vertical-align: middle;
+  width: 4.5rem;
+  height: 7px;
+  margin-right: 0.5rem;
+  background: rgba(22, 32, 44, 0.16);
+  transform: skewX(-24deg);
+}
+.hub-hpbar i {
+  display: block;
+  height: 100%;
+  background: var(--af-ok-ink);
+}
+.hub-hpbar.is-warn i {
+  background: var(--af-warn-ink);
+}
+.hub-hpbar.is-bad i {
+  background: var(--af-bad-ink);
+}
+.hub-hp-text {
+  font-weight: 700;
+}
+.hub-repair-all {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+.hub-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: var(--af-fs-md);
+  cursor: pointer;
+}
+.hub-check input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--af-trim-deep);
+}
+
+/* shipyard tab with an unconfirmed design */
+.hub-tab-dirty::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 0.4rem;
+  vertical-align: 0.15em;
+  background: var(--af-warn);
+  transform: rotate(45deg);
+}
+
+/* M3.5a: career on the overview and demand on the market */
+.hub-career {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.hub-career-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  font-size: var(--af-fs-md);
+}
+.hub-career-ready {
+  color: var(--af-ok-ink);
+}
+.hub-demand {
+  --cut: 4px;
+  display: inline-block;
+  margin-left: 0.45rem;
+  padding: 1px 6px;
+  color: var(--af-ok-ink);
+  box-shadow: inset 0 0 0 1px rgba(21, 106, 48, 0.45);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  vertical-align: middle;
+}
+
+/* ───── the ship lost parts against its blueprint (M3.8) ───── */
+.hub-gap {
+  display: flex;
+  align-items: center;
+  gap: var(--af-s3);
+  margin-top: var(--af-s2);
+  padding: var(--af-s2) var(--af-s3);
+  box-shadow: inset 3px 0 0 var(--af-bad);
+}
+.hub-gap-warn {
+  box-shadow: inset 3px 0 0 var(--af-warn);
+}
+.hub-gap .af-sil {
+  flex: none;
+}
+.hub-gap-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  color: var(--af-text);
+}
+.hub-gap-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+}
+.hub-gap-list {
+  font-size: var(--af-fs-xs);
+  color: var(--af-text-dim);
+}
+
+/* the Overview tab's hangar line and the tab rail: always in the hub (the hangar and Development styles load
+   with their lazily loaded screens) */
+.hub-hangar-line {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+/* tab rail: tabs keep their width (StationHub swaps to the short labels when the full ones overflow) */
+.hub-frame > .af-tabs .af-tab {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+/* eight tabs (home): a tighter rail */
+.hub-frame > .af-tabs:has(> .af-tab:nth-child(8)) {
+  gap: 2px;
+  padding: 0 0.55rem;
+}
+.hub-frame > .af-tabs:has(> .af-tab:nth-child(8)) .af-tab {
+  gap: 0.3rem;
+  padding: 0 0.5rem 0 0.4rem;
+}
+/* even the short labels too wide (a window narrower than the hub): narrower letters */
+@media (max-width: 680px) {
+  .hub--short-tabs > .hub-frame > .af-tabs .af-tab {
+    font-stretch: 80%;
+  }
+}

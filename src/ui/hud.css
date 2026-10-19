@@ -1,0 +1,408 @@
+/* Flight HUD – the ship console. Minimal during flight, readouts in the corners, centre free. */
+
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ───── top left: the navigation band (sector / ring, position, nearest station, pirate attention)
+   and the objectives band under it – one stack in the flow, so a taller nav band pushes the band down ───── */
+.hud-tl {
+  position: absolute;
+  left: var(--af-edge);
+  top: var(--af-edge);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+.hud-nav {
+  padding: 0.55rem 0.9rem 0.6rem 0.65rem;
+  min-width: 14rem;
+}
+.hud-nav .af-ring-name {
+  font-size: var(--af-fs-lg);
+  color: var(--af-text);
+}
+.hud-nav-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1px var(--af-s3);
+  margin: 0.4rem 0 0;
+  padding-left: calc(1.3rem + 0.5rem);
+  font-size: var(--af-fs-sm);
+}
+.hud-nav-grid dt {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  align-self: center;
+  color: var(--af-text-dim);
+}
+.hud-nav-grid dd {
+  margin: 0;
+  font-weight: 700;
+  justify-self: end;
+}
+.hud-nav-station {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+.hud-nav-station-name {
+  font-weight: 400;
+  color: var(--af-text-dim);
+}
+
+/* ───── console bottom left: speed, dampers, gauges ───── */
+.hud-console {
+  position: absolute;
+  left: var(--af-edge);
+  bottom: var(--af-edge);
+  display: grid;
+  grid-template-columns: auto 15.5rem;
+  gap: var(--af-s4);
+  padding: 0.85rem 1rem 0.75rem;
+}
+.hud-console-flight {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--af-s3);
+  padding-right: var(--af-s4);
+  border-right: 1px solid rgba(232, 237, 244, 0.08);
+  min-width: 7.5rem;
+}
+.hud-console-flight .af-readout-value {
+  color: var(--af-text);
+}
+.hud-dampers {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  color: var(--af-text-dim);
+  white-space: nowrap;
+}
+.hud-dampers strong {
+  color: var(--af-ok);
+  font-weight: 700;
+}
+.hud-dampers.is-off strong {
+  color: var(--af-bad);
+}
+.hud-dampers .af-key {
+  margin-left: 0.15rem;
+}
+.hud-console-gauges .af-gauge + .af-gauge {
+  margin-top: 0.35rem;
+}
+.hud-cargo {
+  margin-top: 0.5rem;
+  font-size: var(--af-fs-sm);
+}
+
+/* ───── radar bottom right ───── */
+.hud-radar {
+  position: absolute;
+  right: var(--af-edge);
+  bottom: var(--af-edge);
+  padding: 8px;
+  line-height: 0;
+}
+.hud-radar-canvas {
+  display: block;
+}
+.hud-radar-range {
+  position: absolute;
+  right: 10px;
+  bottom: 6px;
+  line-height: 1;
+  font-size: var(--af-fs-xs);
+  color: var(--af-text-dim);
+}
+
+/* ───── top right: credits and help ───── */
+.hud-topright {
+  position: absolute;
+  right: var(--af-edge);
+  top: var(--af-edge);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--af-s2);
+}
+.hud-help.is-collapsed {
+  padding: 0.3rem 0.55rem;
+  background: rgba(27, 34, 45, 0.7);
+  color: var(--af-text-dim);
+  font-family: var(--af-font-display);
+}
+.hud-help:not(.is-collapsed) {
+  width: 17.5rem;
+  padding: 0.55rem 0.8rem 0.65rem;
+  animation: af-clamp var(--af-dur-clamp) var(--af-ease-clamp) both;
+  transform-origin: top right;
+}
+.hud-help-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+.hud-help-title {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 750;
+  font-size: var(--af-fs-md);
+}
+.hud-help-list {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px var(--af-s3);
+  font-size: var(--af-fs-sm);
+  line-height: 1.3;
+}
+.hud-help-row {
+  display: contents;
+}
+.hud-help-list dt {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  justify-content: flex-end;
+}
+.hud-help-list dd {
+  margin: 0;
+  align-self: center;
+  color: var(--af-text-dim);
+}
+.hud-help-mouse {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-xs);
+  font-weight: 600;
+  color: var(--af-text);
+  text-align: right;
+  max-width: 7rem;
+}
+
+/* windows under ~1000 px tall: the key list in two columns, so it ends above the radar legend
+   (pinned over the radar while the help is open) and never covers the radar itself */
+@media (max-height: 1000px) {
+  .hud-help:not(.is-collapsed) {
+    width: auto;
+    padding: 0.45rem 0.75rem 0.5rem;
+  }
+  .hud-help-head {
+    margin-bottom: 0.2rem;
+  }
+  .hud-help-list {
+    grid-template-columns: auto minmax(0, 9.6rem) auto minmax(0, 9.6rem);
+    gap: 1px var(--af-s2);
+    line-height: 1.15;
+  }
+  .hud-help-mouse {
+    max-width: 5.6rem;
+  }
+}
+
+/* ───── landing prompt (centre) ───── */
+.hud-prompt {
+  --cut: 8px;
+  position: absolute;
+  left: 50%;
+  bottom: 28%;
+  translate: -50% 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 1.1rem 0.55rem 0.7rem;
+  white-space: nowrap;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-lg);
+  font-weight: 700;
+  color: var(--af-text);
+  background: linear-gradient(180deg, rgba(37, 46, 60, 0.92), rgba(27, 34, 45, 0.92));
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  animation: af-latch var(--af-dur-clamp) var(--af-ease-clamp) both;
+}
+.hud-prompt .af-key {
+  font-size: var(--af-fs-sm);
+}
+.hud-prompt--ok {
+  box-shadow: inset 0 -2px 0 var(--af-ok);
+}
+.hud-prompt--warn {
+  padding-left: 1.6rem;
+  padding-right: 1.6rem;
+  color: var(--af-warn);
+  background:
+    repeating-linear-gradient(-45deg, var(--af-warn) 0 6px, #1b1408 6px 12px) left / 12px 100% no-repeat,
+    repeating-linear-gradient(-45deg, var(--af-warn) 0 6px, #1b1408 6px 12px) right / 12px 100% no-repeat,
+    linear-gradient(180deg, rgba(42, 33, 20, 0.94), rgba(28, 22, 14, 0.94));
+}
+.hud-prompt--info {
+  font-weight: 500;
+  font-size: var(--af-fs-md);
+  color: var(--af-text-dim);
+  background: rgba(27, 34, 45, 0.72);
+}
+
+/* ───── notice (out of fuel / landing) ───── */
+.hud-hint {
+  --cut: 8px;
+  position: absolute;
+  left: 50%;
+  bottom: 20%;
+  translate: -50% 0;
+  padding: 0.6rem 1.6rem;
+  white-space: nowrap;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-lg);
+  font-weight: 700;
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.hud-hint--bad {
+  color: #ffd2cc;
+  background:
+    repeating-linear-gradient(-45deg, var(--af-bad) 0 6px, #2a0d0b 6px 12px) left / 12px 100% no-repeat,
+    repeating-linear-gradient(-45deg, var(--af-bad) 0 6px, #2a0d0b 6px 12px) right / 12px 100% no-repeat,
+    linear-gradient(180deg, rgba(58, 26, 28, 0.94), rgba(38, 16, 18, 0.94));
+}
+.hud-hint--info {
+  color: var(--af-text);
+  background: rgba(27, 34, 45, 0.85);
+  box-shadow: inset 0 -2px 0 var(--af-glow);
+}
+
+/* ───── edge arrow to the station ───── */
+.hud-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  z-index: 2;
+}
+.hud-arrow-head {
+  position: absolute;
+  left: -13px;
+  top: -11px;
+  width: 26px;
+  height: 22px;
+  transform-origin: 13px 11px;
+  background: var(--af-trim);
+  clip-path: polygon(0 0, 45% 0, 100% 50%, 45% 100%, 0 100%, 52% 50%);
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.9));
+}
+.hud-arrow-label {
+  --cut: 4px;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  padding: 2px 8px;
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+  color: var(--af-text);
+  background: rgba(27, 34, 45, 0.88);
+  box-shadow: inset 2px 0 0 var(--af-trim);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+
+/* station arrow: a dock clamp glyph in the label (shape differs from the red pirate arrows, R2) */
+.hud-arrow-dock {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  vertical-align: -1px;
+  fill: var(--af-trim);
+}
+
+/* ───── map ───── */
+.hud-map {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(4, 7, 12, 0.45);
+  animation: af-fade var(--af-dur-clamp) linear both;
+}
+.hud-map-frame {
+  padding: 0.9rem 1rem 0.8rem;
+  animation: af-clamp var(--af-dur-hatch) var(--af-ease-clamp) both;
+}
+.hud-map-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--af-s5);
+  margin: 0.15rem 0.2rem 0.6rem;
+}
+.hud-map-title {
+  margin: 0;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-wide);
+  font-size: var(--af-fs-xl);
+  font-weight: 800;
+}
+.hud-map-screen {
+  padding: 6px;
+  line-height: 0;
+}
+.hud-map-screen canvas {
+  display: block;
+}
+.hud-map-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--af-s4);
+  margin: 0.6rem 0.2rem 0;
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.hud-map-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.hud-diamond {
+  width: 9px;
+  height: 9px;
+  transform: rotate(45deg);
+  box-shadow: 0 0 0 1.5px var(--af-ink);
+}
+.hud-map-legend-rings {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 4px;
+}
+
+/* narrow windows: smaller radar and console */
+@media (max-width: 760px), (max-height: 520px) {
+  .hud-console {
+    grid-template-columns: auto 11rem;
+  }
+  .hud-help:not(.is-collapsed) {
+    display: none;
+  }
+}
+
+/* goal arrow (M3.5a): azure – live data, distinct from the orange station arrow */
+.hud-arrow--goal .hud-arrow-head {
+  background: var(--af-glow);
+}
+.hud-arrow--goal .hud-arrow-label {
+  box-shadow: inset 2px 0 0 var(--af-glow);
+}

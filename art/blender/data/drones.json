@@ -1,0 +1,67 @@
+{
+  "_schema": {
+    "frame": "origin = body centre (fly with it on the gameplay plane), glTF +X = nose, +Y = up",
+    "length": "overall length in grid units (ship cell = 1)",
+    "landingHeight": "distance from the origin down to the skids / belly: on a pad put the origin this high above the pad EMPTY (base drone_pad, home drone_pad_<i>, scout_bay)",
+    "nodes": "animated / special child nodes"
+  },
+  "drone_cargo": {
+    "file": "drone_cargo",
+    "label": "Cargo drone",
+    "labelSk": "N\u00e1kladn\u00fd dron",
+    "source": "base drone dock / hub routes",
+    "spec": "100 u per trip (U2: 200), 40 u/s, 60 HP",
+    "length": 2.3,
+    "landingHeight": 0.62,
+    "nodes": {
+      "Cargo_Pod": "detachable container (pivot = pod centre); hide when empty",
+      "beacon_0/1": "port red / starboard green nav lamps",
+      "beacon_2": "amber tail lamp",
+      "thruster_0/1": "EMPTY nozzle exits, local +X = exhaust direction"
+    }
+  },
+  "drone_mining": {
+    "file": "drone_mining",
+    "label": "Mining drone",
+    "labelSk": "\u0164a\u017eobn\u00fd dron",
+    "source": "ship drone hangar (2x2)",
+    "spec": "mines asteroids within 60 u of the ship, 0.8 u/s",
+    "length": 0.8,
+    "landingHeight": 0.13,
+    "nodes": {
+      "Drone_Laser": "emitter on the top front between the prongs, aim around local +Y (+-70 deg)",
+      "Muzzle": "EMPTY beam origin (child of Drone_Laser), +X = beam",
+      "beacon_0": "amber lamp",
+      "thruster_0/1": "EMPTY nozzle exits"
+    }
+  },
+  "drone_repair": {
+    "file": "drone_repair",
+    "label": "Repair drone",
+    "labelSk": "Opravn\u00fd dron",
+    "source": "ship drone hangar (2x2)",
+    "spec": "repairs parts 2 HP/s out of combat",
+    "length": 0.85,
+    "landingHeight": 0.13,
+    "nodes": {
+      "Repair_Arm_L/R": "welding arms, swing around local +Y (pivot = shoulder)",
+      "Repair_Tip_L/R": "EMPTY spark / repair beam origins (children of the arms)",
+      "beacon_0": "green lamp",
+      "thruster_0/1": "EMPTY nozzle exits"
+    }
+  },
+  "drone_scout": {
+    "file": "drone_scout",
+    "label": "Scout drone",
+    "labelSk": "Prieskumn\u00fd dron",
+    "source": "home Observatory (scout_bay)",
+    "spec": "flies to a signal and back, 10-30 game min, visible on the map",
+    "length": 1.9,
+    "landingHeight": 0.17,
+    "nodes": {
+      "Scout_Dish": "sensor dish, spin around local +Y",
+      "beacon_0": "white strobe",
+      "thruster_0": "EMPTY nozzle exit"
+    }
+  }
+}

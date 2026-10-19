@@ -1,0 +1,603 @@
+{
+  "_schema": {
+    "about": "NPC ships of art batch C (Guild Watch + civilian traffic). Render only (StationTraffic / a future patrol layer). glTF axes: +X = bow (moves toward +X), +Y up, origin = hull centre on the gameplay plane. Scale 1 (1 unit = 1 ship cell, like npc/trader.glb).",
+    "nodes": "thruster_<i> EMPTY at the nozzle exit, local +X = exhaust direction: attach the flame strip (StationTraffic: flame.rotation.z = -PI/2) and the trail there. beacon_<i> = lamp MESH: clone the material and drive emissiveIntensity with beaconLevel(). strobe_<i> = lamp MESH, faster patrol rhythm (see anim). Other named nodes: see anim.",
+    "flame": "material = which StationTraffic flame material (big | small); length = FLAME_LENGTH value",
+    "trail": "StationTraffic TRAIL width/color suggestion",
+    "speedClass": "slow ~ trader timings, medium, fast ~ drone timings (KIND_SPECS approach/depart)",
+    "faction": "FactionId (src) of the operator; colours: guild = navy/orange, freeTraders = green, institute = cyan"
+  },
+  "kinds": {
+    "guild_cutter": {
+      "file": "guild_cutter.glb",
+      "faction": "guild",
+      "role": "Guild Watch patrol cutter (C1)",
+      "labelSk": "Hliadkový kuter Stráže Cechu",
+      "labelEn": "Guild Watch cutter",
+      "speedClass": "fast",
+      "flame": {
+        "material": "big",
+        "length": 1.6
+      },
+      "trail": {
+        "width": 0.9,
+        "color": [
+          0.6,
+          0.78,
+          1.0
+        ]
+      },
+      "lamps": {
+        "beacon_0": "red",
+        "beacon_1": "green",
+        "beacon_2": "white",
+        "beacon_3": "white",
+        "strobe_0": "#9ccbff",
+        "strobe_1": "#9ccbff"
+      },
+      "anim": {
+        "Gun_0": "yaw around +Y, rest +X, +-35 deg",
+        "Gun_1": "same",
+        "strobe_0/1": "patrol strobe: alternating double flash (60 ms on, 80 off, 60 on), period 1.2 s, strobe_1 offset by half a period"
+      },
+      "where": "Guarded sectors, Guild Lanes, escorting traders (sectors §3.1 \"Stráž Cechu\")",
+      "tris": 3808,
+      "length": 7.337,
+      "size": [
+        7.337,
+        2.055,
+        4.508
+      ],
+      "bounds": {
+        "min": [
+          -3.71,
+          -0.5,
+          -2.254
+        ],
+        "max": [
+          3.627,
+          1.555,
+          2.254
+        ]
+      },
+      "nodes": [
+        "beacon_0",
+        "beacon_1",
+        "beacon_2",
+        "beacon_3",
+        "Gun_0",
+        "muzzle_0",
+        "Gun_1",
+        "muzzle_1",
+        "strobe_0",
+        "strobe_1",
+        "thruster_0",
+        "thruster_1"
+      ],
+      "thrusters": [
+        {
+          "node": "thruster_0",
+          "pos": [
+            -3.72,
+            -0.08,
+            -0.58
+          ]
+        },
+        {
+          "node": "thruster_1",
+          "pos": [
+            -3.72,
+            -0.08,
+            0.58
+          ]
+        }
+      ]
+    },
+    "guild_frigate": {
+      "file": "guild_frigate.glb",
+      "faction": "guild",
+      "role": "Guild Watch patrol leader (C2)",
+      "labelSk": "Fregata Stráže Cechu",
+      "labelEn": "Guild Watch frigate",
+      "speedClass": "slow",
+      "flame": {
+        "material": "big",
+        "length": 2.6
+      },
+      "trail": {
+        "width": 1.6,
+        "color": [
+          0.6,
+          0.78,
+          1.0
+        ]
+      },
+      "lamps": {
+        "beacon_0": "red",
+        "beacon_1": "green",
+        "beacon_2": "white",
+        "beacon_3": "white",
+        "beacon_4": "amber",
+        "strobe_0": "#9ccbff",
+        "strobe_1": "#9ccbff"
+      },
+      "anim": {
+        "Turret_0": "yaw around +Y, rest +X, 360 deg",
+        "strobe_0/1": "as the cutter"
+      },
+      "where": "Guarded sector hubs, big escorts; 1 frigate + 2 cutters as a patrol group",
+      "tris": 9018,
+      "length": 13.875,
+      "size": [
+        13.875,
+        3.497,
+        6.926
+      ],
+      "bounds": {
+        "min": [
+          -7.06,
+          -1.05,
+          -3.463
+        ],
+        "max": [
+          6.815,
+          2.447,
+          3.463
+        ]
+      },
+      "nodes": [
+        "beacon_0",
+        "beacon_1",
+        "beacon_2",
+        "beacon_3",
+        "beacon_4",
+        "strobe_0",
+        "strobe_1",
+        "thruster_0",
+        "thruster_1",
+        "thruster_2",
+        "Turret_0",
+        "muzzle_0",
+        "muzzle_1"
+      ],
+      "thrusters": [
+        {
+          "node": "thruster_0",
+          "pos": [
+            -7.0,
+            -0.25,
+            1.05
+          ]
+        },
+        {
+          "node": "thruster_1",
+          "pos": [
+            -7.0,
+            -0.25,
+            -0.0
+          ]
+        },
+        {
+          "node": "thruster_2",
+          "pos": [
+            -7.0,
+            -0.25,
+            -1.05
+          ]
+        }
+      ]
+    },
+    "miner_barge": {
+      "file": "miner_barge.glb",
+      "faction": "guild",
+      "role": "Guild ore barge (civilian)",
+      "labelSk": "Banícky čln",
+      "labelEn": "Mining barge",
+      "speedClass": "slow",
+      "flame": {
+        "material": "big",
+        "length": 2.2
+      },
+      "trail": {
+        "width": 1.3,
+        "color": [
+          0.95,
+          0.66,
+          0.4
+        ]
+      },
+      "lamps": {
+        "beacon_0": "red",
+        "beacon_1": "green",
+        "beacon_2": "white",
+        "beacon_3": "amber"
+      },
+      "anim": {
+        "Drill_0": "spin around local +X while working (3 rev/s); idle in flight",
+        "Drill_1": "same, opposite direction",
+        "Barge_Ore": "visible when loaded (arriving at a station), hidden when departing"
+      },
+      "where": "home + mining stations, asteroid fields",
+      "tris": 3988,
+      "length": 10.41,
+      "size": [
+        10.41,
+        3.081,
+        4.848
+      ],
+      "bounds": {
+        "min": [
+          -5.06,
+          -0.95,
+          -2.424
+        ],
+        "max": [
+          5.35,
+          2.131,
+          2.424
+        ]
+      },
+      "nodes": [
+        "Barge_Ore",
+        "beacon_0",
+        "beacon_1",
+        "beacon_2",
+        "beacon_3",
+        "Drill_0",
+        "Drill_1",
+        "thruster_0",
+        "thruster_1"
+      ],
+      "thrusters": [
+        {
+          "node": "thruster_0",
+          "pos": [
+            -5.05,
+            -0.3,
+            1.0
+          ]
+        },
+        {
+          "node": "thruster_1",
+          "pos": [
+            -5.05,
+            -0.3,
+            -1.0
+          ]
+        }
+      ]
+    },
+    "tanker": {
+      "file": "tanker.glb",
+      "faction": "freeTraders",
+      "role": "fuel tanker (civilian)",
+      "labelSk": "Tanker",
+      "labelEn": "Tanker",
+      "speedClass": "slow",
+      "flame": {
+        "material": "big",
+        "length": 2.2
+      },
+      "trail": {
+        "width": 1.3,
+        "color": [
+          0.95,
+          0.85,
+          0.5
+        ]
+      },
+      "lamps": {
+        "beacon_0": "red",
+        "beacon_1": "green",
+        "beacon_2": "white",
+        "beacon_3": "amber"
+      },
+      "anim": {},
+      "where": "trade / refinery stations, along Guild Lanes",
+      "tris": 4348,
+      "length": 11.71,
+      "size": [
+        11.71,
+        3.281,
+        3.548
+      ],
+      "bounds": {
+        "min": [
+          -5.86,
+          -0.85,
+          -1.774
+        ],
+        "max": [
+          5.85,
+          2.431,
+          1.774
+        ]
+      },
+      "nodes": [
+        "beacon_0",
+        "beacon_1",
+        "beacon_2",
+        "beacon_3",
+        "thruster_0",
+        "thruster_1"
+      ],
+      "thrusters": [
+        {
+          "node": "thruster_0",
+          "pos": [
+            -5.85,
+            -0.25,
+            0.55
+          ]
+        },
+        {
+          "node": "thruster_1",
+          "pos": [
+            -5.85,
+            -0.25,
+            -0.55
+          ]
+        }
+      ]
+    },
+    "courier": {
+      "file": "courier.glb",
+      "faction": "freeTraders",
+      "role": "fast courier (civilian)",
+      "labelSk": "Kuriér",
+      "labelEn": "Courier",
+      "speedClass": "fast",
+      "flame": {
+        "material": "small",
+        "length": 1.2
+      },
+      "trail": {
+        "width": 0.5,
+        "color": [
+          0.55,
+          0.95,
+          0.7
+        ]
+      },
+      "lamps": {
+        "beacon_0": "red",
+        "beacon_1": "green",
+        "beacon_2": "white"
+      },
+      "anim": {},
+      "where": "everywhere, frequent short hops (scale 1 - it is a small ship, like a drone x2)",
+      "tris": 1768,
+      "length": 4.591,
+      "size": [
+        4.591,
+        0.915,
+        2.892
+      ],
+      "bounds": {
+        "min": [
+          -2.46,
+          -0.38,
+          -1.446
+        ],
+        "max": [
+          2.131,
+          0.535,
+          1.446
+        ]
+      },
+      "nodes": [
+        "beacon_0",
+        "beacon_1",
+        "beacon_2",
+        "thruster_0",
+        "thruster_1",
+        "thruster_2"
+      ],
+      "thrusters": [
+        {
+          "node": "thruster_0",
+          "pos": [
+            -2.45,
+            0.0,
+            -0.0
+          ]
+        },
+        {
+          "node": "thruster_1",
+          "pos": [
+            -1.95,
+            -0.06,
+            -0.95
+          ]
+        },
+        {
+          "node": "thruster_2",
+          "pos": [
+            -1.95,
+            -0.06,
+            0.95
+          ]
+        }
+      ]
+    },
+    "survey_ship": {
+      "file": "survey_ship.glb",
+      "faction": "institute",
+      "role": "Institute survey ship (civilian)",
+      "labelSk": "Prieskumná loď Inštitútu",
+      "labelEn": "Institute survey ship",
+      "speedClass": "medium",
+      "flame": {
+        "material": "big",
+        "length": 1.6
+      },
+      "trail": {
+        "width": 0.9,
+        "color": [
+          0.45,
+          0.85,
+          0.95
+        ]
+      },
+      "lamps": {
+        "beacon_0": "red",
+        "beacon_1": "green",
+        "beacon_2": "white",
+        "beacon_3": "white"
+      },
+      "anim": {
+        "Survey_Dish": "spin around +Y (glTF) 0.15 rev/s"
+      },
+      "where": "research stations, Uncharted sectors, near survey points",
+      "tris": 3180,
+      "length": 9.88,
+      "size": [
+        9.88,
+        2.75,
+        4.148
+      ],
+      "bounds": {
+        "min": [
+          -4.31,
+          -0.8,
+          -2.074
+        ],
+        "max": [
+          5.57,
+          1.95,
+          2.074
+        ]
+      },
+      "nodes": [
+        "beacon_0",
+        "beacon_1",
+        "beacon_2",
+        "beacon_3",
+        "Survey_Dish",
+        "thruster_0",
+        "thruster_1"
+      ],
+      "thrusters": [
+        {
+          "node": "thruster_0",
+          "pos": [
+            -4.32,
+            -0.25,
+            -0.62
+          ]
+        },
+        {
+          "node": "thruster_1",
+          "pos": [
+            -4.32,
+            -0.25,
+            0.62
+          ]
+        }
+      ]
+    }
+  },
+  "collision": {
+    "_about": "M4d convoy collision circles: local frame x = glTF X (bow), y = -glTF Z (port / left positive), r; list of {x, y, r} covering the hull incl. racks. tradePort = the trade_port node of the trader in the same frame (port side; a linked ship sits at tradePort + its bounding radius along +y).",
+    "trader": {
+      "file": "trader.glb",
+      "circles": [
+        {
+          "x": -5.5,
+          "y": 0.0,
+          "r": 2.9
+        },
+        {
+          "x": -2.4,
+          "y": 0.0,
+          "r": 2.75
+        },
+        {
+          "x": 0.4,
+          "y": 0.0,
+          "r": 2.75
+        },
+        {
+          "x": 2.5,
+          "y": -1.35,
+          "r": 1.5
+        },
+        {
+          "x": 4.3,
+          "y": 0.0,
+          "r": 1.4
+        },
+        {
+          "x": 5.7,
+          "y": 0.0,
+          "r": 1.4
+        }
+      ],
+      "tradePort": {
+        "x": 4.5,
+        "y": 1.5
+      }
+    },
+    "tanker": {
+      "file": "tanker.glb",
+      "circles": [
+        {
+          "x": -4.4,
+          "y": 0.0,
+          "r": 1.85
+        },
+        {
+          "x": -2.75,
+          "y": 0.0,
+          "r": 1.45
+        },
+        {
+          "x": -0.25,
+          "y": 0.0,
+          "r": 1.5
+        },
+        {
+          "x": 2.75,
+          "y": 0.0,
+          "r": 1.5
+        },
+        {
+          "x": 4.8,
+          "y": 0.0,
+          "r": 1.05
+        }
+      ]
+    }
+  },
+  "traffic": {
+    "StationTraffic.MODELS": {
+      "miner_barge": "assets/models/npc/miner_barge.glb",
+      "tanker": "assets/models/npc/tanker.glb",
+      "courier": "assets/models/npc/courier.glb",
+      "survey_ship": "assets/models/npc/survey_ship.glb"
+    },
+    "SCALE": 1,
+    "suggestedMix": {
+      "home": {
+        "miner_barge": 1,
+        "courier": 1
+      },
+      "station": {
+        "tanker": 1,
+        "courier": 1
+      },
+      "research": {
+        "survey_ship": 1
+      },
+      "outpost": {
+        "courier": 1
+      }
+    },
+    "KIND_SPECS hint": {
+      "miner_barge": "as trader (clearance 6.5, alongside)",
+      "tanker": "as trader",
+      "courier": "as cargo but clearance 3.5",
+      "survey_ship": "as trader, clearance 5"
+    }
+  }
+}

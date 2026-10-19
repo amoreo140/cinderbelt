@@ -1,0 +1,58 @@
+.loading-host {
+  position: absolute;
+  inset: 0;
+  /* over the menu overlay (app-overlay, z-index 1) when a game start waits for the models */
+  z-index: 2;
+}
+.loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4rem;
+  background:
+    radial-gradient(60% 50% at 50% 45%, #0f1d30 0%, #05080f 70%),
+    #04060c;
+}
+.loading-logo {
+  width: min(380px, 70vw);
+  height: auto;
+  /* the logo has a black background – it disappears over the dark overlay */
+  mix-blend-mode: screen;
+}
+.loading-bar {
+  display: flex;
+  gap: 3px;
+  width: min(380px, 70vw);
+  height: 10px;
+  padding: 0 4px;
+}
+.loading-bar span {
+  flex: 1;
+  transform: skewX(-24deg);
+  background: rgba(130, 150, 175, 0.16);
+}
+.loading-bar span.is-on {
+  background: var(--af-trim);
+  box-shadow: 0 0 6px rgba(242, 122, 44, 0.5);
+}
+.loading-text {
+  display: flex;
+  gap: 0.9rem;
+  align-items: baseline;
+  color: var(--af-text-dim);
+}
+.loading-title {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+  color: var(--af-text);
+}
+.loading-detail {
+  font-size: var(--af-fs-sm);
+}

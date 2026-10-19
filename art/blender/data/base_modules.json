@@ -1,0 +1,318 @@
+{
+  "_schema": {
+    "frame": "all positions in the base_hub glTF frame: +Y = surface normal (up), origin = base centre on the ground; yawDeg = rotation about +Y (Blender +Z), 0 = +X",
+    "slots": "index, node (EMPTY on the hub), pad (mesh node incl. bridge: hide while the slot is locked), position of the pad top centre, yawDeg (module +X = outward), level = base level that unlocks it",
+    "modules": "file (models/base/<file>.glb), label, labelSk, power (spec 7.2 energy), effect, modes (ground / float planets where it can be built), footprintRadius (module stays inside), height, nodes (animated / special child nodes)",
+    "hub": "nodes of base_hub.glb: show Hub_Legs on ground planets, Hub_Floats on gas planets; Hub_Upgrade_<n> visible from base level n"
+  },
+  "hub": {
+    "file": "base_hub",
+    "slotRadius": 8.5,
+    "padTop": 0.6,
+    "padRadius": 2.55,
+    "footprintRadius": 11.05,
+    "levels": {
+      "1": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "2": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "3": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    "modes": {
+      "ground": {
+        "show": [
+          "Hub_Legs"
+        ],
+        "hide": [
+          "Hub_Floats"
+        ]
+      },
+      "float": {
+        "show": [
+          "Hub_Floats"
+        ],
+        "hide": [
+          "Hub_Legs"
+        ]
+      }
+    },
+    "upgrades": {
+      "2": "Hub_Upgrade_2",
+      "3": "Hub_Upgrade_3"
+    },
+    "nodes": {
+      "Hub_Radar": "dish: spin around local +Y",
+      "beacon_0": "red mast lamp",
+      "beacon_1..4": "amber foundation lamps",
+      "Pad_<i>": "slot pad + bridge",
+      "slot_<i>": "EMPTY module mount"
+    },
+    "slots": [
+      {
+        "index": 0,
+        "node": "slot_0",
+        "pad": "Pad_0",
+        "x": 8.5,
+        "y": 0.6,
+        "z": -0.0,
+        "yawDeg": 0.0,
+        "level": 1
+      },
+      {
+        "index": 1,
+        "node": "slot_1",
+        "pad": "Pad_1",
+        "x": 6.01,
+        "y": 0.6,
+        "z": -6.01,
+        "yawDeg": 45.0,
+        "level": 2
+      },
+      {
+        "index": 2,
+        "node": "slot_2",
+        "pad": "Pad_2",
+        "x": 0.0,
+        "y": 0.6,
+        "z": -8.5,
+        "yawDeg": 90.0,
+        "level": 1
+      },
+      {
+        "index": 3,
+        "node": "slot_3",
+        "pad": "Pad_3",
+        "x": -6.01,
+        "y": 0.6,
+        "z": -6.01,
+        "yawDeg": 135.0,
+        "level": 3
+      },
+      {
+        "index": 4,
+        "node": "slot_4",
+        "pad": "Pad_4",
+        "x": -8.5,
+        "y": 0.6,
+        "z": -0.0,
+        "yawDeg": 180.0,
+        "level": 1
+      },
+      {
+        "index": 5,
+        "node": "slot_5",
+        "pad": "Pad_5",
+        "x": -6.01,
+        "y": 0.6,
+        "z": 6.01,
+        "yawDeg": 225.0,
+        "level": 2
+      },
+      {
+        "index": 6,
+        "node": "slot_6",
+        "pad": "Pad_6",
+        "x": -0.0,
+        "y": 0.6,
+        "z": 8.5,
+        "yawDeg": 270.0,
+        "level": 1
+      },
+      {
+        "index": 7,
+        "node": "slot_7",
+        "pad": "Pad_7",
+        "x": 6.01,
+        "y": 0.6,
+        "z": 6.01,
+        "yawDeg": 315.0,
+        "level": 3
+      }
+    ]
+  },
+  "modules": {
+    "drill": {
+      "file": "base_module_drill",
+      "label": "Drill",
+      "labelSk": "Vrt\u00e1k",
+      "power": -4,
+      "effect": "0.12/0.2/0.3 u/s x deposit richness (one per deposit)",
+      "modes": [
+        "ground"
+      ],
+      "footprintRadius": 2.25,
+      "nodes": {
+        "Drill_Rotor": "drill string + motor: spin around local +Y while mining (pivot = well axis)",
+        "beacon_0": "red lamp on the derrick crown"
+      }
+    },
+    "gas_probe": {
+      "file": "base_module_gas_probe",
+      "label": "Gas probe",
+      "labelSk": "Plynov\u00e1 sonda",
+      "power": -3,
+      "effect": "He3 0.15 u/s (gas giants only)",
+      "modes": [
+        "float"
+      ],
+      "footprintRadius": 2.25,
+      "nodes": {
+        "Probe_Rotor": "turbine: spin around local +Y (pivot (0, 1.42, 0))",
+        "beacon_0": "amber lamp on the duct"
+      }
+    },
+    "solar": {
+      "file": "base_module_solar",
+      "label": "Solar array",
+      "labelSk": "Sol\u00e1rne pole",
+      "power": 6,
+      "effect": "+6 energy (x0.5 in P3+)",
+      "modes": [
+        "ground",
+        "float"
+      ],
+      "footprintRadius": 2.25,
+      "nodes": {
+        "Solar_Array": "yaw around local +Y to face the star (pivot (0, 1.6, 0))",
+        "beacon_0": "amber lamp"
+      }
+    },
+    "reactor": {
+      "file": "base_module_reactor",
+      "label": "Base reactor",
+      "labelSk": "Reaktor z\u00e1kladne",
+      "power": 15,
+      "effect": "+15 energy, 0.02 fuel cell/s",
+      "modes": [
+        "ground",
+        "float"
+      ],
+      "footprintRadius": 2.25,
+      "nodes": {
+        "Reactor_Core": "plasma ring with pods: spin around local +Y (pivot (0, 2.2, 0))",
+        "beacon_0..1": "amber lamps"
+      }
+    },
+    "storage": {
+      "file": "base_module_storage",
+      "label": "Storage",
+      "labelSk": "Sklad",
+      "power": 0,
+      "effect": "+2000 capacity",
+      "modes": [
+        "ground",
+        "float"
+      ],
+      "footprintRadius": 2.25,
+      "nodes": {
+        "Storage_Crate_0..7": "containers in fill order: show ceil(fill * 8) of them",
+        "beacon_0..1": "amber lamps"
+      }
+    },
+    "refinery": {
+      "file": "base_module_refinery",
+      "label": "Refinery",
+      "labelSk": "Rafin\u00e9ria",
+      "power": -6,
+      "effect": "1 intermediate product from storage (recipe choice)",
+      "modes": [
+        "ground",
+        "float"
+      ],
+      "footprintRadius": 2.25,
+      "nodes": {
+        "Refinery_Rotor": "centrifuge: spin around local +Y while refining",
+        "beacon_0..1": "amber lamps"
+      }
+    },
+    "launcher": {
+      "file": "base_module_launcher",
+      "label": "Launcher",
+      "labelSk": "Odpa\u013eova\u010d",
+      "power": -2,
+      "effect": "cargo to orbit for drone pick-up (without it -40 % throughput)",
+      "modes": [
+        "ground",
+        "float"
+      ],
+      "footprintRadius": 2.25,
+      "nodes": {
+        "Launcher_Pod": "cargo pod in the breech: move along local +X of launch_point to the muzzle, then fly on, hide, respawn",
+        "launch_point": "EMPTY at the rail muzzle, local +X = launch direction (pitched 58 deg up, outward)",
+        "beacon_0": "red lamp at the muzzle",
+        "beacon_1": "amber lamp on the breech"
+      }
+    },
+    "defense_tower": {
+      "file": "base_module_defense_tower",
+      "label": "Defense tower",
+      "labelSk": "Obrann\u00e1 ve\u017ea",
+      "power": -3,
+      "effect": "2 T2 cannons against raids",
+      "modes": [
+        "ground",
+        "float"
+      ],
+      "footprintRadius": 2.25,
+      "nodes": {
+        "Tower_Turret": "yaw around local +Y (pivot (0, 2.95, 0)), rest aim = +X outward",
+        "Tower_Muzzle_0/1": "EMPTY projectile origins (children of the turret), +X = fire",
+        "beacon_0..1": "red lamps (go dark while \"disabled\" after a raid)"
+      }
+    },
+    "drone_dock": {
+      "file": "base_module_drone_dock",
+      "label": "Drone dock",
+      "labelSk": "Dronov\u00fd dok",
+      "power": -2,
+      "effect": "+1 drone route",
+      "modes": [
+        "ground",
+        "float"
+      ],
+      "footprintRadius": 2.25,
+      "nodes": {
+        "drone_pad": "EMPTY landing spot on the pad top (local (0.25, 1.06, 0)); approach from local +X, drone_cargo lands with its origin here",
+        "beacon_0..3": "pad lamps (0 = green approach light at +X)",
+        "beacon_4": "red mast lamp"
+      }
+    }
+  },
+  "previewLayout": {
+    "ground": {
+      "0": "drill",
+      "1": "storage",
+      "2": "solar",
+      "3": "reactor",
+      "4": "refinery",
+      "5": "drone_dock",
+      "6": "launcher",
+      "7": "defense_tower"
+    },
+    "float": {
+      "0": "gas_probe",
+      "2": "solar",
+      "4": "storage",
+      "6": "launcher"
+    }
+  }
+}

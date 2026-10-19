@@ -1,0 +1,295 @@
+/* Board (hub tab 6): sector state, contract slips, factions, wanted captains. */
+
+.bd-section {
+  margin-top: 1rem;
+}
+.bd-empty {
+  margin: 0.2rem 0 0.4rem;
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.bd-active {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.bd-offers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+@media (max-width: 560px) {
+  .bd-offers {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* sector state – a recessed display with indicator lights (warning amber, anomaly azure) */
+.bd-sector {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: 0.3rem 0.8rem;
+  padding: 0.55rem 0.8rem;
+  font-size: var(--af-fs-sm);
+}
+.bd-sector-title {
+  color: var(--af-text-dim);
+  padding-top: 0.1rem;
+}
+.bd-sector-calm {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--af-text);
+}
+.bd-sector-change {
+  color: var(--af-text-dim);
+  white-space: nowrap;
+}
+.bd-sector-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.bd-mod {
+  display: grid;
+  grid-template-columns: auto auto auto 1fr;
+  align-items: center;
+  gap: 0.1rem 0.45rem;
+}
+.bd-mod-name {
+  font-weight: 700;
+  color: var(--af-text);
+}
+.bd-mod-kind {
+  color: var(--af-text-dim);
+}
+.bd-mod--warning .bd-mod-kind {
+  color: var(--af-warn);
+}
+.bd-mod-bonus {
+  justify-self: start;
+  font-weight: 700;
+  color: var(--af-warn);
+}
+.bd-mod-effect {
+  grid-column: 2 / -1;
+  color: var(--af-text-dim);
+}
+
+/* factions */
+.bd-factions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.bd-faction {
+  --edge: var(--af-hull-shade);
+  --fill: linear-gradient(180deg, #f3f5f8 0%, #e3e8ee 60%, #d6dce4 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.8rem 1rem 0.85rem;
+}
+.bd-faction-head {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.bd-faction-emblem {
+  width: 3.4rem;
+  height: 3.4rem;
+  flex: none;
+}
+.bd-faction-name {
+  margin: 0;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-wide);
+  font-size: var(--af-fs-xl);
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--af-ink);
+}
+.bd-faction-level {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+  color: var(--af-ink-soft);
+}
+/* level: three slanted segments in the faction trim colour */
+.bd-level {
+  display: inline-flex;
+  gap: 3px;
+}
+.bd-level i {
+  width: 9px;
+  height: 13px;
+  transform: skewX(-18deg);
+  box-shadow: inset 0 0 0 1.5px rgba(74, 86, 102, 0.55);
+}
+.bd-level i.is-on {
+  background: var(--trim, var(--af-trim));
+  box-shadow: inset 0 0 0 1px var(--af-trim-deep);
+}
+.bd-faction--institute {
+  --trim: #2fb6d6;
+}
+.bd-faction--institute .bd-level i.is-on {
+  box-shadow: inset 0 0 0 1px #1a7f99;
+}
+.bd-faction-points {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.35rem 0.8rem;
+  padding: 0.5rem 0.75rem;
+}
+.bd-faction-points .af-label {
+  color: var(--af-text-dim);
+}
+.bd-points {
+  font-weight: 700;
+}
+/* reputation points as a segmented gauge (slanted segments like on the hangar platform) */
+.bd-points-bar {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 3px;
+}
+.bd-points-bar i {
+  flex: 1;
+  height: 8px;
+  transform: skewX(-18deg);
+  background: rgba(98, 217, 244, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(98, 217, 244, 0.22);
+}
+.bd-points-bar i.is-on {
+  background: var(--trim, var(--af-trim));
+  box-shadow: none;
+}
+.bd-sub {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--af-ink-soft);
+}
+.bd-assignment {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.bd-assign-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 0.2rem 0.55rem;
+  font-size: var(--af-fs-md);
+}
+.bd-assign-row .bd-or {
+  grid-column: 1 / -1;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  color: var(--af-ink-soft);
+  padding-left: 1.1rem;
+}
+.bd-assign-text {
+  font-weight: 700;
+}
+.bd-assign-row.is-done .bd-assign-text {
+  color: var(--af-ok-ink);
+}
+.bd-assign-progress {
+  font-weight: 700;
+  color: var(--af-ink-soft);
+  white-space: nowrap;
+}
+.bd-unlocks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.bd-unlocks .bd-sub {
+  width: 100%;
+  margin-bottom: 0;
+}
+.bd-unlock {
+  --cut: 4px;
+  padding: 2px 7px;
+  color: var(--af-ink);
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 0 0 1px var(--af-seam);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.bd-unlock.is-next {
+  color: var(--af-ink-soft);
+  background: repeating-linear-gradient(-45deg, rgba(74, 86, 102, 0.12) 0 4px, rgba(74, 86, 102, 0.04) 4px 8px);
+}
+.bd-unlock em {
+  font-style: normal;
+  color: var(--af-warn-ink);
+}
+
+/* wanted captains – rows on a plate with seams */
+.bd-captains,
+.bd-trophies {
+  margin: 0.3rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.bd-captain {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.5rem 0.2rem;
+  background: linear-gradient(180deg, var(--af-seam) 0 1px, rgba(255, 255, 255, 0.65) 1px 2px, transparent 2px) top / 100% 2px no-repeat;
+}
+.bd-captain-emblem {
+  width: 2.2rem;
+  height: 2.2rem;
+}
+.bd-captain-id {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+  min-width: 0;
+}
+.bd-captain-id strong {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-lg);
+  font-weight: 750;
+}
+.bd-captain-sub {
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.bd-captain-replica,
+.bd-captain-kills {
+  font-size: var(--af-fs-sm);
+  color: var(--af-bad-ink);
+}
+.bd-captain-bounty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: var(--af-ink-soft);
+}
+.bd-captain-bounty strong {
+  font-size: var(--af-fs-lg);
+  color: var(--af-ink);
+}
+.bd-trophies li {
+  padding: 0.3rem 0;
+  font-size: var(--af-fs-md);
+}

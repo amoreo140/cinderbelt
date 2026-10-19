@@ -1,0 +1,446 @@
+{
+ "_schema": {
+  "about": "Batch B wreck-field fragments (art/README 2.7.23). Render-only scenery; collide only via `circles`.",
+  "frame": "circles/radius in the piece frame on the gameplay plane: x = glTF +X, y = glTF -Z (Blender +Y), same convention as station_layouts.json. The piece origin sits on the plane (z centred on 0).",
+  "file": "model path relative to public/",
+  "radius": "bounding radius on the plane (all vertices)",
+  "size": "bounding box [x, y(up), z] in glTF axes",
+  "circles": "collision circles [{x, y, r}] (empty = fly-through debris: no collision)",
+  "nodes": "special child nodes (beacon_<i> = blink; everything else is one static mesh)",
+  "suggestedCount": "[min, max] instances per context site",
+  "contexts": "where to spawn: wreck (around a wreck/hulk, 6-30 u), derelict (around derelict stations, R+5..R+40), graveyard (ring-2 wreck graveyards between fields)",
+  "rings": "rings where the piece fits",
+  "tumbleDegPerSec": "suggested slow motion: pieces WITHOUT circles may tumble about a random axis; pieces WITH circles only yaw about the up axis (rotate the circles with them) or stay still; 0 = keep the authored pose (every piece is already rolled/tilted)",
+  "scale": "suggested uniform scale range (keep 1 for pieces with circles, or scale the circles too)",
+  "livery": "use the DEFAULT palette - the pieces are already weathered; do NOT apply the derelict livery"
+ },
+ "hull_section_a": {
+  "file": "assets/models/wreckage/hull_section_a.glb",
+  "kind": "hull",
+  "tris": 4196,
+  "radius": 4.13,
+  "size": [
+   7.77,
+   2.91,
+   4.38
+  ],
+  "circles": [
+   {
+    "x": -3.06,
+    "y": -1.24,
+    "r": 0.73
+   },
+   {
+    "x": 2.78,
+    "y": -0.31,
+    "r": 1.03
+   },
+   {
+    "x": -1.44,
+    "y": 1.17,
+    "r": 1.04
+   },
+   {
+    "x": -0.39,
+    "y": -1.52,
+    "r": 1.02
+   },
+   {
+    "x": 1.88,
+    "y": -1.17,
+    "r": 1.06
+   },
+   {
+    "x": -1.32,
+    "y": -0.24,
+    "r": 1.07
+   },
+   {
+    "x": 1.36,
+    "y": 1.42,
+    "r": 1.11
+   },
+   {
+    "x": 0.65,
+    "y": -0.24,
+    "r": 0.95
+   }
+  ],
+  "nodes": [
+   "beacon_0"
+  ],
+  "lights": {
+   "beacon_0": "dying amber (der_window, dim): slow irregular blink"
+  },
+  "suggestedCount": [
+   1,
+   2
+  ],
+  "contexts": [
+   "wreck",
+   "derelict",
+   "graveyard"
+  ],
+  "rings": [
+   1,
+   2,
+   3
+  ],
+  "tumbleDegPerSec": 1.5,
+  "scale": [
+   1.0,
+   1.0
+  ]
+ },
+ "hull_section_b": {
+  "file": "assets/models/wreckage/hull_section_b.glb",
+  "kind": "hull",
+  "tris": 2288,
+  "radius": 2.38,
+  "size": [
+   4.72,
+   3.61,
+   3.52
+  ],
+  "circles": [
+   {
+    "x": -1.43,
+    "y": 0.57,
+    "r": 1.03
+   },
+   {
+    "x": 1.55,
+    "y": -0.57,
+    "r": 0.85
+   },
+   {
+    "x": 0.83,
+    "y": 0.73,
+    "r": 1.03
+   },
+   {
+    "x": -0.88,
+    "y": -0.64,
+    "r": 0.84
+   },
+   {
+    "x": 0.38,
+    "y": -1.1,
+    "r": 0.87
+   }
+  ],
+  "nodes": [],
+  "lights": {},
+  "suggestedCount": [
+   0,
+   1
+  ],
+  "contexts": [
+   "wreck",
+   "graveyard"
+  ],
+  "rings": [
+   1,
+   2,
+   3
+  ],
+  "tumbleDegPerSec": 2.0,
+  "scale": [
+   1.0,
+   1.0
+  ]
+ },
+ "hull_section_c": {
+  "file": "assets/models/wreckage/hull_section_c.glb",
+  "kind": "hull",
+  "tris": 2166,
+  "radius": 2.51,
+  "size": [
+   4.98,
+   3.83,
+   4.08
+  ],
+  "circles": [
+   {
+    "x": -1.82,
+    "y": -0.53,
+    "r": 1.03
+   },
+   {
+    "x": 1.99,
+    "y": 0.41,
+    "r": 1.11
+   },
+   {
+    "x": -0.02,
+    "y": -1.07,
+    "r": 1.1
+   },
+   {
+    "x": 1.31,
+    "y": 1.56,
+    "r": 0.76
+   },
+   {
+    "x": -0.33,
+    "y": 0.51,
+    "r": 1.04
+   }
+  ],
+  "nodes": [],
+  "lights": {},
+  "suggestedCount": [
+   0,
+   1
+  ],
+  "contexts": [
+   "derelict",
+   "graveyard"
+  ],
+  "rings": [
+   1,
+   2,
+   3
+  ],
+  "tumbleDegPerSec": 2.5,
+  "scale": [
+   1.0,
+   1.0
+  ]
+ },
+ "ring_arc": {
+  "file": "assets/models/wreckage/ring_arc.glb",
+  "kind": "ring",
+  "tris": 3812,
+  "radius": 6.03,
+  "size": [
+   12.05,
+   5.05,
+   5.55
+  ],
+  "circles": [
+   {
+    "x": 5.65,
+    "y": 0.44,
+    "r": 0.52
+   },
+   {
+    "x": -0.24,
+    "y": -1.96,
+    "r": 0.94
+   },
+   {
+    "x": 0.86,
+    "y": 1.45,
+    "r": 0.95
+   },
+   {
+    "x": -2.13,
+    "y": 0.95,
+    "r": 1.21
+   },
+   {
+    "x": 2.36,
+    "y": 0.9,
+    "r": 0.89
+   },
+   {
+    "x": -0.62,
+    "y": 0.15,
+    "r": 1.02
+   },
+   {
+    "x": 4.29,
+    "y": 1.17,
+    "r": 1.08
+   },
+   {
+    "x": -0.63,
+    "y": 2.22,
+    "r": 1.21
+   },
+   {
+    "x": 2.72,
+    "y": 1.99,
+    "r": 1.07
+   }
+  ],
+  "nodes": [],
+  "lights": {},
+  "suggestedCount": [
+   0,
+   1
+  ],
+  "contexts": [
+   "derelict",
+   "graveyard"
+  ],
+  "rings": [
+   2
+  ],
+  "tumbleDegPerSec": 0.6,
+  "scale": [
+   1.0,
+   1.0
+  ]
+ },
+ "girder_tangle_a": {
+  "file": "assets/models/wreckage/girder_tangle_a.glb",
+  "kind": "girder",
+  "tris": 1952,
+  "radius": 2.32,
+  "size": [
+   4.16,
+   2.37,
+   3.43
+  ],
+  "circles": [],
+  "nodes": [],
+  "lights": {},
+  "suggestedCount": [
+   1,
+   3
+  ],
+  "contexts": [
+   "wreck",
+   "derelict",
+   "graveyard"
+  ],
+  "rings": [
+   1,
+   2,
+   3,
+   4
+  ],
+  "tumbleDegPerSec": 4.0,
+  "scale": [
+   0.8,
+   1.25
+  ]
+ },
+ "girder_tangle_b": {
+  "file": "assets/models/wreckage/girder_tangle_b.glb",
+  "kind": "girder",
+  "tris": 1296,
+  "radius": 1.97,
+  "size": [
+   3.46,
+   2.32,
+   3.48
+  ],
+  "circles": [],
+  "nodes": [],
+  "lights": {},
+  "suggestedCount": [
+   1,
+   2
+  ],
+  "contexts": [
+   "wreck",
+   "derelict",
+   "graveyard"
+  ],
+  "rings": [
+   1,
+   2,
+   3,
+   4
+  ],
+  "tumbleDegPerSec": 4.0,
+  "scale": [
+   0.8,
+   1.25
+  ]
+ },
+ "container_spill": {
+  "file": "assets/models/wreckage/container_spill.glb",
+  "kind": "spill",
+  "tris": 2944,
+  "radius": 3.21,
+  "size": [
+   5.33,
+   2.18,
+   4.4
+  ],
+  "circles": [],
+  "nodes": [],
+  "lights": {},
+  "suggestedCount": [
+   0,
+   1
+  ],
+  "contexts": [
+   "wreck",
+   "graveyard"
+  ],
+  "rings": [
+   1,
+   2,
+   3
+  ],
+  "tumbleDegPerSec": 0.0,
+  "scale": [
+   0.8,
+   1.25
+  ]
+ },
+ "engine_block": {
+  "file": "assets/models/wreckage/engine_block.glb",
+  "kind": "engine",
+  "tris": 3752,
+  "radius": 2.78,
+  "size": [
+   4.61,
+   3.8,
+   4.79
+  ],
+  "circles": [
+   {
+    "x": 0.61,
+    "y": 1.81,
+    "r": 0.99
+   },
+   {
+    "x": 0.38,
+    "y": -1.62,
+    "r": 0.98
+   },
+   {
+    "x": 1.49,
+    "y": -0.14,
+    "r": 0.99
+   },
+   {
+    "x": -1.11,
+    "y": -0.5,
+    "r": 1.07
+   },
+   {
+    "x": -1.12,
+    "y": 1.24,
+    "r": 1.05
+   }
+  ],
+  "nodes": [],
+  "lights": {},
+  "suggestedCount": [
+   0,
+   1
+  ],
+  "contexts": [
+   "wreck",
+   "graveyard"
+  ],
+  "rings": [
+   1,
+   2,
+   3,
+   4
+  ],
+  "tumbleDegPerSec": 2.0,
+  "scale": [
+   1.0,
+   1.0
+  ]
+ }
+}

@@ -1,0 +1,223 @@
+/*
+ * Discovery components (M3.5b): Callout (a tag in the world) and KnowledgeGraph (the knowledge graph).
+ * The same language as the rest: a dark band in flight, a recessed display, plates with cut corners.
+ */
+
+/* ───────────── Callout ───────────── */
+.af-callouts {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 3;
+}
+.af-callout {
+  --tone: var(--af-glow);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  will-change: transform;
+}
+.af-callout--warn { --tone: var(--af-warn); }
+.af-callout--ok { --tone: var(--af-ok); }
+.af-callout-anchor {
+  position: absolute;
+  left: -7px;
+  top: -7px;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--tone);
+  border-radius: 50%;
+  opacity: 0.9;
+}
+.af-callout-anchor::after {
+  content: '';
+  position: absolute;
+  left: 4.5px;
+  top: 4.5px;
+  width: 2px;
+  height: 2px;
+  background: var(--tone);
+}
+/* 1 px guide line from the anchor to the tag corner */
+.af-callout-leader {
+  position: absolute;
+  left: 5px;
+  top: 0;
+  /* a label slid sideways off a HUD panel gets a longer, flatter leader (calloutPlacement.ts) */
+  width: var(--leader-w, 33px);
+  height: 1px;
+  background: var(--af-text-dim);
+  transform-origin: 0 0;
+  transform: rotate(calc(-1 * var(--leader-a, 52deg)));
+}
+.af-callout.is-flipped .af-callout-leader {
+  left: -5px;
+  transform: rotate(calc(var(--leader-a, 52deg) - 180deg));
+}
+.af-callout-label {
+  --cut: 7px;
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  display: grid;
+  gap: 2px;
+  min-width: 9rem;
+  max-width: 15rem;
+  padding: 0.35rem 0.65rem 0.4rem 0.7rem;
+  color: var(--af-text);
+  background:
+    linear-gradient(var(--tone), var(--tone)) left / 2px 100% no-repeat,
+    rgba(21, 27, 36, 0.9);
+  box-shadow: 0 0 0 1px rgba(60, 71, 89, 0.9);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  font-family: var(--af-font-text);
+  font-size: var(--af-fs-sm);
+  line-height: 1.3;
+  white-space: nowrap;
+  translate: var(--callout-shift, 0px) 0;
+  animation: af-latch var(--af-dur-clamp) var(--af-ease-clamp) both;
+}
+.af-callout.is-flipped .af-callout-label {
+  left: auto;
+  right: 24px;
+}
+.af-callout.is-below .af-callout-label {
+  bottom: auto;
+  top: 24px;
+}
+.af-callout.is-below .af-callout-leader {
+  transform: rotate(var(--leader-a, 52deg));
+}
+.af-callout.is-below.is-flipped .af-callout-leader {
+  transform: rotate(calc(180deg - var(--leader-a, 52deg)));
+}
+.af-callout-title {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 700;
+  font-size: var(--af-fs-md);
+}
+.af-callout-detail {
+  color: var(--af-text-dim);
+  white-space: normal;
+}
+.af-callout-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 2px;
+  color: var(--af-text-dim);
+}
+.af-callout-bar {
+  display: block;
+  height: 4px;
+  margin-top: 2px;
+  background: rgba(98, 217, 244, 0.15);
+}
+.af-callout-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--af-glow);
+}
+
+/* ───────────── KnowledgeGraph ───────────── */
+.af-graph {
+  position: relative;
+  overflow: auto;
+  padding: 0.6rem;
+  background:
+    linear-gradient(var(--af-seam-dark) 1px, transparent 1px) 0 0 / 100% 62px,
+    var(--af-screen);
+  scrollbar-width: thin;
+}
+.af-graph-plane {
+  position: relative;
+  margin: 0 auto;
+}
+.af-graph-edges {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+.af-graph-edges line {
+  stroke: #3d6f93;
+  stroke-width: 1;
+}
+.af-graph-edges line.is-lead {
+  stroke: #2a4c66;
+  stroke-dasharray: 4 3;
+}
+.af-graph-edges marker path {
+  fill: #3d6f93;
+}
+.af-graph-node {
+  --cut: 6px;
+  position: absolute;
+  display: grid;
+  align-content: center;
+  gap: 1px;
+  padding: 0.25rem 0.5rem 0.3rem;
+  border: 0;
+  text-align: left;
+  color: var(--af-ink);
+  background: linear-gradient(180deg, var(--af-hull-hi), var(--af-hull));
+  clip-path: polygon(
+    var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut)
+  );
+  cursor: pointer;
+}
+.af-graph-node--place {
+  box-shadow: inset 0 2px 0 var(--af-trim);
+}
+.af-graph-node--observation {
+  background: linear-gradient(180deg, #e9e2cf, #d8cfb6);
+  box-shadow: inset 2px 0 0 var(--af-warn-ink);
+}
+.af-graph-node:hover {
+  background: linear-gradient(180deg, #ffffff, var(--af-hull-hi));
+}
+.af-graph-node.is-selected {
+  outline: 2px solid var(--af-glow);
+  outline-offset: 2px;
+  clip-path: none;
+}
+.af-graph-node.is-unknown {
+  place-items: center;
+  color: var(--af-text-dim);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px #2c4a62;
+  cursor: default;
+}
+.af-graph-kind {
+  color: var(--af-ink-soft);
+  font-size: 0.625rem;
+}
+.af-graph-title {
+  overflow: hidden;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 700;
+  font-size: var(--af-fs-sm);
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.af-graph-more {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+}
+.af-graph-unknown {
+  font-size: var(--af-fs-lg);
+  color: #6d88a4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .af-callout-label {
+    animation: none;
+  }
+}

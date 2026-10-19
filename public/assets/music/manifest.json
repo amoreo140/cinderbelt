@@ -1,0 +1,246 @@
+{
+  "version": 1,
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "menu-cinderbelt",
+      "title": "Cinderbelt",
+      "mood": "menu",
+      "bpm": 92,
+      "key": "D major",
+      "meter": "4/4",
+      "bars": 40,
+      "duration": 104.347833,
+      "samples": 5008696,
+      "loopStart": 0,
+      "loopEnd": 104.347833,
+      "loop": true,
+      "gain": 1.0,
+      "stems": [
+        {
+          "id": "full",
+          "file": "menu-cinderbelt.opus",
+          "minIntensity": 0.0
+        }
+      ]
+    },
+    {
+      "id": "calm-home-belt",
+      "title": "Home Belt",
+      "mood": "calm",
+      "bpm": 80,
+      "key": "F major",
+      "meter": "4/4",
+      "bars": 48,
+      "duration": 144.0,
+      "samples": 6912000,
+      "loopStart": 0,
+      "loopEnd": 144.0,
+      "loop": false,
+      "gain": 1.0,
+      "stems": [
+        {
+          "id": "full",
+          "file": "calm-home-belt.opus",
+          "minIntensity": 0.0
+        }
+      ]
+    },
+    {
+      "id": "calm-ore-light",
+      "title": "Ore Light",
+      "mood": "calm",
+      "bpm": 54,
+      "key": "Eb major",
+      "meter": "6/8",
+      "bars": 64,
+      "duration": 142.222229,
+      "samples": 6826667,
+      "loopStart": 0,
+      "loopEnd": 142.222229,
+      "loop": false,
+      "gain": 1.0,
+      "stems": [
+        {
+          "id": "full",
+          "file": "calm-ore-light.opus",
+          "minIntensity": 0.0
+        }
+      ]
+    },
+    {
+      "id": "calm-station-lights",
+      "title": "Station Lights",
+      "mood": "calm",
+      "bpm": 76,
+      "key": "A major",
+      "meter": "4/4",
+      "bars": 48,
+      "duration": 151.578937,
+      "samples": 7275789,
+      "loopStart": 0,
+      "loopEnd": 151.578937,
+      "loop": false,
+      "gain": 1.0,
+      "stems": [
+        {
+          "id": "full",
+          "file": "calm-station-lights.opus",
+          "minIntensity": 0.0
+        }
+      ]
+    },
+    {
+      "id": "adventure-far-ring",
+      "title": "Far Ring",
+      "mood": "adventure",
+      "bpm": 108,
+      "key": "E minor (Dorian)",
+      "meter": "4/4",
+      "bars": 56,
+      "duration": 124.444438,
+      "samples": 5973333,
+      "loopStart": 0,
+      "loopEnd": 124.444438,
+      "loop": false,
+      "gain": 1.0,
+      "stems": [
+        {
+          "id": "full",
+          "file": "adventure-far-ring.opus",
+          "minIntensity": 0.0
+        }
+      ]
+    },
+    {
+      "id": "adventure-long-burn",
+      "title": "Long Burn",
+      "mood": "adventure",
+      "bpm": 116,
+      "key": "G Mixolydian",
+      "meter": "4/4",
+      "bars": 56,
+      "duration": 115.862062,
+      "samples": 5561379,
+      "loopStart": 0,
+      "loopEnd": 115.862062,
+      "loop": false,
+      "gain": 1.0,
+      "stems": [
+        {
+          "id": "full",
+          "file": "adventure-long-burn.opus",
+          "minIntensity": 0.0
+        }
+      ]
+    },
+    {
+      "id": "combat-pirate-run",
+      "title": "Pirate Run",
+      "mood": "combat",
+      "bpm": 132,
+      "key": "D minor",
+      "meter": "4/4",
+      "bars": 48,
+      "duration": 87.272729,
+      "samples": 4189091,
+      "loopStart": 0,
+      "loopEnd": 87.272729,
+      "loop": true,
+      "gain": 1.0,
+      "stems": [
+        {
+          "id": "base",
+          "file": "combat-pirate-run-base.opus",
+          "minIntensity": 0.0
+        },
+        {
+          "id": "drive",
+          "file": "combat-pirate-run-drive.opus",
+          "minIntensity": 0.3
+        },
+        {
+          "id": "lead",
+          "file": "combat-pirate-run-lead.opus",
+          "minIntensity": 0.65
+        }
+      ]
+    },
+    {
+      "id": "combat-rust-fortress",
+      "title": "Rust Fortress",
+      "mood": "combat",
+      "bpm": 120,
+      "key": "F minor",
+      "meter": "4/4",
+      "bars": 40,
+      "duration": 80.0,
+      "samples": 3840000,
+      "loopStart": 0,
+      "loopEnd": 80.0,
+      "loop": true,
+      "gain": 1.0,
+      "stems": [
+        {
+          "id": "base",
+          "file": "combat-rust-fortress-base.opus",
+          "minIntensity": 0.0
+        },
+        {
+          "id": "drive",
+          "file": "combat-rust-fortress-drive.opus",
+          "minIntensity": 0.3
+        },
+        {
+          "id": "lead",
+          "file": "combat-rust-fortress-lead.opus",
+          "minIntensity": 0.65
+        }
+      ]
+    },
+    {
+      "id": "mystery-kovaci-echo",
+      "title": "Kov\u00e1\u010di Echo",
+      "mood": "mystery",
+      "bpm": 66,
+      "key": "C Lydian",
+      "meter": "4/4",
+      "bars": 40,
+      "duration": 145.454542,
+      "samples": 6981818,
+      "loopStart": 0,
+      "loopEnd": 145.454542,
+      "loop": false,
+      "gain": 1.0,
+      "stems": [
+        {
+          "id": "full",
+          "file": "mystery-kovaci-echo.opus",
+          "minIntensity": 0.0
+        }
+      ]
+    },
+    {
+      "id": "mystery-forge-ruins",
+      "title": "Forge Ruins",
+      "mood": "mystery",
+      "bpm": 78,
+      "key": "A minor / E Phrygian dominant",
+      "meter": "3/4",
+      "bars": 48,
+      "duration": 110.769229,
+      "samples": 5316923,
+      "loopStart": 0,
+      "loopEnd": 110.769229,
+      "loop": false,
+      "gain": 1.0,
+      "stems": [
+        {
+          "id": "full",
+          "file": "mystery-forge-ruins.opus",
+          "minIntensity": 0.0
+        }
+      ]
+    }
+  ]
+}

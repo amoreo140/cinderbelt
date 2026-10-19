@@ -1,0 +1,204 @@
+/*
+ * Discoveries in the flight HUD (M3.5b): the scanner above the radar, the pulse across the screen, anomaly bonuses, the ion
+ * storm. Dark structural bands like the rest of the flight HUD.
+ */
+
+/* ───── scanner above the radar ───── */
+.ds-scan {
+  --cut: 7px;
+  position: absolute;
+  right: calc(var(--af-edge) + 200px);
+  bottom: var(--af-edge);
+  width: 11.5rem;
+  display: grid;
+  gap: 5px;
+  padding: 0.45rem 0.6rem 0.5rem;
+  color: var(--af-text);
+  background: rgba(27, 34, 45, 0.82);
+  box-shadow: inset 0 0 0 1px rgba(60, 71, 89, 0.7);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.ds-scan-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.ds-scan-label {
+  color: var(--af-text-dim);
+}
+.ds-scan-state {
+  margin-left: auto;
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+  color: var(--af-text-dim);
+}
+.ds-scan.is-ready .ds-scan-state {
+  color: var(--af-glow);
+}
+.ds-scan-bar {
+  display: flex;
+  gap: 2px;
+}
+.ds-scan-bar i {
+  flex: 1;
+  height: 7px;
+  transform: skewX(-20deg);
+  background: rgba(98, 217, 244, 0.14);
+}
+.ds-scan-bar i.is-on {
+  background: var(--af-glow);
+}
+.ds-scan:not(.is-ready) .ds-scan-bar i.is-on {
+  background: #3f8fa6;
+}
+.ds-scan-data {
+  display: flex;
+  justify-content: flex-end;
+  font-size: var(--af-fs-sm);
+}
+
+/* style guide: the scanner in the page flow */
+.kit-scan {
+  margin-top: 0.8rem;
+}
+.kit-scan .ds-scan {
+  position: relative;
+  right: auto;
+  bottom: auto;
+}
+
+/* ───── M4b: the site readout beside the scanner (relay charge, derelict, comet, sleeper) ───── */
+/* left of the scanner, bottom-aligned – the gap between the ship console and the scanner is free */
+.ds-readout {
+  --cut: 7px;
+  --ds-tone: var(--af-glow);
+  position: absolute;
+  right: calc(var(--af-edge) + 200px + 11.5rem + 0.5rem);
+  bottom: var(--af-edge);
+  width: 15rem;
+  display: grid;
+  gap: 4px;
+  padding: 0.45rem 0.65rem 0.5rem;
+  color: var(--af-text);
+  background: rgba(27, 34, 45, 0.82);
+  box-shadow:
+    inset 0 0 0 1px rgba(60, 71, 89, 0.7),
+    inset 0 2px 0 var(--ds-tone);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.ds-readout.is-ok {
+  --ds-tone: var(--af-ok);
+}
+.ds-readout.is-warn {
+  --ds-tone: var(--af-warn);
+}
+.ds-readout-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.ds-readout-title {
+  color: var(--af-text);
+}
+.ds-readout-lines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 2px;
+  font-size: var(--af-fs-sm);
+  line-height: 1.25;
+  color: var(--af-text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.ds-readout-lines .is-ok {
+  color: var(--af-ok);
+}
+.ds-readout-lines .is-warn {
+  color: var(--af-warn);
+}
+.kit-scan .ds-readout {
+  position: relative;
+  right: auto;
+  bottom: auto;
+}
+
+/* ───── pulse: the wave itself runs in the world (render/discovery/ScanPulseView.ts) ───── */
+/* ring on the radar too */
+.hud-radar .ds-radar-pulse {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 176px;
+  height: 176px;
+  margin: -88px 0 0 -88px;
+  border-radius: 50%;
+  border: 2px solid var(--af-glow);
+  pointer-events: none;
+  /* the same timing as the wave in the world (SCAN_WAVE: 2.2 s, ease-in, fades after 55 %) */
+  animation: ds-radar-pulse 2.2s cubic-bezier(0.4, 0, 0.75, 0.7) both;
+}
+@keyframes ds-radar-pulse {
+  0% { transform: scale(0.02); opacity: 1; }
+  55% { opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* ───── anomaly bonuses ───── */
+.ds-buffs {
+  position: absolute;
+  right: calc(var(--af-edge) + 200px);
+  bottom: calc(var(--af-edge) + 6.6rem);
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+}
+.ds-buff {
+  --cut: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.25rem 0.6rem;
+  color: var(--af-text);
+  background: rgba(27, 34, 45, 0.85);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  font-size: var(--af-fs-sm);
+}
+.ds-buff strong {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+}
+.ds-buff-time {
+  color: var(--af-text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ───── ion storm: warning band at the top ───── */
+.ds-storm {
+  --cut: 8px;
+  position: absolute;
+  left: 50%;
+  top: 3.8rem;
+  transform: translateX(-50%);
+  padding: 0.4rem 1rem;
+  color: var(--af-text);
+  font-weight: 700;
+  background:
+    repeating-linear-gradient(-45deg, rgba(255, 181, 71, 0.28) 0 8px, transparent 8px 16px) left / 14px 100% no-repeat,
+    repeating-linear-gradient(-45deg, rgba(255, 181, 71, 0.28) 0 8px, transparent 8px 16px) right / 14px 100% no-repeat,
+    rgba(27, 34, 45, 0.92);
+  box-shadow: inset 0 -2px 0 var(--af-warn);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-radar .ds-radar-pulse {
+    animation: none;
+    opacity: 0.4;
+  }
+}
+:root[data-reduced-motion] .hud-radar .ds-radar-pulse {
+  animation: none;
+  opacity: 0.4;
+}

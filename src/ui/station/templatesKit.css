@@ -1,0 +1,54 @@
+/* UI kit only (ui-kit.html): layout of the Templates section (TemplatesKit.tsx). */
+.kit-tp-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.6rem;
+}
+.kit-tp-h3 {
+  margin: 1.1rem 0 0.5rem;
+  color: var(--af-text-dim);
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-md);
+  font-weight: 700;
+}
+.kit-tp-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+.kit-tp-pair .tp-sheet {
+  width: 100%;
+}
+.kit-tp-errors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(26rem, 1fr));
+  gap: 0.3rem 1.2rem;
+  margin: 0;
+  padding: 0.8rem 1rem;
+  list-style: none;
+  color: var(--af-ink);
+  background: var(--af-hull);
+  font-size: var(--af-fs-sm);
+}
+.kit-tp-errors li {
+  display: grid;
+  grid-template-columns: auto 7.5rem 1fr;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.kit-tp-errors code {
+  color: var(--af-ink-soft);
+}
+.kit-tp-death {
+  position: relative;
+  height: 30rem;
+  overflow: hidden;
+}
+.kit-tp-live {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}

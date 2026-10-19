@@ -1,0 +1,267 @@
+{
+  "_schema": {
+    "units": "game units; local frame, +X = dock direction, +Y = left, gameplay plane z = 0",
+    "circles": "list of {x, y, r} collision circles covering the solid structure (drifting pieces excluded)",
+    "radius": "station radius R; dock_port lies at (R, 0) (relay: 0 = no dock)",
+    "dockPort": "{x, y} of the dock_port node (docked ship centre = dockPort + (boundingRadius + 1) along +X)",
+    "clearRadius": "no asteroids inside this radius",
+    "powerTarget": "relays only (derelict_relay, guild_relay_mast): receiver lens position {x, y, z} at rest (aim the laser here)"
+  },
+  "derelict_a": {
+    "radius": 11.0,
+    "circles": [
+      {
+        "x": 0,
+        "y": 0,
+        "r": 8.0
+      },
+      {
+        "x": 8.6,
+        "y": 0,
+        "r": 1.2
+      },
+      {
+        "x": 10.2,
+        "y": 0,
+        "r": 1.0
+      },
+      {
+        "x": -1.2,
+        "y": -8.3,
+        "r": 1.4
+      },
+      {
+        "x": 1.2,
+        "y": -8.3,
+        "r": 1.4
+      },
+      {
+        "x": -2.6,
+        "y": 2.4,
+        "r": 1.0
+      }
+    ],
+    "dockPort": {
+      "x": 11.0,
+      "y": 0.0
+    },
+    "clearRadius": 21.0
+  },
+  "derelict_b": {
+    "radius": 10.0,
+    "circles": [
+      {
+        "x": -2.6,
+        "y": 3.0,
+        "r": 1.6
+      },
+      {
+        "x": 0.6,
+        "y": 3.0,
+        "r": 1.6
+      },
+      {
+        "x": -2.6,
+        "y": -3.0,
+        "r": 1.6
+      },
+      {
+        "x": 0.6,
+        "y": -3.0,
+        "r": 1.6
+      },
+      {
+        "x": -0.7,
+        "y": 0,
+        "r": 1.4
+      },
+      {
+        "x": -5.0,
+        "y": 0,
+        "r": 1.5
+      },
+      {
+        "x": 2.2,
+        "y": 0,
+        "r": 1.0
+      },
+      {
+        "x": 4.4,
+        "y": 0,
+        "r": 1.0
+      },
+      {
+        "x": 6.6,
+        "y": 0,
+        "r": 1.0
+      },
+      {
+        "x": 8.6,
+        "y": 0,
+        "r": 1.0
+      },
+      {
+        "x": -5.0,
+        "y": 5.8,
+        "r": 1.6
+      },
+      {
+        "x": 2.4,
+        "y": -6.3,
+        "r": 1.1
+      },
+      {
+        "x": 1.4,
+        "y": -4.6,
+        "r": 0.8
+      }
+    ],
+    "dockPort": {
+      "x": 10.0,
+      "y": 0.0
+    },
+    "clearRadius": 20.0
+  },
+  "derelict_c": {
+    "radius": 10.0,
+    "circles": [
+      {
+        "x": -1.0,
+        "y": 0,
+        "r": 4.9
+      },
+      {
+        "x": 4.6,
+        "y": 0,
+        "r": 1.0
+      },
+      {
+        "x": 6.6,
+        "y": 0,
+        "r": 1.0
+      },
+      {
+        "x": 8.6,
+        "y": 0,
+        "r": 1.0
+      },
+      {
+        "x": -6.0,
+        "y": 4.0,
+        "r": 2.4
+      },
+      {
+        "x": -5.3,
+        "y": -4.6,
+        "r": 1.6
+      },
+      {
+        "x": 4.3,
+        "y": 3.7,
+        "r": 0.9
+      },
+      {
+        "x": 5.4,
+        "y": 4.4,
+        "r": 0.8
+      }
+    ],
+    "dockPort": {
+      "x": 10.0,
+      "y": 0.0
+    },
+    "clearRadius": 20.0
+  },
+  "derelict_d": {
+    "radius": 9.0,
+    "circles": [
+      {
+        "x": 0,
+        "y": 0,
+        "r": 3.0
+      },
+      {
+        "x": 3.8,
+        "y": 0,
+        "r": 1.0
+      },
+      {
+        "x": 5.6,
+        "y": 0,
+        "r": 1.0
+      },
+      {
+        "x": 7.6,
+        "y": 0,
+        "r": 1.0
+      },
+      {
+        "x": -3.5,
+        "y": 3.5,
+        "r": 2.0
+      },
+      {
+        "x": -3.5,
+        "y": -3.5,
+        "r": 2.0
+      },
+      {
+        "x": 3.5,
+        "y": -3.5,
+        "r": 2.0
+      },
+      {
+        "x": 2.6,
+        "y": 2.6,
+        "r": 0.8
+      },
+      {
+        "x": 3.8,
+        "y": 3.8,
+        "r": 0.7
+      },
+      {
+        "x": -2.2,
+        "y": 0,
+        "r": 1.0
+      }
+    ],
+    "dockPort": {
+      "x": 9.0,
+      "y": 0.0
+    },
+    "clearRadius": 19.0
+  },
+  "derelict_relay": {
+    "radius": 0.0,
+    "circles": [
+      {
+        "x": 0,
+        "y": 0,
+        "r": 1.5
+      }
+    ],
+    "clearRadius": 4.0,
+    "powerTarget": {
+      "x": 0.22,
+      "y": 0.0,
+      "z": 2.77
+    }
+  },
+  "guild_relay_mast": {
+    "radius": 0.0,
+    "circles": [
+      {
+        "x": 0,
+        "y": 0,
+        "r": 1.5
+      }
+    ],
+    "clearRadius": 4.0,
+    "powerTarget": {
+      "x": 0.22,
+      "y": 0.0,
+      "z": 2.77
+    }
+  }
+}

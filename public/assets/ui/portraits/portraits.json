@@ -1,0 +1,158 @@
+{
+  "size": 128,
+  "size2x": 256,
+  "portraits": [
+    {
+      "id": "guild_instructor",
+      "file": "guild_instructor.webp",
+      "file2x": "guild_instructor@2x.webp",
+      "faction": "guild",
+      "role": "instructor",
+      "accent": "#f27a2c"
+    },
+    {
+      "id": "traffic_home",
+      "file": "traffic_home.webp",
+      "file2x": "traffic_home@2x.webp",
+      "faction": "guild",
+      "role": "traffic",
+      "accent": "#f27a2c"
+    },
+    {
+      "id": "traffic_trade",
+      "file": "traffic_trade.webp",
+      "file2x": "traffic_trade@2x.webp",
+      "faction": "freeTraders",
+      "role": "traffic",
+      "accent": "#6be38a"
+    },
+    {
+      "id": "traffic_mining",
+      "file": "traffic_mining.webp",
+      "file2x": "traffic_mining@2x.webp",
+      "faction": "guild",
+      "role": "traffic",
+      "accent": "#f4c64e"
+    },
+    {
+      "id": "traffic_research",
+      "file": "traffic_research.webp",
+      "file2x": "traffic_research@2x.webp",
+      "faction": "institute",
+      "role": "traffic",
+      "accent": "#62d9f4"
+    },
+    {
+      "id": "traffic_outpost",
+      "file": "traffic_outpost.webp",
+      "file2x": "traffic_outpost@2x.webp",
+      "faction": "guild",
+      "role": "traffic",
+      "accent": "#4aa8ea"
+    },
+    {
+      "id": "guild_watch",
+      "file": "guild_watch.webp",
+      "file2x": "guild_watch@2x.webp",
+      "faction": "guild",
+      "role": "watch",
+      "accent": "#86a8ff"
+    },
+    {
+      "id": "derelict_ai",
+      "file": "derelict_ai.webp",
+      "file2x": "derelict_ai@2x.webp",
+      "faction": "guild",
+      "role": "automaton",
+      "accent": "#c39a5a"
+    },
+    {
+      "id": "pirate_jackal",
+      "file": "pirate_jackal.webp",
+      "file2x": "pirate_jackal@2x.webp",
+      "faction": "pirate",
+      "role": "pirate",
+      "accent": "#ff5a4a"
+    },
+    {
+      "id": "pirate_hammer",
+      "file": "pirate_hammer.webp",
+      "file2x": "pirate_hammer@2x.webp",
+      "faction": "pirate",
+      "role": "pirate",
+      "accent": "#ffb547"
+    },
+    {
+      "id": "pirate_gunner",
+      "file": "pirate_gunner.webp",
+      "file2x": "pirate_gunner@2x.webp",
+      "faction": "pirate",
+      "role": "pirate",
+      "accent": "#ff6a2a"
+    },
+    {
+      "id": "captain_rust_a",
+      "file": "captain_rust_a.webp",
+      "file2x": "captain_rust_a@2x.webp",
+      "faction": "rust",
+      "role": "captain",
+      "accent": "#ff5a4a"
+    },
+    {
+      "id": "captain_rust_b",
+      "file": "captain_rust_b.webp",
+      "file2x": "captain_rust_b@2x.webp",
+      "faction": "rust",
+      "role": "captain",
+      "accent": "#ff5a4a"
+    },
+    {
+      "id": "captain_cauldron_a",
+      "file": "captain_cauldron_a.webp",
+      "file2x": "captain_cauldron_a@2x.webp",
+      "faction": "cauldron",
+      "role": "captain",
+      "accent": "#ff8a3a"
+    },
+    {
+      "id": "captain_cauldron_b",
+      "file": "captain_cauldron_b.webp",
+      "file2x": "captain_cauldron_b@2x.webp",
+      "faction": "cauldron",
+      "role": "captain",
+      "accent": "#ff8a3a"
+    },
+    {
+      "id": "captain_slantedStar_a",
+      "file": "captain_slantedStar_a.webp",
+      "file2x": "captain_slantedStar_a@2x.webp",
+      "faction": "slantedStar",
+      "role": "captain",
+      "accent": "#ffd36b"
+    },
+    {
+      "id": "captain_slantedStar_b",
+      "file": "captain_slantedStar_b.webp",
+      "file2x": "captain_slantedStar_b@2x.webp",
+      "faction": "slantedStar",
+      "role": "captain",
+      "accent": "#ffd36b"
+    },
+    {
+      "id": "echo",
+      "file": "echo.webp",
+      "file2x": "echo@2x.webp",
+      "faction": "wardens",
+      "role": "echo",
+      "accent": "#8f7dff"
+    },
+    {
+      "id": "unknown",
+      "file": "unknown.webp",
+      "file2x": "unknown@2x.webp",
+      "faction": "unknown",
+      "role": "unknown",
+      "accent": "#93a0b3"
+    }
+  ]
+}

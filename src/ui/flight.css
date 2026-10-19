@@ -1,0 +1,75 @@
+/* Flight assist (M3.8): collision warning band right over the ship – navigation, not combat:
+   amber while there is time, red when contact is close. Hazard stripes only on the left edge. */
+.fa-collision {
+  --cut: 7px;
+  --tone: var(--af-warn);
+  --stripe-dark: #2b1d06;
+  position: absolute;
+  top: calc(50% - 9.5rem);
+  left: 50%;
+  translate: -50% 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.38rem 0.8rem 0.42rem 1.5rem;
+  white-space: nowrap;
+  color: var(--af-text);
+  background:
+    repeating-linear-gradient(-45deg, var(--tone) 0 5px, var(--stripe-dark) 5px 10px) left / 9px 100% no-repeat,
+    rgba(20, 25, 33, 0.9);
+  box-shadow: inset 0 -2px 0 var(--tone);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  pointer-events: none;
+  animation: af-drop var(--af-dur-clamp) var(--af-ease-clamp) both;
+}
+.fa-collision.is-critical {
+  --tone: var(--af-bad);
+  --stripe-dark: #2a0d0b;
+  background:
+    repeating-linear-gradient(-45deg, var(--tone) 0 5px, var(--stripe-dark) 5px 10px) left / 9px 100% no-repeat,
+    rgba(52, 18, 20, 0.92);
+}
+.fa-collision-title {
+  font-size: var(--af-fs-xs);
+  color: var(--tone);
+}
+.fa-collision-eta {
+  min-width: 4.2ch;
+  font-size: var(--af-fs-lg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.fa-collision-bar {
+  display: inline-flex;
+  gap: 2px;
+}
+.fa-collision-bar i {
+  width: 5px;
+  height: 11px;
+  transform: skewX(-24deg);
+  background: rgba(130, 150, 175, 0.16);
+}
+.fa-collision-bar i.is-on {
+  background: var(--tone);
+}
+.fa-collision-hint {
+  padding-left: 0.5rem;
+  border-left: 1px solid rgba(232, 237, 244, 0.16);
+  font-size: var(--af-fs-sm);
+  color: var(--af-text-dim);
+}
+.fa-collision.is-critical .af-lamp {
+  animation: af-blink 0.5s steps(2, jump-none) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fa-collision,
+  .fa-collision.is-critical .af-lamp {
+    animation: none;
+  }
+}
+:root[data-reduced-motion] .fa-collision,
+:root[data-reduced-motion] .fa-collision.is-critical .af-lamp {
+  animation: none;
+}

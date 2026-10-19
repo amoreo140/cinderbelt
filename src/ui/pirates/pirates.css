@@ -1,0 +1,314 @@
+/* M3.6 flight HUD: pirate attention, toll demand, tractor beam, fortress band, cannon reticle. */
+
+/* ───── attention row in the nav band (quiet until it matters) ───── */
+.pr-attention {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.5rem;
+  margin-top: 0.45rem;
+  padding: 0.35rem 0 0 calc(1.3rem + 0.5rem);
+  border-top: 1px solid rgba(232, 237, 244, 0.1);
+  font-size: var(--af-fs-sm);
+  color: var(--af-text-dim);
+  pointer-events: auto;
+}
+.pr-attention .af-label {
+  min-width: 2.6rem;
+}
+.pr-attention-segs {
+  display: inline-flex;
+  gap: 2px;
+}
+.pr-attention-segs i {
+  width: 11px;
+  height: 8px;
+  background: rgba(232, 237, 244, 0.12);
+  transform: skewX(-24deg);
+}
+/* the segments fill with the level: amber while they watch, red when they hunt or raid */
+.pr-attention--l0 .pr-attention-segs i.is-on,
+.pr-attention--l1 .pr-attention-segs i.is-on {
+  background: var(--af-warn);
+}
+.pr-attention--l2 .pr-attention-segs i.is-on,
+.pr-attention--l3 .pr-attention-segs i.is-on {
+  background: var(--af-bad);
+}
+.pr-attention-label {
+  font-weight: 700;
+  color: var(--af-text);
+}
+.pr-attention--l0 .pr-attention-label {
+  font-weight: 400;
+  color: var(--af-text-dim);
+}
+.pr-attention-raid {
+  flex-basis: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  color: #ffd9d3;
+}
+.pr-attention-raid .af-lamp {
+  animation: af-blink 0.9s steps(2, jump-none) infinite;
+}
+
+/* ───── toll demand: a hazard-striped band high in the middle, the decision is the player's ───── */
+.pr-toll {
+  --cut: 9px;
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  translate: -50% 0;
+  display: grid;
+  gap: 0.45rem;
+  min-width: 25rem;
+  padding: 0.7rem 1.6rem 0.75rem 2.1rem;
+  color: var(--af-text);
+  background:
+    repeating-linear-gradient(-45deg, var(--af-warn) 0 7px, #2b1d06 7px 14px) left / 12px 100% no-repeat,
+    linear-gradient(180deg, rgba(40, 32, 18, 0.96), rgba(27, 26, 30, 0.96));
+  box-shadow: inset 0 -2px 0 var(--af-warn);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  animation: af-drop var(--af-dur-hatch) var(--af-ease-clamp) both;
+  pointer-events: auto;
+}
+.pr-toll-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+.pr-toll-title {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-wide);
+  font-size: var(--af-fs-xl);
+  font-weight: 800;
+  line-height: 1.1;
+}
+.pr-toll-amount {
+  font-size: var(--af-fs-xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--af-fuel);
+}
+.pr-toll-timer {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.pr-toll-timer i {
+  flex: 1;
+  height: 6px;
+  background: rgba(232, 237, 244, 0.1);
+  transform: skewX(-24deg);
+}
+.pr-toll-timer i.is-on {
+  background: var(--af-warn);
+}
+.pr-toll-timer b {
+  margin-left: 0.5rem;
+  font-size: var(--af-fs-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--af-text-dim);
+}
+.pr-toll-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  font-size: var(--af-fs-md);
+  font-weight: 700;
+}
+.pr-toll-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.pr-toll-choice.is-disabled {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+.pr-toll-escape {
+  margin-left: auto;
+  font-weight: 400;
+  color: var(--af-text-dim);
+}
+
+/* ───── tractor beam line in the console ───── */
+.pr-tractor {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+  font-size: var(--af-fs-xs);
+  color: var(--af-text-dim);
+  white-space: nowrap;
+}
+.pr-tractor-name {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-weight: 650;
+}
+.pr-tractor strong {
+  max-width: 11rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 400;
+}
+.pr-tractor.is-active strong {
+  font-weight: 700;
+  color: var(--af-tractor);
+}
+.pr-tractor-lamp {
+  width: 8px;
+  height: 8px;
+  border: 1px solid rgba(185, 140, 255, 0.5);
+  background: transparent;
+  transform: rotate(45deg);
+}
+.pr-tractor-lamp.is-on {
+  border-color: var(--af-tractor);
+  background: var(--af-tractor);
+  box-shadow: 0 0 6px var(--af-tractor);
+}
+.pr-tractor-bar {
+  width: 3rem;
+  height: 4px;
+  background: rgba(232, 237, 244, 0.12);
+}
+.pr-tractor-bar i {
+  display: block;
+  height: 100%;
+  background: var(--af-tractor);
+}
+.pr-tractor .af-key {
+  margin-left: auto;
+}
+
+/* ───── fortress band: the boss of the belt, under the pirate alert ───── */
+.pr-fortress {
+  --cut: 9px;
+  position: absolute;
+  top: calc(var(--af-edge) + 3.6rem);
+  /* centred, but never over the nav and objective bands on the left (~30rem) */
+  left: max(50% - 13.5rem, 30.5rem);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.25rem 1.1rem;
+  padding: 0.5rem 1.4rem 0.55rem 1.2rem;
+  color: var(--af-text);
+  background: rgba(27, 34, 45, 0.9);
+  box-shadow: inset 0 -2px 0 var(--af-bad);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.pr-fortress-name {
+  grid-row: span 2;
+  white-space: nowrap;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-wide);
+  font-size: var(--af-fs-lg);
+  font-weight: 800;
+  color: #ffd9d3;
+}
+.pr-fortress-core,
+.pr-fortress-parts {
+  display: flex;
+  white-space: nowrap;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: var(--af-fs-sm);
+}
+.pr-fortress-core .af-label,
+.pr-fortress-parts .af-label {
+  color: var(--af-text-dim);
+}
+.pr-fortress-segs {
+  display: inline-flex;
+  gap: 2px;
+}
+.pr-fortress-segs i {
+  width: 7px;
+  height: 10px;
+  background: rgba(255, 90, 74, 0.16);
+  transform: skewX(-24deg);
+}
+.pr-fortress-segs i.is-on {
+  background: var(--af-bad);
+}
+/* while the generators stand, the core meter sits behind the shield colour */
+.pr-fortress.is-shielded .pr-fortress-segs i.is-on {
+  background: linear-gradient(180deg, var(--af-shield) 0 3px, var(--af-bad) 3px);
+}
+.pr-fortress-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 700;
+}
+.pr-pip {
+  width: 9px;
+  height: 9px;
+  border: 1px solid rgba(232, 237, 244, 0.35);
+  transform: rotate(45deg);
+}
+.pr-pip.is-on {
+  border-color: var(--af-bad);
+  background: var(--af-bad);
+}
+.pr-pip--gen.is-on {
+  border-color: var(--af-shield);
+  background: var(--af-shield);
+}
+.pr-pip + .af-label {
+  margin-left: 0.6rem;
+}
+
+/* ───── cannon reticle at the cursor (moved by Game every frame) ───── */
+.pr-reticle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px;
+  font-size: var(--af-fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--af-text);
+  background: rgba(10, 21, 33, 0.7);
+  pointer-events: none;
+  will-change: transform;
+}
+.pr-reticle i {
+  width: 6px;
+  height: 6px;
+  border: 1px solid rgba(242, 122, 44, 0.6);
+  transform: skewX(-20deg);
+}
+.pr-reticle i.is-on {
+  background: var(--af-trim);
+  border-color: var(--af-trim);
+}
+.pr-reticle b {
+  margin-left: 3px;
+  font-weight: 700;
+}
+.pr-reticle.is-none {
+  color: var(--af-text-dim);
+  opacity: 0.7;
+}
+.pr-reticle.is-none i {
+  border-color: rgba(147, 160, 179, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pr-attention-raid .af-lamp,
+  .pr-toll {
+    animation: none;
+  }
+}

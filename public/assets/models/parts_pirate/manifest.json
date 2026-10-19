@@ -1,0 +1,198 @@
+{
+  "_schema": {
+    "about": "Pirate clan part sets (plan 2026-10-18-citatelnost §3, art/README §2.7.20). Visual only: same PartId/tier, footprint, deck profile, node names, pivots and empties as the player part.",
+    "parts": "clan -> PartId -> tier (\"1\" iron, \"2\" titanium) -> model path (relative to the site root, like catalog.ts partModelPath). Missing entry = use the player part (fallback).",
+    "clans": "clan -> {label, accent (UI token colour), lights}. Clan ids = FactionId.",
+    "connectors": "clan -> {edge, corner}: hull connectors in clan colours, geometry identical to parts/hull_connector_*.glb (same placement rule, connectors.ts).",
+    "nodes": "PartId -> special node names (identical to the player part).",
+    "liveries": "Do NOT apply the \"pirate\" livery to clan parts (it does not change them anyway); wrecks use the \"derelict\" livery (textures/palette_derelict_*.png, same atlas layout)."
+  },
+  "version": 1,
+  "clans": {
+    "rust": {
+      "label": "Hrdza",
+      "accent": "#ff5a4a",
+      "lights": "red"
+    },
+    "cauldron": {
+      "label": "Kotol",
+      "accent": "#ff8a3a",
+      "lights": "orange"
+    },
+    "slantedStar": {
+      "label": "Šikmá hviezda",
+      "accent": "#ffd36b",
+      "lights": "yellow"
+    }
+  },
+  "tiers": {
+    "1": "iron",
+    "2": "titanium"
+  },
+  "parts": {
+    "rust": {
+      "cockpit": {
+        "1": "assets/models/parts_pirate/rust/cockpit_iron.glb",
+        "2": "assets/models/parts_pirate/rust/cockpit_titanium.glb"
+      },
+      "engine": {
+        "1": "assets/models/parts_pirate/rust/engine_iron.glb",
+        "2": "assets/models/parts_pirate/rust/engine_titanium.glb"
+      },
+      "cannon": {
+        "1": "assets/models/parts_pirate/rust/cannon_iron.glb",
+        "2": "assets/models/parts_pirate/rust/cannon_titanium.glb"
+      },
+      "armor": {
+        "1": "assets/models/parts_pirate/rust/armor_iron.glb",
+        "2": "assets/models/parts_pirate/rust/armor_titanium.glb"
+      },
+      "shield": {
+        "1": "assets/models/parts_pirate/rust/shield_generator_iron.glb",
+        "2": "assets/models/parts_pirate/rust/shield_generator_titanium.glb"
+      },
+      "reactor": {
+        "1": "assets/models/parts_pirate/rust/reactor_iron.glb",
+        "2": "assets/models/parts_pirate/rust/reactor_titanium.glb"
+      },
+      "gyro": {
+        "1": "assets/models/parts_pirate/rust/gyroscope_iron.glb",
+        "2": "assets/models/parts_pirate/rust/gyroscope_titanium.glb"
+      },
+      "fuelTank": {
+        "1": "assets/models/parts_pirate/rust/fuel_tank_iron.glb",
+        "2": "assets/models/parts_pirate/rust/fuel_tank_titanium.glb"
+      },
+      "cargo": {
+        "1": "assets/models/parts_pirate/rust/cargo_iron.glb",
+        "2": "assets/models/parts_pirate/rust/cargo_titanium.glb"
+      },
+      "tractorBeam": {
+        "1": "assets/models/parts_pirate/rust/tractor_beam_iron.glb",
+        "2": "assets/models/parts_pirate/rust/tractor_beam_titanium.glb"
+      }
+    },
+    "cauldron": {
+      "cockpit": {
+        "1": "assets/models/parts_pirate/cauldron/cockpit_iron.glb",
+        "2": "assets/models/parts_pirate/cauldron/cockpit_titanium.glb"
+      },
+      "engine": {
+        "1": "assets/models/parts_pirate/cauldron/engine_iron.glb",
+        "2": "assets/models/parts_pirate/cauldron/engine_titanium.glb"
+      },
+      "cannon": {
+        "1": "assets/models/parts_pirate/cauldron/cannon_iron.glb",
+        "2": "assets/models/parts_pirate/cauldron/cannon_titanium.glb"
+      },
+      "armor": {
+        "1": "assets/models/parts_pirate/cauldron/armor_iron.glb",
+        "2": "assets/models/parts_pirate/cauldron/armor_titanium.glb"
+      },
+      "shield": {
+        "1": "assets/models/parts_pirate/cauldron/shield_generator_iron.glb",
+        "2": "assets/models/parts_pirate/cauldron/shield_generator_titanium.glb"
+      },
+      "reactor": {
+        "1": "assets/models/parts_pirate/cauldron/reactor_iron.glb",
+        "2": "assets/models/parts_pirate/cauldron/reactor_titanium.glb"
+      },
+      "gyro": {
+        "1": "assets/models/parts_pirate/cauldron/gyroscope_iron.glb",
+        "2": "assets/models/parts_pirate/cauldron/gyroscope_titanium.glb"
+      },
+      "fuelTank": {
+        "1": "assets/models/parts_pirate/cauldron/fuel_tank_iron.glb",
+        "2": "assets/models/parts_pirate/cauldron/fuel_tank_titanium.glb"
+      },
+      "cargo": {
+        "1": "assets/models/parts_pirate/cauldron/cargo_iron.glb",
+        "2": "assets/models/parts_pirate/cauldron/cargo_titanium.glb"
+      },
+      "tractorBeam": {
+        "1": "assets/models/parts_pirate/cauldron/tractor_beam_iron.glb",
+        "2": "assets/models/parts_pirate/cauldron/tractor_beam_titanium.glb"
+      }
+    },
+    "slantedStar": {
+      "cockpit": {
+        "1": "assets/models/parts_pirate/slantedStar/cockpit_iron.glb",
+        "2": "assets/models/parts_pirate/slantedStar/cockpit_titanium.glb"
+      },
+      "engine": {
+        "1": "assets/models/parts_pirate/slantedStar/engine_iron.glb",
+        "2": "assets/models/parts_pirate/slantedStar/engine_titanium.glb"
+      },
+      "cannon": {
+        "1": "assets/models/parts_pirate/slantedStar/cannon_iron.glb",
+        "2": "assets/models/parts_pirate/slantedStar/cannon_titanium.glb"
+      },
+      "armor": {
+        "1": "assets/models/parts_pirate/slantedStar/armor_iron.glb",
+        "2": "assets/models/parts_pirate/slantedStar/armor_titanium.glb"
+      },
+      "shield": {
+        "1": "assets/models/parts_pirate/slantedStar/shield_generator_iron.glb",
+        "2": "assets/models/parts_pirate/slantedStar/shield_generator_titanium.glb"
+      },
+      "reactor": {
+        "1": "assets/models/parts_pirate/slantedStar/reactor_iron.glb",
+        "2": "assets/models/parts_pirate/slantedStar/reactor_titanium.glb"
+      },
+      "gyro": {
+        "1": "assets/models/parts_pirate/slantedStar/gyroscope_iron.glb",
+        "2": "assets/models/parts_pirate/slantedStar/gyroscope_titanium.glb"
+      },
+      "fuelTank": {
+        "1": "assets/models/parts_pirate/slantedStar/fuel_tank_iron.glb",
+        "2": "assets/models/parts_pirate/slantedStar/fuel_tank_titanium.glb"
+      },
+      "cargo": {
+        "1": "assets/models/parts_pirate/slantedStar/cargo_iron.glb",
+        "2": "assets/models/parts_pirate/slantedStar/cargo_titanium.glb"
+      },
+      "tractorBeam": {
+        "1": "assets/models/parts_pirate/slantedStar/tractor_beam_iron.glb",
+        "2": "assets/models/parts_pirate/slantedStar/tractor_beam_titanium.glb"
+      }
+    }
+  },
+  "connectors": {
+    "rust": {
+      "edge": "assets/models/parts_pirate/rust/hull_connector_edge.glb",
+      "corner": "assets/models/parts_pirate/rust/hull_connector_corner.glb"
+    },
+    "cauldron": {
+      "edge": "assets/models/parts_pirate/cauldron/hull_connector_edge.glb",
+      "corner": "assets/models/parts_pirate/cauldron/hull_connector_corner.glb"
+    },
+    "slantedStar": {
+      "edge": "assets/models/parts_pirate/slantedStar/hull_connector_edge.glb",
+      "corner": "assets/models/parts_pirate/slantedStar/hull_connector_corner.glb"
+    }
+  },
+  "nodes": {
+    "cannon": [
+      "Cannon_Turret",
+      "Cannon_Muzzle"
+    ],
+    "tractorBeam": [
+      "Tractor_Head",
+      "Tractor_Emitter"
+    ],
+    "gyro": [
+      "Gyro_Ring_Outer",
+      "Gyro_Ring_Inner"
+    ],
+    "shield": [
+      "Shield_Emitter"
+    ]
+  },
+  "liveries": {
+    "derelict": {
+      "basecolor": "assets/textures/palette_derelict_basecolor.png",
+      "orm": "assets/textures/palette_derelict_orm.png",
+      "emissive": "assets/textures/palette_derelict_emissive.png"
+    }
+  }
+}

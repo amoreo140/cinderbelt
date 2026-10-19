@@ -1,0 +1,1192 @@
+/*
+ * Main menu, new game, loading, settings, pause (M2c).
+ * The "Hull language" design system (Jazyk trupu): the menu is a dark structural strip
+ * on the left over the render; sub-screens are light plates set in a dark frame (like the station hub).
+ */
+
+.app-layer {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  pointer-events: none;
+}
+/* each layer is its own stacking context, the overlay above the game: the game UI's z-indices (the radio
+   card, panels, hub modals) stay inside it and never draw over the pause menu or the death card */
+.app-game-ui {
+  z-index: 0;
+}
+.app-overlay {
+  z-index: 1;
+}
+/* the game layer (HUD) handles clicks itself; in the overlay only the menu and pause screens catch the mouse */
+.mn-root,
+.ps-backdrop,
+.app-busy {
+  pointer-events: auto;
+}
+
+/* ───────────── main menu: scene ───────────── */
+.mn-root {
+  position: absolute;
+  inset: 0;
+  /* clip, not hidden: the enlarged background would otherwise let focus scroll the whole menu */
+  overflow: clip;
+  background: #04060c;
+  --px: 0px;
+  --py: 0px;
+}
+/* parallax following the cursor (slowly catching up) + an endless slow camera drift */
+.mn-parallax {
+  position: absolute;
+  inset: -3%;
+  transform: translate3d(var(--px), var(--py), 0);
+  transition: transform 1.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.mn-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  /* the station in the image is left of centre – scaling from the left edge moves it out from under the logo */
+  background-position: 0% 50%;
+  transform-origin: 0% 55%;
+  animation:
+    mn-reveal 1.4s var(--af-ease-out) both,
+    mn-drift 90s ease-in-out 1.4s infinite alternate;
+}
+@keyframes mn-reveal {
+  from { opacity: 0; transform: scale(1.2); }
+  to { opacity: 1; transform: scale(1.14); }
+}
+@keyframes mn-drift {
+  from { transform: scale(1.14) translate3d(0, 0, 0); }
+  to { transform: scale(1.19) translate3d(0.8%, -1.2%, 0); }
+}
+/* readability: a dark gradient only on the left under the menu and lightly at the bottom */
+.mn-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(3, 5, 10, 0.86) 0, rgba(3, 5, 10, 0.62) 24rem, rgba(3, 5, 10, 0.12) 46rem, rgba(3, 5, 10, 0) 60rem),
+    linear-gradient(0deg, rgba(3, 5, 10, 0.55) 0%, rgba(3, 5, 10, 0) 22%);
+  transition: background var(--af-dur-hatch) linear;
+}
+/* a sub-screen is open: the scene recedes into the background */
+.mn-root.is-sheet .mn-shade {
+  background: rgba(3, 5, 10, 0.62);
+}
+
+/* ───────────── left column: logo, menu strip, storage state ───────────── */
+.mn-column {
+  position: absolute;
+  left: clamp(1rem, 5vw, 4.5rem);
+  top: clamp(1rem, 6vh, 3.5rem);
+  bottom: clamp(1rem, 5vh, 3rem);
+  width: min(23rem, calc(100vw - 2rem));
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 3vh, 1.75rem);
+  transition:
+    transform var(--af-dur-hatch) var(--af-ease-clamp),
+    opacity var(--af-dur-clamp) linear;
+}
+.mn-root.is-sheet .mn-column {
+  transform: translateX(-2rem);
+  opacity: 0;
+  pointer-events: none;
+}
+.mn-logo {
+  display: block;
+  width: min(25rem, 34vw, 70vh);
+  min-width: min(16rem, 100%);
+  height: auto;
+  margin-left: -1.25rem; /* the logo has an empty ellipse around it – align it optically with the strip */
+  mix-blend-mode: screen;
+  user-select: none;
+  animation: af-fade 900ms linear 200ms both;
+}
+
+.mn-menu {
+  --cut: var(--af-cut-lg);
+  padding: 1rem 1rem 0.85rem 1.25rem;
+  filter: drop-shadow(0 14px 30px rgba(0, 0, 0, 0.5));
+  animation: mn-band-in var(--af-dur-hatch) var(--af-ease-clamp) 380ms both;
+}
+@keyframes mn-band-in {
+  from { transform: translateX(-24px); opacity: 0; clip-path: inset(0 100% 0 0); }
+  to { transform: none; opacity: 1; clip-path: inset(0 0 0 0); }
+}
+.mn-menu nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mn-item {
+  animation: af-slide var(--af-dur-clamp) var(--af-ease-clamp) both;
+  animation-delay: calc(520ms + var(--i, 0) * 45ms);
+}
+/* a notch on the button's left edge on focus/hover – like a latch clicking into place */
+.mn-menu .af-btn::after {
+  content: '';
+  position: absolute;
+  left: -0.7rem;
+  top: 22%;
+  bottom: 22%;
+  width: 3px;
+  background: var(--af-trim);
+  transform: scaleY(0);
+  transition: transform var(--af-dur-snap) var(--af-ease-clamp);
+}
+.mn-menu .af-btn:hover::after,
+.mn-menu .af-btn:focus-visible::after {
+  transform: scaleY(1);
+}
+.mn-menu .af-btn--primary::after {
+  background: var(--af-glow);
+}
+
+/* slot label under Continue */
+.mn-slot {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 2px 0.6rem;
+  margin: 2px 0 8px;
+  padding: 0.45rem 0.7rem 0.5rem;
+  font-size: var(--af-fs-sm);
+  color: var(--af-text-dim);
+}
+.mn-slot-diff {
+  color: var(--af-trim);
+}
+.mn-slot-diff.is-fallen {
+  color: var(--af-bad);
+}
+.mn-slot-name {
+  color: var(--af-text);
+  font-weight: 700;
+  font-size: var(--af-fs-md);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mn-slot-meta {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.9rem;
+}
+.mn-slot-meta b {
+  color: var(--af-text);
+  font-weight: 700;
+}
+
+.mn-menu-foot {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.85rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--af-seam-dark);
+  color: var(--af-text-dim);
+}
+.mn-error {
+  margin: 0 0 8px;
+  padding: 0.55rem 0.7rem;
+  font-size: var(--af-fs-sm);
+  line-height: 1.4;
+  background:
+    linear-gradient(var(--af-bad), var(--af-bad)) left / 3px 100% no-repeat,
+    rgba(255, 90, 74, 0.08);
+}
+.mn-error p {
+  margin: 0 0 0.45rem;
+}
+
+.mn-status {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: auto;
+  font-size: var(--af-fs-sm);
+  color: var(--af-text-dim);
+  animation: af-fade 600ms linear 900ms both;
+}
+.mn-status .af-btn {
+  margin-left: auto;
+}
+
+/* bottom right: the language switch and the game version */
+.mn-corner {
+  position: absolute;
+  right: clamp(1rem, 3vw, 2rem);
+  bottom: clamp(0.75rem, 2.5vh, 1.5rem);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  animation: af-fade 600ms linear 900ms both;
+}
+.mn-version {
+  color: var(--af-text-dim);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* banner: saving is not available */
+.mn-banner {
+  position: absolute;
+  left: 50%;
+  top: 0.75rem;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  width: min(50rem, calc(100vw - 2rem));
+  padding: 0.55rem 0.7rem 0.55rem 1.6rem;
+  transform: translateX(-50%);
+  font-size: var(--af-fs-md);
+  animation: af-drop var(--af-dur-hatch) var(--af-ease-clamp) both;
+}
+.mn-banner::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0.8rem;
+  background: repeating-linear-gradient(-45deg, var(--af-warn) 0 6px, #1b1408 6px 12px);
+}
+.mn-banner p {
+  flex: 1;
+  margin: 0;
+}
+
+/* ───────────── sub-screen: plate in a dark frame ───────────── */
+.sheet-wrap {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  /* one row as tall as the screen: a long sheet (settings) stays inside and its body scrolls */
+  grid-template-rows: minmax(0, 1fr);
+  place-items: center;
+  padding: clamp(0.75rem, 3vh, 2rem) clamp(0.75rem, 3vw, 2rem);
+}
+.sheet {
+  --cut: 22px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(var(--sheet-w, 68rem), 100%);
+  max-height: 100%;
+  background: linear-gradient(180deg, #232b38 0%, var(--af-band) 120px);
+  clip-path: polygon(
+    var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut)
+  );
+  filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.6));
+  animation: af-clamp var(--af-dur-hatch) var(--af-ease-clamp) both;
+}
+.sheet--narrow {
+  --sheet-w: 44rem;
+}
+.sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.95rem 1.1rem 0.8rem 1.6rem;
+}
+.sheet-title {
+  flex: 1;
+  margin: 0;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-wide);
+  font-size: var(--af-fs-2xl);
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--af-text);
+}
+.sheet-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0 6px;
+  padding: 1.1rem 1.4rem 1.2rem;
+  color: var(--af-ink);
+  font-size: var(--af-fs-lg);
+  box-shadow: inset 0 var(--af-trim-w) 0 var(--af-trim);
+  background:
+    radial-gradient(circle, #8b95a4 0 2px, transparent 2.6px) 10px 12px / 6px 6px no-repeat,
+    radial-gradient(circle, #8b95a4 0 2px, transparent 2.6px) calc(100% - 10px) 12px / 6px 6px no-repeat,
+    linear-gradient(180deg, var(--af-hull-hi) 0%, var(--af-hull) 160px, #d2d8e0 100%);
+  background-attachment: local, local, local;
+  scrollbar-width: thin;
+  scrollbar-color: var(--af-hull-shade) transparent;
+}
+.sheet-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1.1rem 0.95rem 1.6rem;
+}
+.sheet-foot .grow {
+  flex: 1;
+}
+.sheet-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--af-fs-sm);
+  color: var(--af-text-dim);
+}
+
+/* text label on the plate */
+.pl-label {
+  display: block;
+  margin: 0 0 0.4rem;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  color: var(--af-ink-soft);
+}
+.pl-hint {
+  margin: 0.4rem 0 0;
+  font-size: var(--af-fs-sm);
+  line-height: 1.45;
+  color: var(--af-ink-soft);
+}
+
+/* ───────────── new game ───────────── */
+.ng-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(16rem, 1fr);
+  gap: 1.4rem;
+}
+.ng-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+  min-width: 0;
+}
+.ng-presets {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.ng-preset {
+  --cut: 8px;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 0.6rem 0.75rem 0.6rem;
+  border: 0;
+  background: none;
+  color: var(--af-ink);
+  text-align: left;
+  cursor: pointer;
+}
+.ng-preset::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(255, 255, 255, 0.45);
+  box-shadow: inset 0 0 0 1px var(--af-seam), inset 0 -2px 0 rgba(22, 32, 44, 0.12);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  transition: background var(--af-dur-snap) linear;
+}
+.ng-preset:hover::before {
+  background: rgba(255, 255, 255, 0.75);
+}
+.ng-preset[aria-checked='true']::before {
+  background:
+    linear-gradient(var(--af-trim), var(--af-trim)) top / 100% var(--af-trim-w) no-repeat,
+    linear-gradient(180deg, #1f2733 0%, var(--af-band) 100%);
+  box-shadow: inset 0 0 0 1px #3c4759;
+}
+.ng-preset[aria-checked='true'] {
+  color: var(--af-text);
+}
+.ng-preset-name {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-lg);
+  font-weight: 750;
+}
+.ng-preset-sub {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  opacity: 0.72;
+}
+.ng-preset:focus-visible {
+  outline: 2px solid #0b6f8c;
+  outline-offset: 3px;
+}
+.ng-custom {
+  color: var(--af-trim-ink);
+}
+
+/* death penalty – list in a display */
+.ng-penalties {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.45rem;
+}
+.ng-penalty {
+  display: grid;
+  grid-template-columns: auto 6.5rem 1fr;
+  align-items: baseline;
+  gap: 0.7rem;
+  padding: 0.45rem 0.65rem;
+  border: 0;
+  background: transparent;
+  color: var(--af-text-dim);
+  font-size: var(--af-fs-md);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--af-dur-snap) linear;
+}
+.ng-penalty:hover {
+  background: rgba(98, 217, 244, 0.06);
+}
+.ng-penalty .af-lamp {
+  align-self: center;
+}
+.ng-penalty-name {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 750;
+  font-size: var(--af-fs-lg);
+  color: var(--af-text);
+}
+.ng-penalty[aria-checked='true'] {
+  color: var(--af-text);
+  background:
+    linear-gradient(var(--af-glow), var(--af-glow)) left / 3px 100% no-repeat,
+    rgba(98, 217, 244, 0.1);
+}
+.ng-penalty:focus-visible {
+  outline: 2px solid var(--af-glow);
+  outline-offset: -2px;
+}
+.ng-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+}
+.ng-row .pl-label {
+  margin: 0;
+  min-width: 7.5rem;
+}
+.ng-row .pl-hint {
+  margin: 0;
+}
+
+.ng-seed {
+  display: flex;
+  gap: 6px;
+}
+.af-input {
+  --cut: 6px;
+  flex: 1;
+  min-width: 0;
+  height: 2.5rem;
+  padding: 0 0.8rem;
+  border: 0;
+  color: var(--af-text);
+  font-family: var(--af-font-text);
+  font-size: var(--af-fs-lg);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  background: radial-gradient(120% 90% at 50% 0%, #10243a 0%, var(--af-screen) 70%);
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.45), inset 0 0 0 1px var(--af-screen-line);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  caret-color: var(--af-glow);
+}
+.af-input::placeholder {
+  color: #5f7189;
+  font-weight: 400;
+}
+.af-input:focus {
+  outline: none;
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.45), inset 0 0 0 2px var(--af-glow);
+}
+
+/* slot list (radio) */
+.slot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.slot-pick {
+  --cut: 6px;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 3.4rem 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.6rem;
+  padding: 0.3rem 0.7rem 0.3rem 0.6rem;
+  border: 0;
+  background: none;
+  color: var(--af-ink);
+  text-align: left;
+  font-size: var(--af-fs-md);
+  cursor: pointer;
+}
+.slot-pick::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(255, 255, 255, 0.45);
+  box-shadow: inset 0 0 0 1px var(--af-seam);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.slot-pick.is-empty::before {
+  background: repeating-linear-gradient(-45deg, rgba(74, 86, 102, 0.12) 0 4px, rgba(74, 86, 102, 0.04) 4px 8px);
+}
+.slot-pick[aria-checked='true']::before {
+  background:
+    linear-gradient(var(--af-trim), var(--af-trim)) left / 4px 100% no-repeat,
+    var(--af-hull-hi);
+  box-shadow: inset 0 0 0 1.5px var(--af-ink-soft);
+}
+.slot-pick[aria-disabled='true'] {
+  cursor: not-allowed;
+  color: var(--af-ink-soft);
+}
+.slot-pick:focus-visible {
+  outline: 2px solid #0b6f8c;
+  outline-offset: 3px;
+}
+.slot-pick-no {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 800;
+  font-size: var(--af-fs-lg);
+}
+.slot-pick-main {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.slot-pick-main small {
+  color: var(--af-ink-soft);
+  margin-left: 0.5rem;
+}
+.slot-pick-state {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  color: var(--af-ink-soft);
+}
+.slot-pick-state.is-warn {
+  color: var(--af-warn-ink);
+}
+.slot-pick-state.is-bad {
+  color: var(--af-bad-ink);
+}
+.slot-pick-state.is-ok {
+  color: var(--af-ok-ink);
+}
+.ng-locked {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: auto;
+  padding: 0.55rem 0.75rem;
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink);
+  background:
+    linear-gradient(var(--af-warn), var(--af-warn)) left / 3px 100% no-repeat,
+    rgba(255, 181, 71, 0.14);
+}
+
+/* ───────────── load game ───────────── */
+.ld-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.ld-columns {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+.ld-col {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.ld-col-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 2px;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid var(--af-seam);
+}
+.ld-col-name {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 800;
+  font-size: var(--af-fs-xl);
+}
+.ld-col-count {
+  margin-left: auto;
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.ld-slot {
+  --cut: var(--af-cut);
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-height: 4.9rem;
+  padding: 0.5rem 0.7rem 0.5rem 0.8rem;
+  border: 0;
+  background: none;
+  color: var(--af-ink);
+  text-align: left;
+  font-size: var(--af-fs-sm);
+  cursor: pointer;
+}
+.ld-slot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, #f3f5f8 0%, #e2e6ec 100%);
+  box-shadow: inset 0 0 0 1px rgba(22, 32, 44, 0.14), inset 0 -2px 0 rgba(22, 32, 44, 0.1);
+  clip-path: polygon(
+    var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut)
+  );
+}
+.ld-slot:hover::before {
+  background: linear-gradient(180deg, #ffffff 0%, #e9edf2 100%);
+}
+.ld-slot.is-empty {
+  justify-content: center;
+  align-items: center;
+  color: var(--af-ink-soft);
+}
+.ld-slot.is-empty::before {
+  background: repeating-linear-gradient(-45deg, rgba(74, 86, 102, 0.08) 0 4px, rgba(74, 86, 102, 0.02) 4px 8px);
+  box-shadow: inset 0 0 0 1px rgba(74, 86, 102, 0.2);
+}
+.ld-slot.is-empty:hover::before {
+  background: repeating-linear-gradient(-45deg, rgba(74, 86, 102, 0.14) 0 4px, rgba(74, 86, 102, 0.05) 4px 8px);
+}
+.ld-slot[aria-pressed='true']::before {
+  background:
+    linear-gradient(var(--af-trim), var(--af-trim)) left / 4px 100% no-repeat,
+    linear-gradient(180deg, #ffffff 0%, #eef1f5 100%);
+  box-shadow: inset 0 0 0 1.5px var(--af-ink-soft), 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+.ld-slot:focus-visible {
+  outline: 2px solid #0b6f8c;
+  outline-offset: 3px;
+}
+.ld-slot-top {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.ld-slot-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: var(--af-fs-lg);
+}
+.ld-slot-no {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-weight: 800;
+  color: var(--af-ink-soft);
+}
+.ld-slot-line {
+  color: var(--af-ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ld-slot-line b {
+  color: var(--af-ink);
+}
+.ld-fallen {
+  color: var(--af-bad-ink);
+}
+.ld-current {
+  color: var(--af-ok-ink);
+}
+
+/* selected slot detail – a display with actions */
+.ld-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem 1.4rem;
+  min-height: 5.6rem;
+  padding: 0.8rem 1rem 0.8rem 1.1rem;
+}
+.ld-detail-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.3rem;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-xl);
+  font-weight: 750;
+  color: var(--af-text);
+}
+.ld-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.1rem;
+  margin: 0;
+}
+.ld-facts div {
+  display: flex;
+  flex-direction: column;
+}
+.ld-facts dt {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  color: var(--af-text-dim);
+}
+.ld-facts dd {
+  margin: 0;
+  font-weight: 700;
+  font-size: var(--af-fs-md);
+  color: var(--af-text);
+}
+.ld-detail-text {
+  margin: 0;
+  font-size: var(--af-fs-md);
+  color: var(--af-text-dim);
+}
+.ld-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* ───────────── settings ───────────── */
+.st-section + .st-section {
+  margin-top: 1.1rem;
+}
+.st-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.st-row {
+  display: grid;
+  grid-template-columns: 11.5rem minmax(0, 1fr) 3.5rem;
+  align-items: center;
+  gap: 1rem;
+  min-height: 2.6rem;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid var(--af-seam);
+  font-size: var(--af-fs-md);
+}
+.st-row:last-child {
+  border-bottom: 0;
+}
+.st-row > label,
+.st-row > .st-name {
+  font-weight: 700;
+}
+.st-value {
+  justify-self: end;
+  font-weight: 700;
+  color: var(--af-ink-soft);
+}
+.st-status {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.85rem;
+  font-size: var(--af-fs-md);
+}
+
+/* slider: a native range over a segmented meter (controls and screen readers stay native) */
+.af-slider {
+  --cut: 5px;
+  position: relative;
+  height: 1.9rem;
+  padding: 0 0.55rem;
+  background: var(--af-screen);
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.45), inset 0 0 0 1px var(--af-screen-line);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.af-slider-track {
+  position: absolute;
+  inset: 0.55rem 0.7rem;
+  display: flex;
+  gap: 2px;
+  pointer-events: none;
+}
+.af-slider-track span {
+  flex: 1;
+  transform: skewX(-24deg);
+  background: rgba(130, 150, 175, 0.16);
+}
+.af-slider-track span.is-on {
+  background: var(--af-glow);
+  box-shadow: 0 0 5px rgba(98, 217, 244, 0.45);
+}
+.af-slider.is-muted .af-slider-track span.is-on {
+  background: #4a5566;
+  box-shadow: none;
+}
+.af-slider input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.af-slider:focus-within {
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.45), inset 0 0 0 2px var(--af-glow);
+}
+
+/* ───────────── about ───────────── */
+.ab-logo {
+  display: block;
+  width: min(22rem, 70%);
+  margin: 0 auto 0.6rem;
+  border-radius: 0;
+  background: #000;
+  clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+}
+.ab-lead {
+  margin: 0 0 0.9rem;
+  font-size: var(--af-fs-xl);
+  line-height: 1.45;
+}
+.ab-text {
+  margin: 0 0 1rem;
+  font-size: var(--af-fs-md);
+  line-height: 1.55;
+  color: var(--af-ink-soft);
+}
+.ab-keys {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem 1.2rem;
+  padding: 0.8rem 1rem;
+}
+.ab-keys .af-keyhint {
+  font-size: var(--af-fs-md);
+  color: var(--af-text);
+}
+
+/* ───────────── pause ───────────── */
+.ps-backdrop {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: radial-gradient(80% 70% at 50% 45%, rgba(6, 10, 18, 0.66) 0%, rgba(3, 5, 10, 0.88) 100%);
+  animation: af-fade var(--af-dur-clamp) linear both;
+}
+.ps-card {
+  width: min(24rem, 100%);
+}
+.ps-card .sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 1rem 1.1rem 1rem;
+}
+.ps-card .af-seam {
+  margin: 0.35rem 0;
+}
+.ps-info {
+  margin: 0.55rem 6px 0;
+  padding: 0.6rem 0.9rem 0.65rem;
+  font-size: var(--af-fs-sm);
+}
+.ps-info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 1.4rem;
+}
+.ps-info-row + .ps-info-row {
+  margin-top: 0.15rem;
+}
+.ps-info-row .af-label {
+  color: var(--af-text-dim);
+}
+.ps-info-row b {
+  margin-left: auto;
+  font-weight: 700;
+  text-align: right;
+}
+
+/* ───────────── death card ───────────── */
+.dc-card {
+  width: min(30rem, 100%);
+}
+.dc-card .af-hazard {
+  margin: 0 6px;
+}
+.dc-card .sheet-body {
+  box-shadow: none;
+}
+.dc-text {
+  margin: 0 0 0.7rem;
+  line-height: 1.5;
+}
+
+/* ───────────── save indicator ───────────── */
+.save-ind {
+  position: absolute;
+  left: 50%;
+  bottom: 0.9rem;
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.8rem 0.3rem 0.6rem;
+  transform: translateX(-50%);
+  pointer-events: none !important;
+  color: var(--af-text);
+  background: rgba(27, 34, 45, 0.88);
+  box-shadow: inset 0 0 0 1px #323c4d;
+  --cut: 6px;
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  animation: af-latch var(--af-dur-clamp) var(--af-ease-clamp) both;
+}
+.save-ind.is-saving .af-lamp {
+  animation: af-blink 0.6s steps(2, jump-none) infinite;
+}
+.save-ind.is-leaving {
+  opacity: 0;
+  transition: opacity 400ms linear;
+}
+
+/* ───────────── preparations, toast in the menu ───────────── */
+.app-busy {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: grid;
+  place-items: center;
+  background: rgba(3, 5, 10, 0.72);
+  animation: af-fade var(--af-dur-clamp) linear both;
+}
+.app-busy-box {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1.2rem;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-lg);
+  font-weight: 700;
+}
+.app-busy-box .af-lamp {
+  animation: af-blink 0.6s steps(2, jump-none) infinite;
+}
+.app-toast {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  z-index: 7;
+  transform: translateX(-50%);
+  pointer-events: none !important;
+}
+
+/* smaller windows: new game and loading in one / two columns */
+@media (max-width: 60rem) {
+  .ng-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ld-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ld-detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ld-actions {
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 36rem) {
+  .ng-presets,
+  .ld-columns {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .st-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .st-row .af-slider,
+  .st-row .af-segmented {
+    grid-column: 1 / -1;
+  }
+  .st-value {
+    grid-row: 1;
+    grid-column: 2;
+  }
+}
+
+/* reduced motion from the game settings (the system one is handled by tokens.css) */
+:root[data-reduced-motion] .mn-bg {
+  animation: none;
+  transform: scale(1.14);
+}
+:root[data-reduced-motion] .mn-parallax {
+  transform: none;
+  transition: none;
+}
+:root[data-reduced-motion] *,
+:root[data-reduced-motion] *::before,
+:root[data-reduced-motion] *::after {
+  animation-duration: 0.001ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mn-bg {
+    animation: none;
+    transform: scale(1.14);
+  }
+  .mn-parallax {
+    transform: none;
+  }
+}
+:root[data-reduced-motion] {
+  --af-dur-snap: 0ms;
+  --af-dur-clamp: 0ms;
+  --af-dur-hatch: 0ms;
+}
+
+/* loss list on the death card */
+.dc-list {
+  margin: 0 0 0.8rem;
+  padding: 0;
+  list-style: none;
+}
+.dc-list li {
+  position: relative;
+  padding: 0.3rem 0 0.3rem 1.1rem;
+  border-bottom: 1px solid var(--af-seam);
+  font-size: var(--af-fs-md);
+}
+.dc-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  width: 0.5rem;
+  height: 3px;
+  background: var(--af-bad-ink);
+}
+.dc-stats {
+  margin: 0.4rem 0 0;
+}
+.dc-list li .dc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 0.35rem;
+}
+
+/* death card with the black box: silhouette on the left, losses on the right */
+.dc-card--box {
+  width: min(44rem, 100%);
+}
+.dc-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.1rem;
+}
+.dc-card--box .dc-grid {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+}
+.dc-box {
+  margin: 0;
+}
+.dc-box-screen {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 13.5rem;
+  min-height: 12.5rem;
+  padding: 2rem 1rem 1rem;
+}
+.dc-box-label {
+  position: absolute;
+  top: 0.55rem;
+  left: 0.75rem;
+  font-size: var(--af-fs-xs);
+  color: var(--af-text-dim);
+}
+.dc-box-bow {
+  position: absolute;
+  top: 1.2rem;
+  left: 50%;
+  translate: -50% 0;
+  width: 9px;
+  height: 5px;
+  background: color-mix(in srgb, var(--af-glow) 70%, transparent);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.dc-box-caption {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.45rem;
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+  color: var(--af-ink-soft);
+}
+@media (max-width: 640px) {
+  .dc-card--box .dc-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* pause: Objectives and Storage side by side (M3.5a) */
+.ps-career {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: inherit;
+}

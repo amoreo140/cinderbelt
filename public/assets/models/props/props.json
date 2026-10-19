@@ -1,0 +1,460 @@
+{
+ "_schema": {
+  "about": "Batch B space clutter props (art/README 2.7.23). Render-only; no collision unless code adds one (use `radius`).",
+  "file": "model path relative to public/",
+  "size": "bounding box [x, y(up), z] in glTF axes (model units = game units)",
+  "radius": "bounding sphere radius around the origin",
+  "tris": "triangles incl. child nodes",
+  "set": "B4 human clutter (rings 1-2 mostly) | B5 pirate dressing (decoration only)",
+  "contexts": "station (within ~20-60 u of stations), lane (along trade lanes between stations), field (asteroid fields), wreck (around wrecks / container drops), derelict (around derelict stations), pirate (pirate space / near the fortress)",
+  "count": "[min, max] per context site",
+  "scale": "suggested uniform scale range",
+  "nodes": "animated / lamp nodes and what code does with them (beacon_<i> blink like station beacons)",
+  "drift": "suggested motion",
+  "marker": "the one bold top-down shape that identifies the prop at the game camera"
+ },
+ "sat_comm": {
+  "file": "assets/models/props/sat_comm.glb",
+  "set": "B4",
+  "tris": 1072,
+  "size": [
+   1.46,
+   1.76,
+   4.1
+  ],
+  "radius": 2.16,
+  "root": "Sat_Comm",
+  "nodes": {
+   "Sat_Dish": "spin around local +Y, ~6 deg/s",
+   "Sat_Solar": "turn around local +Z (the boom axis), ~2 deg/s or track the star",
+   "beacon_0": "red blink 1 Hz"
+  },
+  "marker": "big dish + two solar wings",
+  "rings": [
+   1,
+   2
+  ],
+  "contexts": [
+   "station",
+   "lane"
+  ],
+  "count": [
+   1,
+   3
+  ],
+  "scale": [
+   0.9,
+   1.3
+  ],
+  "drift": "slow tumble 2-4 deg/s around one random axis"
+ },
+ "sat_survey": {
+  "file": "assets/models/props/sat_survey.glb",
+  "set": "B4",
+  "tris": 1160,
+  "size": [
+   2.89,
+   0.97,
+   2.63
+  ],
+  "radius": 1.79,
+  "root": "Sat_Survey",
+  "nodes": {
+   "Sat_Solar": "spin around local +Y, ~5 deg/s",
+   "beacon_0": "cyan pulse 0.5 Hz"
+  },
+  "marker": "rotating solar cross (Institute)",
+  "rings": [
+   1,
+   2,
+   3
+  ],
+  "contexts": [
+   "station",
+   "field"
+  ],
+  "count": [
+   0,
+   2
+  ],
+  "scale": [
+   0.9,
+   1.3
+  ],
+  "drift": "keep upright, slow yaw"
+ },
+ "nav_beacon": {
+  "file": "assets/models/props/nav_beacon.glb",
+  "set": "B4",
+  "tris": 916,
+  "size": [
+   1.24,
+   2.49,
+   1.24
+  ],
+  "radius": 1.32,
+  "root": "Nav_Beacon",
+  "nodes": {
+   "beacon_0": "green, steady or slow blink",
+   "beacon_1": "white strobe: 80 ms flash every 1.5 s, offset per beacon along the lane"
+  },
+  "marker": "white reflector collar + strobe mast",
+  "rings": [
+   1,
+   2
+  ],
+  "contexts": [
+   "lane"
+  ],
+  "count": [
+   1,
+   1
+  ],
+  "scale": [
+   1.0,
+   1.4
+  ],
+  "drift": "keep upright (mast = local +Y), slow bob",
+  "spacing": "every 60-120 u along trade lanes"
+ },
+ "cargo_pod_small": {
+  "file": "assets/models/props/cargo_pod_small.glb",
+  "set": "B4",
+  "tris": 680,
+  "size": [
+   1.11,
+   0.71,
+   0.59
+  ],
+  "radius": 0.58,
+  "root": "Cargo_Pod_Small",
+  "nodes": {
+   "beacon_0": "amber blink 0.8 Hz"
+  },
+  "marker": "orange/black hazard band",
+  "rings": [
+   1,
+   2
+  ],
+  "contexts": [
+   "station",
+   "wreck",
+   "lane"
+  ],
+  "count": [
+   1,
+   4
+  ],
+  "scale": [
+   0.9,
+   1.2
+  ],
+  "drift": "tumble 5-15 deg/s"
+ },
+ "cargo_pallet": {
+  "file": "assets/models/props/cargo_pallet.glb",
+  "set": "B4",
+  "tris": 764,
+  "size": [
+   1.96,
+   0.64,
+   1.26
+  ],
+  "radius": 1.19,
+  "root": "Cargo_Pallet",
+  "nodes": {
+   "beacon_0": "amber blink 0.8 Hz"
+  },
+  "marker": "strapped crate grid",
+  "rings": [
+   1,
+   2
+  ],
+  "contexts": [
+   "station",
+   "wreck"
+  ],
+  "count": [
+   0,
+   2
+  ],
+  "scale": [
+   0.9,
+   1.2
+  ],
+  "drift": "tumble 2-6 deg/s"
+ },
+ "fuel_canister": {
+  "file": "assets/models/props/fuel_canister.glb",
+  "set": "B4",
+  "tris": 866,
+  "size": [
+   0.77,
+   0.84,
+   0.66
+  ],
+  "radius": 0.56,
+  "root": "Fuel_Canister",
+  "nodes": {},
+  "marker": "yellow sphere",
+  "rings": [
+   1,
+   2,
+   3
+  ],
+  "contexts": [
+   "station",
+   "wreck",
+   "lane"
+  ],
+  "count": [
+   1,
+   4
+  ],
+  "scale": [
+   0.9,
+   1.3
+  ],
+  "drift": "tumble 5-15 deg/s"
+ },
+ "ore_canister": {
+  "file": "assets/models/props/ore_canister.glb",
+  "set": "B4",
+  "tris": 508,
+  "size": [
+   1.16,
+   0.57,
+   0.57
+  ],
+  "radius": 0.59,
+  "root": "Ore_Canister",
+  "nodes": {
+   "Ore_Window": "near-white glowing glass: clone its material and set color + emissive to RESOURCES[res].color (emissiveIntensity ~1)"
+  },
+  "marker": "glowing ore slot",
+  "rings": [
+   1,
+   2,
+   3,
+   4
+  ],
+  "contexts": [
+   "field",
+   "wreck"
+  ],
+  "count": [
+   1,
+   3
+  ],
+  "scale": [
+   0.9,
+   1.2
+  ],
+  "drift": "tumble 5-15 deg/s"
+ },
+ "escape_pod": {
+  "file": "assets/models/props/escape_pod.glb",
+  "set": "B4",
+  "tris": 872,
+  "size": [
+   1.42,
+   1.05,
+   0.83
+  ],
+  "radius": 0.85,
+  "root": "Escape_Pod",
+  "nodes": {
+   "beacon_0": "red distress blink: 3 short + pause"
+  },
+  "marker": "orange stripes + red distress lamp + lit porthole",
+  "rings": [
+   1,
+   2,
+   3
+  ],
+  "contexts": [
+   "wreck",
+   "lane"
+  ],
+  "count": [
+   0,
+   1
+  ],
+  "scale": [
+   1.0,
+   1.0
+  ],
+  "drift": "tumble 3-8 deg/s",
+  "note": "salvage/event hook - needs sim if it becomes interactive"
+ },
+ "claim_marker": {
+  "file": "assets/models/props/claim_marker.glb",
+  "set": "B4",
+  "tris": 530,
+  "size": [
+   0.98,
+   2.27,
+   0.72
+  ],
+  "radius": 1.57,
+  "root": "Claim_Base",
+  "nodes": {
+   "Claim_Base": "ROOT: origin = spike foot, local +Y = out of the rock; place on the asteroid surface along its normal, spike buried",
+   "beacon_0": "amber blink 0.5 Hz"
+  },
+  "marker": "orange claim plate + Guild flag",
+  "rings": [
+   1,
+   2,
+   3
+  ],
+  "contexts": [
+   "field"
+  ],
+  "count": [
+   0,
+   1
+  ],
+  "scale": [
+   1.0,
+   1.4
+  ],
+  "drift": "none (stuck in a rock - rotates with it)"
+ },
+ "solar_wing_drift": {
+  "file": "assets/models/props/solar_wing_drift.glb",
+  "set": "B4",
+  "tris": 630,
+  "size": [
+   3.28,
+   0.59,
+   1.1
+  ],
+  "radius": 1.72,
+  "root": "Solar_Wing_Drift",
+  "nodes": {},
+  "marker": "blue solar cells",
+  "rings": [
+   1,
+   2
+  ],
+  "contexts": [
+   "wreck",
+   "derelict",
+   "lane"
+  ],
+  "count": [
+   0,
+   2
+  ],
+  "scale": [
+   0.9,
+   1.4
+  ],
+  "drift": "tumble 2-6 deg/s"
+ },
+ "pirate_mine": {
+  "file": "assets/models/props/pirate_mine.glb",
+  "set": "B5",
+  "tris": 708,
+  "size": [
+   1.16,
+   1.16,
+   1.16
+  ],
+  "radius": 0.58,
+  "root": "Pirate_Mine",
+  "nodes": {
+   "Mine_Core": "spin around local +Y, ~30 deg/s",
+   "beacon_0": "red slow pulse"
+  },
+  "marker": "spiked sphere + hazard band + red eye",
+  "rings": [
+   2,
+   3,
+   4
+  ],
+  "contexts": [
+   "pirate"
+  ],
+  "count": [
+   3,
+   9
+  ],
+  "scale": [
+   0.9,
+   1.2
+  ],
+  "drift": "bob, no tumble",
+  "note": "DECORATION ONLY (decision 2026-10-16: no hazard mechanics)"
+ },
+ "pirate_stash": {
+  "file": "assets/models/props/pirate_stash.glb",
+  "set": "B5",
+  "tris": 868,
+  "size": [
+   1.48,
+   1.03,
+   1.31
+  ],
+  "radius": 1.02,
+  "root": "Pirate_Stash",
+  "nodes": {
+   "beacon_0": "red dim blink"
+  },
+  "marker": "welded crate stack",
+  "rings": [
+   2,
+   3,
+   4
+  ],
+  "contexts": [
+   "pirate"
+  ],
+  "count": [
+   0,
+   2
+  ],
+  "scale": [
+   1.0,
+   1.3
+  ],
+  "drift": "slow tumble 1-3 deg/s",
+  "note": "decoration only"
+ },
+ "scrap_raft": {
+  "file": "assets/models/props/scrap_raft.glb",
+  "set": "B5",
+  "tris": 2122,
+  "size": [
+   4.65,
+   2.02,
+   4.68
+  ],
+  "radius": 2.75,
+  "root": "Scrap_Raft",
+  "nodes": {
+   "beacon_0": "red blink",
+   "beacon_1": "amber blink"
+  },
+  "marker": "welded plate raft with a lamp mast",
+  "rings": [
+   2,
+   3,
+   4
+  ],
+  "contexts": [
+   "pirate"
+  ],
+  "count": [
+   0,
+   1
+  ],
+  "scale": [
+   1.0,
+   1.2
+  ],
+  "drift": "slow yaw only",
+  "note": "decoration only; pirate groups may idle around it"
+ }
+}

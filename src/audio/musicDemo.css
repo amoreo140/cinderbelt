@@ -1,0 +1,237 @@
+/* Music lab page (music-demo.html) – a dev tool, not part of the game. */
+html,
+body {
+  margin: 0;
+  background: #05080f;
+}
+.md {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  padding: 1.25rem clamp(1rem, 3vw, 2.5rem) 3rem;
+}
+.md-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+}
+.md-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(5, 8, 15, 0.35), rgba(5, 8, 15, 0.8));
+}
+.md-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 2rem;
+  margin-bottom: 1.25rem;
+}
+.md-logo {
+  width: 180px;
+  mix-blend-mode: screen;
+}
+.md-title {
+  margin: 0;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-wide);
+  font-weight: 800;
+  font-size: var(--af-fs-2xl);
+}
+.md-sub {
+  margin: 0.2rem 0 0;
+  color: var(--af-text-dim);
+  max-width: 44rem;
+}
+.md-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+.md-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+.md-col {
+  display: grid;
+  gap: 1rem;
+}
+@media (max-width: 900px) {
+  .md-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.md-panel {
+  padding: 0.9rem 1rem 1rem;
+}
+.md-mood {
+  margin-top: 0.9rem;
+}
+.md-mood:first-of-type {
+  margin-top: 0;
+}
+.md-track {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem 0.75rem;
+  align-items: center;
+  padding: 0.55rem 0.65rem;
+  margin-top: 0.4rem;
+  background: rgba(10, 21, 33, 0.65);
+  box-shadow: inset 0 0 0 1px var(--af-screen-line);
+}
+.md-track.is-on {
+  box-shadow: inset 0 0 0 1px var(--af-glow), 0 0 12px rgba(98, 217, 244, 0.18);
+}
+.md-track-name {
+  font-weight: 700;
+}
+.md-track-meta {
+  color: var(--af-text-dim);
+  font-size: var(--af-fs-sm);
+}
+.md-track-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+.md-progress {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 6px;
+  background: rgba(130, 150, 175, 0.16);
+}
+.md-progress span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--af-glow);
+}
+.md-progress-time {
+  grid-column: 1 / -1;
+  color: var(--af-text-dim);
+  font-size: var(--af-fs-xs);
+}
+.md-rows {
+  display: grid;
+  gap: 0.5rem;
+}
+.md-row {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr) 3.5rem;
+  gap: 0.6rem;
+  align-items: center;
+}
+.md-row > .st-value,
+.md-value {
+  text-align: right;
+  color: var(--af-text-dim);
+  font-size: var(--af-fs-sm);
+}
+.md-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+}
+.md-kv {
+  display: grid;
+  grid-template-columns: 8rem minmax(0, 1fr);
+  gap: 0.25rem 0.75rem;
+  font-size: var(--af-fs-sm);
+}
+.md-kv dt {
+  color: var(--af-text-dim);
+}
+.md-kv dd {
+  margin: 0;
+}
+.md-log {
+  margin: 0.6rem 0 0;
+  padding: 0.5rem 0.6rem;
+  max-height: 11rem;
+  overflow: auto;
+  font-size: var(--af-fs-xs);
+  color: var(--af-text-dim);
+  background: var(--af-screen);
+  box-shadow: inset 0 0 0 1px var(--af-screen-line);
+  list-style: none;
+}
+.md-meter {
+  display: flex;
+  gap: 2px;
+  height: 0.9rem;
+  min-width: 10rem;
+  flex: 1;
+}
+.md-meter span {
+  flex: 1;
+  transform: skewX(-24deg);
+  background: rgba(130, 150, 175, 0.16);
+}
+.md-meter span.is-on {
+  background: var(--af-ok);
+}
+.md-meter--gain span.is-on {
+  background: var(--af-glow);
+}
+.md-meter span.is-on.is-warn {
+  background: var(--af-warn);
+}
+.md-meter span.is-on.is-bad {
+  background: var(--af-bad);
+}
+.md-stem {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr) 3rem;
+  gap: 0.6rem;
+  align-items: center;
+  font-size: var(--af-fs-sm);
+}
+.md-hint {
+  margin: 0.5rem 0 0;
+  color: var(--af-text-dim);
+  font-size: var(--af-fs-sm);
+}
+/* the same segmented slider look as the settings sheet */
+.md .af-slider {
+  --cut: 5px;
+  position: relative;
+  height: 1.9rem;
+  padding: 0 0.55rem;
+  background: var(--af-screen);
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.45), inset 0 0 0 1px var(--af-screen-line);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.md .af-slider-track {
+  position: absolute;
+  inset: 0.55rem 0.7rem;
+  display: flex;
+  gap: 2px;
+  pointer-events: none;
+}
+.md .af-slider-track span {
+  flex: 1;
+  transform: skewX(-24deg);
+  background: rgba(130, 150, 175, 0.16);
+}
+.md .af-slider-track span.is-on {
+  background: var(--af-glow);
+  box-shadow: 0 0 5px rgba(98, 217, 244, 0.45);
+}
+.md .af-slider input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.md .af-slider:focus-within {
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.45), inset 0 0 0 2px var(--af-glow);
+}

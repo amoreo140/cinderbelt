@@ -1,0 +1,101 @@
+/* Docking approach readout: a dark band right under the docking prompt (flight HUD = dark bands), away
+   from the ship in the middle. The bottom edge is the glow of the flight-path marker while approaching
+   and turns green when all three items are in tolerance (the prompt over it then shows the F keycap).
+   The prompt keeps its place in the HUD; the stack hangs the readout below it. */
+.dk-stack {
+  --dk-readout: 3.3rem;
+  position: absolute;
+  left: 50%;
+  bottom: calc(max(28%, 16rem) - var(--dk-readout) - 0.4rem);
+  translate: -50% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  pointer-events: none;
+}
+.dk-stack .hud-prompt {
+  position: static;
+  translate: none;
+}
+.dk-approach {
+  --cut: 7px;
+  --edge: var(--af-glow);
+  box-sizing: border-box;
+  height: var(--dk-readout, auto);
+  display: flex;
+  align-items: stretch;
+  white-space: nowrap;
+  color: var(--af-text);
+  background: rgba(20, 25, 33, 0.9);
+  box-shadow: inset 0 -2px 0 var(--edge);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.dk-approach.is-ready {
+  --edge: var(--af-ok);
+}
+.dk-head {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.1rem;
+  padding: 0.4rem 0.75rem 0.45rem 0.9rem;
+  border-right: 1px solid rgba(232, 237, 244, 0.14);
+}
+.dk-title {
+  font-size: var(--af-fs-xs);
+  color: var(--edge);
+}
+.dk-tag {
+  font-size: var(--af-fs-xs);
+  color: var(--af-text-dim);
+}
+.dk-item {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-areas:
+    'lamp label'
+    'value value';
+  justify-content: start;
+  align-items: center;
+  column-gap: 0.4rem;
+  min-width: 7.2rem;
+  padding: 0.35rem 0.85rem 0.45rem;
+  border-right: 1px solid rgba(232, 237, 244, 0.1);
+}
+.dk-item:last-child {
+  border-right: 0;
+}
+.dk-item .af-lamp {
+  grid-area: lamp;
+}
+.dk-label {
+  grid-area: label;
+  font-size: var(--af-fs-xs);
+  color: var(--af-text-dim);
+}
+.dk-value {
+  grid-area: value;
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  font-size: var(--af-fs-lg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+.dk-item.is-ok .dk-value {
+  color: var(--af-ok);
+}
+.dk-item.is-bad .dk-value {
+  color: var(--af-bad);
+}
+.dk-limit {
+  font-size: var(--af-fs-xs);
+  font-weight: 400;
+  color: var(--af-text-dim);
+}
+/* the latch hint ("The clamp is catching the ship…") takes the prompt's place, clear of the console */
+.hud .hud-hint--info {
+  bottom: max(28%, 16rem);
+}

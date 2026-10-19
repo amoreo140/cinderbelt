@@ -1,0 +1,102 @@
+/* Cartography on the Board (sectors §4.2): rows on the light plate, each with the sector's security
+   swatch on its left edge (colour + pattern from sectors.css), price and one action on the right. */
+
+.ct-rules {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.55rem 0.8rem;
+  font-size: var(--af-fs-sm);
+  color: var(--af-text);
+}
+.ct-rule {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.ct-rule--never {
+  color: var(--af-warn);
+}
+.ct-empty {
+  margin: 0.3rem 0 0.2rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px dashed var(--af-hull-shade);
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.ct-list {
+  margin: 0.3rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ct-row {
+  display: grid;
+  grid-template-columns: 0.55rem 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.45rem 0.2rem 0.45rem 0;
+  background: linear-gradient(180deg, var(--af-seam) 0 1px, rgba(255, 255, 255, 0.65) 1px 2px, transparent 2px) top / 100% 2px no-repeat;
+}
+/* the security swatch: the colour border + the pattern of the map (Quiet has none) */
+.ct-swatch {
+  align-self: stretch;
+  min-height: 2.4rem;
+  border: 2px solid var(--sc);
+  background: var(--sc-fill);
+}
+.ct-id {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+.ct-name {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-lg);
+  font-weight: 750;
+  color: var(--af-ink);
+}
+.ct-name .sc-glyph {
+  color: var(--af-ink-soft);
+}
+.ct-sub {
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.ct-sec {
+  font-weight: 700;
+  color: var(--af-ink);
+}
+.ct-detail {
+  font-size: var(--af-fs-sm);
+  color: var(--af-ink-soft);
+}
+.ct-trade {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.ct-price {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-control);
+  font-size: var(--af-fs-lg);
+  font-variant-numeric: tabular-nums;
+  color: var(--af-ink);
+  white-space: nowrap;
+}
+/* sold / under contract: a stencil stamp instead of the price and the button */
+.ct-stamp {
+  padding: 0.15rem 0.5rem;
+  border: 1.5px solid var(--af-ink-soft);
+  color: var(--af-ink-soft);
+  transform: rotate(-3deg);
+}
+.ct-row.is-sold .ct-name,
+.ct-row.is-sold .ct-sub,
+.ct-row.is-sold .ct-detail {
+  opacity: 0.6;
+}
+.ct-row.is-reserved .ct-stamp {
+  border-color: var(--af-trim-deep);
+  color: var(--af-trim-deep);
+}

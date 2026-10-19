@@ -1,0 +1,301 @@
+/* Combat HUD (M3b) – ship state in the console, hits, pirate warning, salvage. */
+
+/* ───── console: the ship state column on the left ───── */
+.hud-console.has-status {
+  grid-template-columns: auto auto 15.5rem;
+}
+.cb-status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding-right: var(--af-s4);
+  border-right: 1px solid rgba(232, 237, 244, 0.08);
+}
+.cb-sil-screen {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 8.5rem;
+  min-height: 7.25rem;
+  padding: 14px 8px 8px;
+}
+/* bow up – a small azure arrow like the "BOW" marker in the hangar */
+.cb-bow {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 9px;
+  height: 5px;
+  translate: -50% 0;
+  background: color-mix(in srgb, var(--af-glow) 70%, transparent);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.cb-status-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.cb-damage {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--af-fs-sm);
+  color: var(--af-text-dim);
+  white-space: nowrap;
+}
+.cb-damage.is-damaged {
+  color: var(--af-text);
+  font-weight: 700;
+}
+.cb-cannons {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+}
+.cb-cannons .af-label {
+  font-size: var(--af-fs-xs);
+  color: var(--af-text-dim);
+}
+.cb-cannons b {
+  margin-left: auto;
+  font-size: var(--af-fs-md);
+  font-weight: 700;
+}
+.cb-cannons b small {
+  font-weight: 400;
+  font-size: var(--af-fs-sm);
+  color: var(--af-text-dim);
+}
+.cb-pips {
+  display: inline-flex;
+  gap: 3px;
+  padding: 0 2px;
+}
+.cb-pips i {
+  width: 6px;
+  height: 10px;
+  transform: skewX(-24deg);
+  background: rgba(130, 150, 175, 0.16);
+}
+.cb-pips i.is-on {
+  background: var(--af-hull-hi);
+  box-shadow: 0 0 5px rgba(238, 241, 245, 0.55);
+}
+
+/* salvage on board (below the cannons) – one line */
+.cb-hold {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  font-size: var(--af-fs-md);
+}
+.cb-hold b {
+  margin-left: auto;
+  font-weight: 700;
+}
+.cb-hold-icons {
+  display: inline-flex;
+}
+.cb-hold-icons img {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-right: -0.3rem;
+  border-radius: 0;
+  box-shadow: 0 0 0 1.5px var(--af-band);
+  background: var(--af-screen);
+}
+.cb-hold .af-label {
+  margin-right: 2px;
+  font-size: var(--af-fs-xs);
+  color: var(--af-text-dim);
+}
+
+/* cargo below the speed (combat console); hud.css is loaded only after this file */
+.hud-cargo.hud-cargo--flight {
+  max-width: 8.25rem;
+  gap: 3px;
+  margin-top: 0;
+}
+/* prompts in the centre above the taller combat console */
+.hud .hud-prompt {
+  bottom: max(28%, 16rem);
+}
+
+/* ───── wreck prompt ───── */
+.cb-salvage .cb-loot {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 0.35rem;
+  font-family: var(--af-font-text);
+  font-stretch: normal;
+  font-size: var(--af-fs-sm);
+  font-weight: 700;
+}
+.cb-salvage.hud-prompt--info {
+  padding-left: 1rem;
+}
+
+/* ───── pirate warning (top centre) ───── */
+.cb-threat {
+  --cut: 9px;
+  position: absolute;
+  top: var(--af-edge);
+  left: 50%;
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.55rem 2.1rem 0.55rem;
+  white-space: nowrap;
+  color: var(--af-text);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  animation: af-drop var(--af-dur-hatch) var(--af-ease-clamp) both;
+}
+.cb-threat--alert {
+  background:
+    repeating-linear-gradient(-45deg, var(--af-bad) 0 7px, #2a0d0b 7px 14px) left / 16px 100% no-repeat,
+    repeating-linear-gradient(-45deg, var(--af-bad) 0 7px, #2a0d0b 7px 14px) right / 16px 100% no-repeat,
+    linear-gradient(180deg, rgba(64, 24, 26, 0.95), rgba(38, 14, 16, 0.95));
+}
+.cb-threat--compact {
+  gap: 0.6rem;
+  padding: 0.35rem 1.2rem 0.4rem 1.4rem;
+  background:
+    repeating-linear-gradient(-45deg, var(--af-bad) 0 5px, #2a0d0b 5px 10px) left / 8px 100% no-repeat,
+    rgba(27, 34, 45, 0.88);
+  box-shadow: inset 0 -2px 0 var(--af-bad);
+}
+.cb-threat-title {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-wide);
+  font-size: var(--af-fs-2xl);
+  font-weight: 800;
+  line-height: 1;
+  color: #ffd9d3;
+}
+.cb-threat-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: var(--af-fs-md);
+  font-weight: 700;
+}
+.cb-threat .af-lamp {
+  animation: af-blink 0.9s steps(2, jump-none) infinite;
+}
+.cb-threat-nearest {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 400;
+  color: var(--af-text-dim);
+}
+.cb-threat-nearest .af-readout-value {
+  color: var(--af-text);
+}
+.cb-threat-sep {
+  width: 1px;
+  height: 0.9rem;
+  margin: 0 0.15rem;
+  background: rgba(232, 237, 244, 0.22);
+}
+/* arrow to the nearest attacker (rotated by its on-screen direction) */
+.cb-bearing {
+  display: inline-block;
+  width: 15px;
+  height: 11px;
+  background: var(--af-bad);
+  clip-path: polygon(0 0, 45% 0, 100% 50%, 45% 100%, 0 100%, 52% 50%);
+}
+
+/* the toast moves below the warning band (both are top centre) */
+.hud:has(.cb-threat) ~ .ui-toast {
+  top: 4.6rem;
+}
+
+/* ───── hit indicators on the edge ───── */
+.cb-hits {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.cb-hit {
+  animation-name: cb-hit-fade;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+.cb-hit path {
+  fill: none;
+  stroke-linecap: round;
+}
+.cb-hit--hull .cb-hit-shadow {
+  stroke: rgba(10, 4, 4, 0.75);
+  stroke-width: 10;
+}
+.cb-hit--hull .cb-hit-arc {
+  stroke: var(--af-bad);
+  stroke-width: 6;
+}
+.cb-hit--hull .cb-hit-tip {
+  fill: var(--af-bad);
+  stroke: rgba(10, 4, 4, 0.75);
+  stroke-width: 1.5;
+}
+.cb-hit--shield .cb-hit-arc {
+  stroke: var(--af-shield);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 3px rgba(124, 200, 255, 0.8));
+}
+.cb-hit--shield .cb-hit-arc--inner {
+  stroke-width: 2;
+  opacity: 0.7;
+}
+@keyframes cb-hit-fade {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* screen-edge flash on a hull hit */
+.cb-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(ellipse 72% 68% at 50% 50%, transparent 52%, rgba(255, 70, 50, 0.22) 76%, rgba(255, 60, 40, 0.6) 100%);
+  animation: cb-hit-fade 450ms var(--af-ease-out) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cb-vignette {
+    display: none;
+  }
+  /* without animation the indicator fades in steps via the opacity from the HUD (otherwise it would end up invisible at once) */
+  .cb-hit {
+    animation: none !important;
+  }
+  .cb-threat .af-lamp {
+    animation: none;
+  }
+}
+
+/* reduced motion from the game settings (the system one is handled by the block above) */
+:root[data-reduced-motion] .cb-vignette {
+  display: none;
+}
+:root[data-reduced-motion] .cb-hit {
+  animation: none !important;
+}
+
+/* narrow windows */
+@media (max-width: 760px), (max-height: 520px) {
+  .hud-console.has-status {
+    grid-template-columns: auto auto 11rem;
+  }
+  .cb-sil-screen {
+    width: 6.5rem;
+    min-height: 5rem;
+  }
+}

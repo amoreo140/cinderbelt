@@ -1,0 +1,38 @@
+/* ui-kit.html, M4d T12: the map planner section and the full-screen map demo (`?mapdemo`). */
+.kit-mapdemo {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background-color: #05080d;
+  background-size: cover;
+  background-position: center;
+}
+.kit-map-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.2rem 0 0.8rem;
+}
+.kit-map-plan-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.kit-map-plan-cell {
+  padding: 0.6rem;
+  background: var(--af-screen);
+  line-height: 1.3;
+}
+.kit-map-plan-editor .mp-note-editor {
+  position: relative;
+}
+.kit-map-plan-tools {
+  display: grid;
+  justify-items: start;
+  gap: 0.5rem;
+}
+.kit-map-link {
+  color: var(--af-glow);
+}
