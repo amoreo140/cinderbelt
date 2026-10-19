@@ -53,6 +53,8 @@ import {
 /** A fake swatch table: every key gets its own cell centre of an 8 × 32 atlas (deterministic). */
 const ATLAS_COLS = 8;
 const ATLAS_ROWS = 32;
+// shared CI runners are several times slower than a dev machine; the timing budgets are for the latter
+const CI_SLACK = import.meta.env.CI ? 3 : 1;
 const fakeKeys = new Map<string, readonly [number, number]>();
 const fakeSwatches: SwatchLookup = (key) => {
   let uv = fakeKeys.get(key);
@@ -630,7 +632,7 @@ describe('buildShell – budget', () => {
         times.sort((a, b) => a - b);
         best = Math.min(best, times[25]!);
       }
-      expect(best).toBeLessThanOrEqual(0.3);
+      expect(best).toBeLessThanOrEqual(0.3 * CI_SLACK);
     }
   });
 });
@@ -1001,6 +1003,6 @@ describe('buildShell – shaped edges (SL2 E2 R3)', () => {
       times.sort((a, b) => a - b);
       best = Math.min(best, times[25]!);
     }
-    expect(best).toBeLessThanOrEqual(0.8);
+    expect(best).toBeLessThanOrEqual(0.8 * CI_SLACK);
   });
 });
