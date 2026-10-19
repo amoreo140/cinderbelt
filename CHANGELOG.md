@@ -12,7 +12,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Ships & building
 - Shipyard grid editor with 1x1, 2x1 and 2x2 parts, a hull budget per cockpit tier, T1 and T2 parts and part variants.
-- Nine shaped-armour variants, a hull shell with torn edges, mirror mode, templates and `AF1.`/`AF2.` share codes.
+- Nine shaped-armour variants, a hull shell with torn edges, mirror mode, templates and `CB2.` share codes.
 - Fleet and hangar with several ships.
 
 ### World
