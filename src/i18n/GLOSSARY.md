@@ -57,7 +57,7 @@ same commit.
 Captains are written `“Nick” Name`; epithets go without "the" in that pattern. A faction's full name keeps
 the article ("The Rust" at the start of a line), the short form drops it ("Rust pirates").
 
-Captain **names** (Korma, Vlasta, …) are proper names and stay as they are; captain **nicknames**
+Captain **names** (`captains.names`, same order as `CAPTAIN_NAMES`) are localised: the English locale uses neutral English given names (Korma → Kane, Vlasta → Vesta, …) so no Slavic-sounding name shows up; captain **nicknames**
 (`preco.captains.nicknames`, e.g. Vdova, Hrdzavý, Kotlík) are translated as short epithets without
 "the" ("Widow", "Rusty", "Kettle" → `“Widow” Korma`) – keep all 15 different and in the same order.
 

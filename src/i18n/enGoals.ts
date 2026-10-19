@@ -291,6 +291,8 @@ export const enGoals: GoalsTexts = {
     nicknames: [
       'Widow', 'Rusty', 'Kettle', 'Slant', 'Nameless', 'Saw', 'Needle', 'Crane', 'Frost', 'Nail', 'Spinner', 'Glass', 'Bones', 'Spark', 'Reaper',
     ],
+    // Same order as CAPTAIN_NAMES (the sim stores the index).
+    names: ['Kane', 'Vesta', 'Brand', 'Jarra', 'Dunn', 'Ilsa', 'Merrick', 'Zara', 'Tobin', 'Hollis', 'Rhodes', 'Sonya', 'Owen', 'Vance', 'Kaz'],
     name: (nick, name) => `“${nick}” ${name}`,
     traits: {
       cautious: 'cautious',

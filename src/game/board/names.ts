@@ -19,7 +19,7 @@ export function stationLabel(seed: number, id: string): string {
 export function captainName(seed: number, index: number): string {
   const def = captainDef(seed, index);
   if (!def) return `#${index}`;
-  return tx().goals.captains.name(tx().goals.captains.nicknames[def.nickname] ?? '?', CAPTAIN_NAMES[def.name]!);
+  return tx().goals.captains.name(tx().goals.captains.nicknames[def.nickname] ?? '?', tx().goals.captains.names[def.name] ?? CAPTAIN_NAMES[def.name]!);
 }
 
 export const resourceName = (r: ResourceId): string => tx().resources[r];

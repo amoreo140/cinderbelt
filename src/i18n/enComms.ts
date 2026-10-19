@@ -4,7 +4,7 @@ import type { CommsTexts } from './skComms';
 
 export const enComms: CommsTexts = {
   speakers: {
-    instructor: 'Master Bartoš',
+    instructor: 'Master Hale',
     traffic: (station) => `${station} · traffic`,
     contracts: (station) => `${station} · contracts`,
     jackal: 'Rust Jackal',
@@ -197,8 +197,8 @@ export const enComms: CommsTexts = {
   instructor: {
     intro: {
       flyBuoy: [
-        'Master Bartoš of the Guild here. The training hull is yours – undock and fly to the buoy. Let go of the throttle and the dampers brake on their own; a sideways slide dies only slowly on the cockpit thrusters, there are no side engines yet.',
-        'Welcome to the training, pilot, I am Bartoš. First learn to fly: reach the Guild buoy. Let go of the throttle and the dampers stop you – sideways only slowly, on the weak cockpit thrusters.',
+        'Master Hale of the Guild here. The training hull is yours – undock and fly to the buoy. Let go of the throttle and the dampers brake on their own; a sideways slide dies only slowly on the cockpit thrusters, there are no side engines yet.',
+        'Welcome to the training, pilot, I am Hale. First learn to fly: reach the Guild buoy. Let go of the throttle and the dampers stop you – sideways only slowly, on the weak cockpit thrusters.',
       ],
       mineIron: [
         'Now the training rock: mine 20 iron from it. Aim the laser at the glowing vein – it mines half again as fast.',

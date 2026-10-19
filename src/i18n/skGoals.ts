@@ -262,6 +262,8 @@ export interface GoalsTexts {
   captains: {
     /** Captain nicknames (epithets) by the sim's index – exactly CAPTAIN_NICKNAME_COUNT, all different. */
     nicknames: readonly string[];
+    /** Captain given names by the sim's index (CAPTAIN_NAMES order) – proper names are localised too. */
+    names: readonly string[];
     name: (nick: string, name: string) => string;
     traits: Record<CaptainTrait, string>;
     level: (n: number) => string;
@@ -583,6 +585,7 @@ export const skGoals = {
     nicknames: [
       'Vdova', 'Hrdzavý', 'Kotlík', 'Šikmák', 'Bez mena', 'Pila', 'Ihla', 'Žeriav', 'Mráz', 'Klinec', 'Vrtuľa', 'Sklo', 'Kosť', 'Iskra', 'Zubatá',
     ],
+    names: ['Korma', 'Vlasta', 'Brano', 'Jarka', 'Dušan', 'Ilka', 'Mirko', 'Zora', 'Tibor', 'Hela', 'Radim', 'Soňa', 'Ondro', 'Vanda', 'Kazi'],
     name: (nick: string, name: string): string => `„${nick}“ ${name}`,
     traits: {
       cautious: 'opatrný',

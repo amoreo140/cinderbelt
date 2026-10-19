@@ -181,7 +181,7 @@ describe('Guild instructor – no spam during danger', () => {
   it('speaks English with the English texts', () => {
     const sim = trainingSim(1337);
     const out = new Instructor().update(input({ state: sim.state, texts: enComms }));
-    expect(out.msg!.speaker.name).toBe('Master Bartoš');
+    expect(out.msg!.speaker.name).toBe('Master Hale');
     expect(enComms.instructor.intro.flyBuoy).toContain(out.msg!.lines[0]);
   });
 });
