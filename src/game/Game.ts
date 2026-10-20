@@ -58,7 +58,7 @@ import { TrainingUi } from './training/trainingUi';
 import type { TrainingContext } from './training/trainingView';
 import type { TrainingHandlers } from './training/trainingUi';
 import { trainingActive } from '../sim/training/training';
-import { ALL_FEATURES, gateKey, revealedFeatures, type UiFeature } from './onboarding/reveal';
+import { ALL_FEATURES, gateKey, revealedFeatures, YARD_KEYS, type UiFeature } from './onboarding/reveal';
 import { NewBadges } from './onboarding/newBadges';
 import { ExploreUi, type CalloutData } from './discovery/exploreUi';
 import type { CalloutItem } from '../ui/theme';
@@ -142,8 +142,6 @@ const PAUSED_REDRAW = 0.5;
 const MAP_SCENE_INTERVAL = 0.1;
 /** The controls help collapses by itself after this many seconds of flight (unless the player toggles it with K). */
 const HELP_AUTO_COLLAPSE = 25;
-/** Keys the shipyard editor uses that the training would otherwise gate (T, M, Tab). */
-const YARD_KEYS: ReadonlySet<string> = new Set(['KeyT', 'key:t', 'KeyM', 'key:m', 'Tab']);
 /** HUD parts that get a "new" highlight when they unlock (hud.css `data-new`). */
 const BADGED: readonly UiFeature[] = ['radar', 'energy', 'cargo', 'credits', 'speed', 'dampers', 'scanner', 'location', 'helpChip'];
 /** How long the full "Pirates!" band stays lit after an alert (s). */

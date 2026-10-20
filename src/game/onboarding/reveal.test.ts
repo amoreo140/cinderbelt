@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { createTraining } from '../../sim/training/training';
 import type { TrainingState } from '../../sim/training/types';
-import { ALL_FEATURES, gateKey, revealedFeatures, unlockStep, type UiFeature } from './reveal';
+import GAME_SOURCE from '../Game.ts?raw';
+import { ALL_FEATURES, gateKey, revealedFeatures, unlockStep, YARD_KEYS, type UiFeature } from './reveal';
 
 const SITES = { buoyA: { x: 0, y: 0 }, buoyB: { x: 1, y: 1 }, rock: 'r', rockPos: { x: 2, y: 2 } };
 const active = (step: number): TrainingState => ({ ...createTraining(), status: 'active', step, sites: SITES });
@@ -78,6 +79,21 @@ describe('gateKey', () => {
       expect(gateKey('KeyK', revealedFeatures(active(i)))).toBe(true);
       expect(gateKey('key:k', revealedFeatures(active(i)))).toBe(true);
       expect(gateKey('KeyW', revealedFeatures(active(i)))).toBe(true);
+    }
+  });
+});
+
+describe('YARD_KEYS', () => {
+  it('lets through every shipyard editor key the training gate would block', () => {
+    // the letters Game.yardKey binds (letterKey('x')) – a new binding on a gated key must be listed too
+    const src = GAME_SOURCE;
+    const body = /private yardKey\([\s\S]*?\n {2}}\n/.exec(src)?.[0] ?? '';
+    const letters = [...body.matchAll(/letterKey\('([a-z])'\)/g)].map((m) => m[1]!);
+    expect(letters.length).toBeGreaterThan(3);
+    const none = revealedFeatures(active(0));
+    const bound = [...letters.flatMap((l) => [`Key${l.toUpperCase()}`, `key:${l}`]), ...(body.includes("'Tab'") ? ['Tab'] : [])];
+    for (const code of bound.filter((c) => !gateKey(c, none))) {
+      expect(YARD_KEYS.has(code), `${code} is gated but the yard editor binds it`).toBe(true);
     }
   });
 });

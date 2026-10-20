@@ -65,6 +65,13 @@ KEY_FEATURE.set('Tab', 'scanner');
 KEY_FEATURE.set('Slash', 'radarLegend');
 KEY_FEATURE.set('key:?', 'radarLegend');
 
+/**
+ * Keys the shipyard editor binds that the training would otherwise gate (T tier, M mirror, Tab shape);
+ * Game lets them through while the editor is open. Every editor binding on a key of KEY_FEATURE belongs here
+ * (reveal.test.ts checks Game's `yardKey` against it).
+ */
+export const YARD_KEYS: ReadonlySet<string> = new Set(['KeyT', 'key:t', 'KeyM', 'key:m', 'Tab']);
+
 /** Whether a key code may act now; keys of unrevealed features are ignored. K (help) always works. */
 export function gateKey(code: string, revealed: ReadonlySet<UiFeature>): boolean {
   const feature = KEY_FEATURE.get(code);
