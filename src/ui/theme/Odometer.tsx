@@ -23,6 +23,8 @@ export interface OdometerProps {
   /** `chip` = the credits hull label; `bare` = only the rolling text (inside a Readout, a table cell…). */
   variant?: 'chip' | 'bare';
   testId?: string;
+  /** Just unlocked: highlighted for a few seconds (`is-new`, hud.css). */
+  fresh?: boolean;
 }
 
 export class Odometer extends Component<OdometerProps> {
@@ -35,7 +37,7 @@ export class Odometer extends Component<OdometerProps> {
     return getLocale() !== this.lang || !shallowEqual(this.props, next);
   }
 
-  render({ value, format = formatInt, unit, variant = 'chip', testId }: OdometerProps) {
+  render({ value, format = formatInt, unit, variant = 'chip', testId, fresh }: OdometerProps) {
     const lang = getLocale();
     const text = format(value);
     if (this.cells === null || lang !== this.lang) {
@@ -60,7 +62,7 @@ export class Odometer extends Component<OdometerProps> {
     const u = unit === undefined ? tx().units.credits : unit;
     if (variant === 'bare') return digits;
     return (
-      <span class="af-credits af-odometer" data-testid={testId} aria-live="off">
+      <span class={`af-credits af-odometer${fresh ? ' is-new' : ''}`} data-testid={testId} aria-live="off">
         {digits}
         {u !== null && (
           <>

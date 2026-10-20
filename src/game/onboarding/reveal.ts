@@ -16,7 +16,7 @@ export type UiFeature =
 
 /** Features that appear when the given step becomes the current one. */
 const BY_STEP: Record<TrainingStepId, readonly UiFeature[]> = {
-  flyBuoy: ['hull', 'fuel', 'goal', 'helpChip', 'radio'],
+  flyBuoy: ['hull', 'fuel', 'goal', 'helpChip', 'radio', 'tow'],
   mineIron: ['radar', 'energy', 'heat', 'cargo'],
   dockSell: ['dockPrompt', 'credits', 'tab:market', 'tab:service'],
   installSide: ['tab:shipyard'],
@@ -28,7 +28,7 @@ const BY_STEP: Record<TrainingStepId, readonly UiFeature[]> = {
 };
 
 /** Features that unlock only after the training. */
-const AFTER: readonly UiFeature[] = ['tab:board', 'tab:archive', 'tab:development', 'journal', 'tow', 'tractor', 'worldMarks'];
+const AFTER: readonly UiFeature[] = ['tab:board', 'tab:archive', 'tab:development', 'journal', 'tractor', 'worldMarks'];
 
 /** CUMULATIVE[i] = features of steps 0..i (one shared Set per step index). */
 const CUMULATIVE: readonly ReadonlySet<UiFeature>[] = (() => {
@@ -57,7 +57,7 @@ export function unlockStep(feature: UiFeature): number | null {
 
 /** Feature behind a key. Both forms the game sees: the physical code and the layout-independent `key:<letter>`. */
 const KEY_FEATURE = new Map<string, UiFeature>();
-for (const [letter, feature] of [['m', 'map'], ['g', 'objectives'], ['j', 'journal'], ['l', 'radioLog'], ['i', 'storage'], ['h', 'tow'], ['t', 'tractor']] as const) {
+for (const [letter, feature] of [['m', 'map'], ['g', 'objectives'], ['j', 'journal'], ['l', 'radioLog'], ['i', 'storage'], ['h', 'tow'], ['t', 'tractor'], ['z', 'dampers']] as const) {
   KEY_FEATURE.set(`Key${letter.toUpperCase()}`, feature);
   KEY_FEATURE.set(`key:${letter}`, feature);
 }

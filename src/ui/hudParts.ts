@@ -44,7 +44,7 @@ export function hudParts(reveal: ReadonlySet<UiFeature> = ALL_FEATURES): HudPart
   return parts;
 }
 
-/** The `data-new` attribute value: the badged features that have a part on the HUD, space separated. */
-export function newAttr(fresh: readonly UiFeature[]): string | undefined {
-  return fresh.length > 0 ? fresh.join(' ') : undefined;
+/** Whether `feature` is in the space-separated list of freshly unlocked features (`HudData.fresh`). */
+export function isFresh(fresh: string | undefined, feature: UiFeature): boolean {
+  return fresh !== undefined && fresh.split(' ').includes(feature);
 }

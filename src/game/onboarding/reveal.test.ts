@@ -8,7 +8,7 @@ const active = (step: number): TrainingState => ({ ...createTraining(), status: 
 
 describe('revealedFeatures', () => {
   it('first step shows only the flight basics', () => {
-    expect([...revealedFeatures(active(0))].sort()).toEqual(['goal', 'fuel', 'helpChip', 'hull', 'radio'].sort());
+    expect([...revealedFeatures(active(0))].sort()).toEqual(['goal', 'fuel', 'helpChip', 'hull', 'radio', 'tow'].sort());
   });
 
   it('accumulates features over steps', () => {
@@ -25,7 +25,7 @@ describe('revealedFeatures', () => {
     const last = revealedFeatures(active(8));
     expect(last.has('scanner')).toBe(true);
     expect(last.has('tab:board')).toBe(false);
-    expect(last.size).toBe(ALL_FEATURES.size - 7);
+    expect(last.size).toBe(ALL_FEATURES.size - 6);
   });
 
   it('shows everything when not in an active training', () => {
@@ -51,6 +51,8 @@ describe('unlockStep', () => {
   it('returns the 1-based step or null', () => {
     expect(unlockStep('tab:shipyard')).toBe(4);
     expect(unlockStep('hull')).toBe(1);
+    // the tow is a safety net: open from the start
+    expect(unlockStep('tow')).toBe(1);
     expect(unlockStep('tab:board')).toBeNull();
   });
 });
@@ -62,6 +64,13 @@ describe('gateKey', () => {
     expect(gateKey('key:m', revealedFeatures(active(0)))).toBe(false);
     expect(gateKey('key:m', revealedFeatures(active(7)))).toBe(true);
     expect(gateKey('Tab', revealedFeatures(active(7)))).toBe(false);
+  });
+
+  it('gates the dampers key but never the tow key', () => {
+    expect(gateKey('key:z', revealedFeatures(active(0)))).toBe(false);
+    expect(gateKey('key:z', revealedFeatures(active(4)))).toBe(true);
+    expect(gateKey('key:h', revealedFeatures(active(0)))).toBe(true);
+    expect(gateKey('KeyH', revealedFeatures(active(0)))).toBe(true);
   });
 
   it('always lets help and other keys through', () => {

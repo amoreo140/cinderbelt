@@ -58,7 +58,7 @@ import { TrainingUi } from './training/trainingUi';
 import type { TrainingContext } from './training/trainingView';
 import type { TrainingHandlers } from './training/trainingUi';
 import { trainingActive } from '../sim/training/training';
-import { gateKey, revealedFeatures, type UiFeature } from './onboarding/reveal';
+import { ALL_FEATURES, gateKey, revealedFeatures, type UiFeature } from './onboarding/reveal';
 import { NewBadges } from './onboarding/newBadges';
 import { ExploreUi, type CalloutData } from './discovery/exploreUi';
 import type { CalloutItem } from '../ui/theme';
@@ -145,7 +145,7 @@ const HELP_AUTO_COLLAPSE = 25;
 /** Keys the shipyard editor uses that the training would otherwise gate (T, M, Tab). */
 const YARD_KEYS: ReadonlySet<string> = new Set(['KeyT', 'key:t', 'KeyM', 'key:m', 'Tab']);
 /** HUD parts that get a "new" highlight when they unlock (hud.css `data-new`). */
-const BADGED: readonly UiFeature[] = ['radar', 'energy', 'cargo', 'credits', 'speed', 'dampers', 'scanner', 'location', 'helpChip', 'radarLegend'];
+const BADGED: readonly UiFeature[] = ['radar', 'energy', 'cargo', 'credits', 'speed', 'dampers', 'scanner', 'location', 'helpChip'];
 /** How long the full "Pirates!" band stays lit after an alert (s). */
 const ALERT_TIME = 3.5;
 /** A planned route ending this close to the station of the station arrow (u) merges into that arrow (M4d). */
@@ -264,6 +264,13 @@ export class Game {
   private pending = new Set<string>();
   /** "New" highlights of freshly unlocked HUD parts (memory only). */
   private readonly newBadges = new NewBadges();
+  /** The unlocked UI features, refreshed once per frame and per UI redraw (`refreshReveal`). */
+  private reveal: ReadonlySet<UiFeature> = ALL_FEATURES;
+
+  private refreshReveal(): ReadonlySet<UiFeature> {
+    this.reveal = revealedFeatures(this.sim.state.career.training);
+    return this.reveal;
+  }
   /** The player abandoned the ship (pause) – scuttle command in the next step. */
   private scuttlePending = false;
   /** Station actions waiting for the next step. */
@@ -764,7 +771,7 @@ export class Game {
     // also keeps tab 8 (Development, M4c) closed away from the home station
     if (station && !tabEnabled(tab, station)) return;
     // a tab the Guild Training has not unlocked yet stays shut (the rail shows the lock)
-    if (tabLockReason(tab, revealedFeatures(this.sim.state.career.training)) !== null) return;
+    if (tabLockReason(tab, this.refreshReveal()) !== null) return;
     // the dock camera leaves a home module ("Show") with the Development tab
     if (tab !== 'development') this.home.leave();
     this.stationUi.tab = tab;
@@ -999,11 +1006,10 @@ export class Game {
     // scanner only in flight and with neither the journal nor the map open
     if (inStation || this.explore.journalOpen || this.mapOpen) cmd.scan = false;
     // ship commands of parts the training has not unlocked yet are dropped here (the sim stays untouched)
-    const revealed = revealedFeatures(this.sim.state.career.training);
+    const revealed = this.reveal;
     if (!revealed.has('scanner')) cmd.scan = false;
     else if (cmd.scan) this.newBadges.used('scanner');
     if (!revealed.has('tractor')) cmd.tractor = false;
-    if (!revealed.has('tow')) cmd.emergency = false;
     cmd.actions = this.actions;
     this.actions = [];
     // a note saved or deleted on the open map shows (and can be clicked) at once, not at the next 10 Hz redraw
@@ -1293,7 +1299,7 @@ export class Game {
         continue;
       }
       // keys of parts the training has not unlocked yet do nothing (no toast); the yard editor keeps its own T, M and Tab
-      if (!gateKey(code, revealedFeatures(this.sim.state.career.training)) && !(this.docked && this.yardOpen && YARD_KEYS.has(code))) continue;
+      if (!gateKey(code, this.reveal) && !(this.docked && this.yardOpen && YARD_KEYS.has(code))) continue;
       if (code === letterKey('n')) {
         const muted = this.audio.toggleMute();
         this.show(() => (muted ? tx().messages.muted : tx().messages.unmuted), 'info', 2);
@@ -1322,10 +1328,7 @@ export class Game {
           else this.setTab('overview');
         }
       } else {
-        if (code === letterKey('m')) {
-          this.mapOpen = !this.mapOpen;
-          this.newBadges.used('map');
-        }
+        if (code === letterKey('m')) this.mapOpen = !this.mapOpen;
         if (code === letterKey('k')) {
           this.helpOpen = !this.helpOpen;
           this.helpTouched = true;
@@ -1349,6 +1352,7 @@ export class Game {
     this.lastTime = now;
     this.clock += dt;
 
+    this.refreshReveal();
     this.handleKeys();
     if (!this.docked && !this.paused) {
       this.flightTime += dt;
@@ -1415,6 +1419,7 @@ export class Game {
   private renderUi(): void {
     this.uiTimer = UI_INTERVAL;
     this.lastUiAt = this.clock;
+    this.refreshReveal();
     // the redraw may replace the world labels and the reticle: positionCallouts looks them up again
     this.calloutEls = null;
     this.reticleEl = undefined;
@@ -1657,7 +1662,7 @@ export class Game {
       prices: this.hubPrices.get([station.ring, station.priceJitter], () => priceList(station)),
       emergency: emergencyFuelAvailable(this.sim.state, station),
       ui: { ...this.stationUi },
-      reveal: revealedFeatures(this.sim.state.career.training),
+      reveal: this.reveal,
       partsMarket: this.hubMarket.get([...key, this.stationUi.partTier], () => partsMarketRows(station, storage.parts, credits, this.stationUi.partTier, (k) => lockReason(this.sim.state, k))),
       crafting: this.stationUi.tab === 'crafting' ? this.hubCrafting.get([...key, this.stationUi.craftTier], () => craftingRows(this.sim.state, station, this.stationUi.craftTier)) : [],
       repair: repair?.view ?? NO_REPAIRS,
@@ -1850,7 +1855,7 @@ export class Game {
     }
     const flying = player.dock.mode === 'flying';
     // progressive reveal during the Guild Training: the unlocked parts and the ones still marked as new
-    const reveal = revealedFeatures(state.career.training);
+    const reveal = this.reveal;
     this.newBadges.update(reveal, this.clock);
     const fresh = this.freshParts();
     let hint: string | null = null;

@@ -23,6 +23,8 @@ export interface GaugeProps {
   invert?: boolean;
   compact?: boolean;
   testId?: string;
+  /** Just unlocked: highlighted for a few seconds (`is-new`, hud.css). */
+  fresh?: boolean;
 }
 
 const fmt = (v: number, decimals: 0 | 1) => (decimals > 0 ? formatAmount(v) : String(Math.floor(v + 1e-9)));
@@ -44,6 +46,7 @@ function GaugeView(p: GaugeProps) {
     `af-gauge--${p.kind}`,
     level !== 'ok' ? `is-${level}` : '',
     p.compact ? 'af-gauge--compact' : '',
+    p.fresh ? 'is-new' : '',
   ]
     .filter(Boolean)
     .join(' ');
@@ -106,6 +109,7 @@ export function Readout({
   label,
   size = 'md',
   testId,
+  fresh,
 }: {
   value?: ComponentChildren;
   /** A value the owner writes straight into the DOM at each redraw (liveText.ts) instead of `value`. */
@@ -114,9 +118,11 @@ export function Readout({
   label?: ComponentChildren;
   size?: 'md' | 'lg';
   testId?: string;
+  /** Just unlocked: highlighted for a few seconds (`is-new`, hud.css). */
+  fresh?: boolean;
 }) {
   return (
-    <span class={`af-readout-wrap${size === 'lg' ? ' af-readout--lg' : ''}`} data-testid={testId}>
+    <span class={`af-readout-wrap${size === 'lg' ? ' af-readout--lg' : ''}${fresh ? ' is-new' : ''}`} data-testid={testId}>
       {label !== undefined && <span class="af-readout-label">{label}</span>}
       <span class="af-readout">
         {live ? <LiveSlot class="af-readout-value" live={live} /> : <span class="af-readout-value">{value}</span>}

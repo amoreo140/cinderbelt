@@ -10,12 +10,12 @@ import type { ScanReadout } from '../../game/sites/scanReadout';
 import './discovery.css';
 
 /** Scanner band above the radar: [Tab] pulse, charge, Data in the fund. */
-export function ScanWidget({ d }: { d: ScanHudData }) {
+export function ScanWidget({ d, fresh }: { d: ScanHudData; fresh?: boolean }) {
   const s = tx().discovery.scanner;
   return (
     <>
       {d.readout && <SiteReadout r={d.readout} />}
-      <div class={`ds-scan${d.ready ? ' is-ready' : ''}`} data-testid="scan-widget" aria-label={s.title}>
+      <div class={`ds-scan${d.ready ? ' is-ready' : ''}${fresh ? ' is-new' : ''}`} data-testid="scan-widget" aria-label={s.title}>
         <div class="ds-scan-row">
           <Key dark>Tab</Key>
           <span class="af-label ds-scan-label">{s.title}</span>

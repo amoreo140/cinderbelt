@@ -520,9 +520,11 @@ test('M3.7: the whole Guild Training through the real UI ends with the starter s
   await stepIs(page, 'checklist');
   await full(page);
   await shot(page, '18-checklist');
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 12; i++) {
     const s = await snap(page);
     if (s.step !== 'checklist' || s.mode === 'flying') break;
+    // the panel still shows the finished craft step for a moment (no keys, no highlight): let it pass
+    await waitTicks(page, 30);
     await followGuideOnce(page);
   }
   if ((await snap(page)).step === 'checklist') {
