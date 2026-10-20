@@ -389,7 +389,7 @@ test('M3.6: the shipyard shows the effective cannon arcs and the map shows fortr
     s.player.gridVersion++;
     s.stations.get('home')!.parts['cannon:1'] = 2;
   }, '/src/sim/ship/grid.ts');
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('shipyard')).toBeVisible();
   // the layers (V) are on by default: thrust arrows, laser and the effective cannon arcs
   await page.waitForTimeout(600);

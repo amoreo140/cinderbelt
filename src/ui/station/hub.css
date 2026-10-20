@@ -280,6 +280,9 @@
 .hub-service .hub-gauges {
   margin-bottom: 0.25rem;
 }
+.hub-service > section + section {
+  margin-top: 0.9rem;
+}
 
 /* foot */
 .hub-foot {
@@ -390,13 +393,14 @@
 
 /* crafting – the tab fills the hub body instead of scrolling it as a whole: the recipe list and the
    detail body scroll on their own, so the craft action (count + "Craft") stays pinned at the bottom
-   of the detail plate at any window height */
-.hub-body:has(> .hub-page > .hub-craft) {
+   of the detail plate at any window height (the Craft view of the Market) */
+.hub-body:has(> .hub-page > .hub-market--craft) {
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
-.hub-body:has(> .hub-page > .hub-craft) > .hub-page {
+.hub-body:has(> .hub-page > .hub-market--craft) > .hub-page,
+.hub-market--craft {
   flex: 1;
   min-height: 0;
   display: flex;

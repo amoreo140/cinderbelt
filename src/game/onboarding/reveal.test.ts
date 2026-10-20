@@ -15,7 +15,8 @@ describe('revealedFeatures', () => {
   it('accumulates features over steps', () => {
     const dock = revealedFeatures(active(2));
     expect(dock.has('tab:market')).toBe(true);
-    expect(dock.has('tab:service')).toBe(true);
+    // Overview (with the Service section) is always open: there is no service feature
+    expect([...ALL_FEATURES].includes('tab:service' as never)).toBe(false);
     expect(dock.has('tab:shipyard')).toBe(false);
     const checklist = revealedFeatures(active(7));
     expect(checklist.has('map')).toBe(true);

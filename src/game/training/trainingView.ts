@@ -28,7 +28,9 @@ const t = () => tx().training;
 export interface TrainingContext {
   /** Hub tab when docked (null in flight). */
   tab: StationTab | null;
-  /** Recipe selected in the Crafting tab. */
+  /** Market view (resources, parts or the Craft view). */
+  marketKind: 'resources' | 'parts' | 'craft';
+  /** Recipe selected in the Craft view. */
   craftKey: PartKey | null;
   /** The shipyard editor (its draft) when the Shipyard tab is open. */
   yard: { selected: PartKey | null; rot: Rotation; grid: ShipGrid; dirty: boolean } | null;
@@ -306,7 +308,7 @@ export function trainingGuide(state: SimState, ctx: TrainingContext): TrainingGu
       const draftHas = ctx.yard ? cargoCount(ctx.yard.grid) >= 2 : false;
       // crafted already (or past it: the shipyard is open) → the install phases
       const crafted = stored || draftHas || (docked && ctx.tab === 'shipyard');
-      const tabOk = docked && ctx.tab === 'crafting';
+      const tabOk = docked && ctx.tab === 'market' && ctx.marketKind === 'craft';
       const recipeOk = tabOk && ctx.craftKey === 'cargo:1';
       raw.push({ line: t().guide.openCrafting, done: crafted || tabOk });
       raw.push({ line: t().guide.pickRecipe(recipeName), done: crafted || recipeOk });
@@ -315,7 +317,7 @@ export function trainingGuide(state: SimState, ctx: TrainingContext): TrainingGu
       else {
         raw.push({ line: t().guide.openShipyard, done: false }, { line: t().guide.placeAny, done: false }, { line: t().guide.commit, done: false });
         if (docked) {
-          g.highlight.push(byTestId(!tabOk ? 'tab-crafting' : !recipeOk ? 'recipe-cargo:1' : 'craft'));
+          g.highlight.push(byTestId(ctx.tab !== 'market' ? 'tab-market' : !tabOk ? 'market-view-craft' : !recipeOk ? 'recipe-cargo:1' : 'craft'));
           const have = availableResources(state, dockId!);
           const recipe = RECIPES['cargo:1'];
           if (recipe.resources.iron! > have.iron + 1e-9 || state.credits < recipe.credits) g.hint = t().guide.partsAt(stationLabel(state.seed, training.rewardAt));
@@ -329,9 +331,9 @@ export function trainingGuide(state: SimState, ctx: TrainingContext): TrainingGu
       const mapDone = (f & CHECK_MAP) !== 0;
       let refuel: GuideLine = t().guide.refuel;
       if (!refuelDone && docked) {
-        if (ctx.tab !== 'service') {
-          refuel = { keys: t().guide.openService.keys, text: `${t().guide.refuel.text} – ${t().guide.openService.text.toLowerCase()}` };
-          g.highlight.push(byTestId('tab-service'));
+        if (ctx.tab !== 'overview') {
+          refuel = { keys: t().guide.openOverview.keys, text: `${t().guide.refuel.text} – ${t().guide.openOverview.text.toLowerCase()}` };
+          g.highlight.push(byTestId('tab-overview'));
         } else g.highlight.push(byTestId('refuel-full'));
       }
       raw.push({ line: refuel, done: refuelDone });

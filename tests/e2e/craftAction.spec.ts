@@ -51,7 +51,8 @@ for (const size of sizes) {
       window.__cinder!.sim.state.credits = 3000;
     });
 
-    await page.keyboard.press('Digit3');
+    await page.keyboard.press('Digit2');
+    await page.getByTestId('market-view-craft').click();
     await page.getByRole('button', { name: 'T2 titán' }).click();
     // Gyroskop T2 has the longest part info (description, effect rows, advice)
     await page.getByTestId('recipe-gyro:2').click();

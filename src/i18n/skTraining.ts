@@ -47,7 +47,6 @@ export interface TrainingTexts {
     craft: GuideLine;
     /** Checklist. */
     refuel: GuideLine;
-    openService: GuideLine;
     map: GuideLine;
     mapInFlight: string;
     objectives: GuideLine;
@@ -134,7 +133,7 @@ export const skTraining: TrainingTexts = {
     slowForDock: 'Svorka loď prichytí, len keď letí pomaly a mieri prídou ku stanici.',
     sellAll: { keys: [], text: 'Stlač „Predať celý náklad“' },
     openOverview: { keys: ['1'], text: 'Otvor Prehľad' },
-    openShipyard: { keys: ['4'], text: 'Otvor Lodenicu' },
+    openShipyard: { keys: ['3'], text: 'Otvor Lodenicu' },
     pick: (part) => ({ keys: [], text: `Vyber ${part} v zozname dielov` }),
     tierOne: { keys: ['T'], text: 'Prepni na diely T1' },
     rotate: {
@@ -147,11 +146,10 @@ export const skTraining: TrainingTexts = {
     commit: { keys: ['Enter'], text: 'Potvrď zmeny' },
     partsAt: (station) => `Diely čakajú v sklade stanice ${station}.`,
     stopHere: (speed) => `Rýchlosť ${speed} – zastav pod 1,5 j/s`,
-    openCrafting: { keys: ['3'], text: 'Otvor Výrobu' },
+    openCrafting: { keys: ['2'], text: 'Otvor Trh → Výroba' },
     pickRecipe: (part) => ({ keys: [], text: `Vyber ${part}` }),
     craft: { keys: [], text: 'Stlač Vyrobiť – diel pôjde do skladu' },
-    refuel: { keys: [], text: 'Natankuj do plna' },
-    openService: { keys: ['5'], text: 'Otvor Servis' },
+    refuel: { keys: [], text: 'Natankuj do plna (Prehľad → Servis)' },
     map: { keys: ['M'], text: 'Otvor mapu' },
     mapInFlight: 'Mapa sa otvára v lete – odleť a stlač M.',
     objectives: { keys: ['G'], text: 'Otvor ciele' },

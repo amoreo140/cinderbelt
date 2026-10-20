@@ -411,7 +411,7 @@ export const skGoals = {
     notReady: 'Ciele ešte nie sú splnené',
   },
   board: {
-    tab: 'Tabuľa',
+    tab: 'Zákazky',
     views: { contracts: 'Kontrakty', factions: 'Frakcie', wanted: 'Hľadaní', charts: 'Kartografia' },
     active: 'Aktívne kontrakty',
     offers: 'Ponuka stanice',

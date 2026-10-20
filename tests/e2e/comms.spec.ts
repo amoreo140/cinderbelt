@@ -87,7 +87,7 @@ test('radio: traffic control answers docking, the toll is answered in the comm p
   const panel = page.getByTestId('comm-panel');
 
   // the issuer of a contract speaks in the dock (the old toast is the note)
-  await page.keyboard.press('Digit6');
+  await page.keyboard.press('Digit4');
   const offerId = await page.evaluate(() => window.__cinder!.sim.state.career.boards.get('home')!.offers[0]!.id);
   await page.getByTestId(`accept-${offerId}`).click();
   await expect(page.getByTestId('comm-speaker')).toContainText('kontrakty');
@@ -368,7 +368,7 @@ test('radio part B: step 4 in the dock and in the shipyard (training-mid fixture
   await expect(page.getByTestId('training-panel')).toContainText('Namontuj 2 bočné motory');
   await shotBoth(page, 'b-step4-docked');
   // the shipyard editor: the radio waits, the step panel guides the editor
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('shipyard')).toBeVisible();
   await expect(page.getByTestId('comm-panel')).toHaveCount(0);
   await page.waitForTimeout(800);

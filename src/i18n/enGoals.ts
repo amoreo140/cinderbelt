@@ -117,7 +117,7 @@ export const enGoals: GoalsTexts = {
     notReady: 'Objectives not met yet',
   },
   board: {
-    tab: 'Board',
+    tab: 'Jobs',
     views: { contracts: 'Contracts', factions: 'Factions', wanted: 'Wanted', charts: 'Cartography' },
     active: 'Active contracts',
     offers: 'Station offers',

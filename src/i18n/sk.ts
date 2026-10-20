@@ -124,6 +124,7 @@ export interface CoreTexts {
     welcome: string;
     ship: string;
     quickActions: string;
+    serviceSection: string;
     sellAll: string;
     unloadAll: string;
     refuelIce: string;
@@ -173,6 +174,7 @@ export interface CoreTexts {
     kind: string;
     resourcesTab: string;
     partsTab: string;
+    craftTab: string;
     tier: string;
     part: string;
     inStorage: string;
@@ -877,8 +879,8 @@ export const sk = {
   },
   stationKinds: { home: 'domovská stanica', station: 'stanica', outpost: 'hliadka' },
   station: {
-    tabs: ['Prehľad', 'Trh', 'Výroba', 'Lodenica', 'Servis', 'Tabuľa', 'Archív', 'Rozvoj'],
-    tabsShort: ['Prehľad', 'Trh', 'Výroba', 'Lodenica', 'Servis', 'Tabuľa', 'Archív', 'Rozvoj'],
+    tabs: ['Prehľad', 'Trh', 'Lodenica', 'Zákazky', 'Archív', 'Rozvoj'],
+    tabsShort: ['Prehľad', 'Trh', 'Lodenica', 'Zákazky', 'Archív', 'Rozvoj'],
     tabSoon: 'Pribudne v ďalšej verzii',
     tabUnavailable: 'Táto stanica túto službu nemá',
     tabLockedStep: (n: number): string => `Odomkne sa v kroku ${n} výcviku Cechu`,
@@ -895,6 +897,7 @@ export const sk = {
     welcome: 'Vitaj na Základni Počiatok. Leť ťažiť suroviny do okolitých sektorov, predaj ich tu na trhu a natankuj. Z bohatšieho nákladu vyrobíš nové diely a v Lodenici si s nimi loď prestavíš.',
     ship: 'Loď',
     quickActions: 'Rýchle akcie',
+    serviceSection: 'Servis',
     sellAll: 'Predať celý náklad',
     unloadAll: 'Vyložiť náklad do skladu',
     refuelIce: 'Natankovať z ľadu',
@@ -942,6 +945,7 @@ export const sk = {
     kind: 'Tovar',
     resourcesTab: 'Suroviny',
     partsTab: 'Diely',
+    craftTab: 'Výroba',
     tier: 'Úroveň',
     part: 'Diel',
     inStorage: 'V sklade',

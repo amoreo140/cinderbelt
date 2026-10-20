@@ -198,7 +198,7 @@ test('M3.5b: Archive tab in the hub and unlocking a node', async ({ page }) => {
     s.discovery.plans.add('survey');
     s.credits = 4200;
   });
-  await page.keyboard.press('Digit7');
+  await page.keyboard.press('Digit5');
   await expect(page.getByTestId('archive')).toBeVisible();
   await page.getByTestId('archive-node-battery').click();
   await page.locator('.hub-body').evaluate((el) => el.scrollTo(0, 0));
@@ -211,7 +211,8 @@ test('M3.5b: Archive tab in the hub and unlocking a node', async ({ page }) => {
   await waitTicks(page, 10);
   await page.screenshot({ path: `${OUT}/m35b-archive-unlocked.png` });
   // crafting: the battery is unlocked, the variant from the plan is in the list
-  await page.keyboard.press('Digit3');
+  await page.keyboard.press('Digit2');
+  await page.getByTestId('market-view-craft').click();
   await expect(page.getByTestId('recipe-battery:1')).toBeVisible();
   await expect(page.getByTestId('recipe-radar:1:survey')).toBeVisible();
   expect(errors).toEqual([]);

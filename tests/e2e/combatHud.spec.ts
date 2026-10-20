@@ -257,7 +257,7 @@ test('M3b: shipyard – cannon fire arcs, second hotkey row and weapon stats', a
   await page.goto('/?play');
   await page.waitForFunction(() => (window.__cinder?.sim.state.tick ?? 0) > 10, undefined, { timeout: 60_000 });
   await setupFighter(page, null);
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('yard-view')).toBeVisible();
   await waitTicks(page, 30);
   // Shift + 1 = cannon (the second row of keys)

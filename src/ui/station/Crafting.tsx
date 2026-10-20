@@ -157,7 +157,7 @@ export function Crafting(p: CraftingProps) {
             </dl>
             <div class="hub-craft-foot">
               <p class="hub-note">{tx().crafting.fromStorageFirst}</p>
-              <Act on={on} size="sm" variant="ghost" keyHint="4" onClick={on.openShipyard}>
+              <Act on={on} size="sm" variant="ghost" keyHint="3" onClick={on.openShipyard}>
                 {tx().crafting.openShipyard}
               </Act>
             </div>

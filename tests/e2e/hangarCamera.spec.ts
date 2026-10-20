@@ -69,7 +69,7 @@ test('hangar camera: orbit, tilt, pan, top view, and placing a part in a tilted 
     const st = window.__cinder!.sim.state.stations.get('home')!;
     st.parts['cargo:1'] = 2;
   });
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('shipyard')).toBeVisible();
   await waitTicks(page, 20);
   await settle(page);
@@ -211,7 +211,7 @@ test('hangar camera: Guild Training suggested cells follow a tilted, orbited vie
     s.career.training.sites = { buoyA: { x: 0, y: 0 }, buoyB: { x: 10, y: 0 }, rock: 'none', rockPos: { x: 0, y: 0 } };
     s.stations.get('home')!.parts['cargo:1'] = 2;
   });
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('shipyard')).toBeVisible();
   await page.getByTestId('palette-cargo').click();
   await expect(page.getByTestId('training-cell').first()).toBeVisible();

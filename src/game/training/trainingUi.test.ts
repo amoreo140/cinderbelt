@@ -4,7 +4,7 @@ import { trainingSim, undock } from '../../sim/training/testing';
 import { TrainingUi } from './trainingUi';
 import type { TrainingContext } from './trainingView';
 
-const ctx = (patch: Partial<TrainingContext> = {}): TrainingContext => ({ tab: null, craftKey: null, yard: null, mapOpen: false, inCombat: false, ...patch });
+const ctx = (patch: Partial<TrainingContext> = {}): TrainingContext => ({ tab: null, marketKind: 'resources', craftKey: null, yard: null, mapOpen: false, inCombat: false, ...patch });
 
 function setup() {
   const sim = trainingSim(1337);

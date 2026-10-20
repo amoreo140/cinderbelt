@@ -167,7 +167,7 @@ const SCENES: SceneDef[] = [
     drive: 'ui',
     setup: async (page) => {
       // the station's Development tab, the trophy hall shown in the dock scene
-      await page.keyboard.press('Digit8');
+      await page.keyboard.press('Digit6');
       await page.getByTestId('dev-module-trophyHall').click();
       await page.getByTestId('dev-show').click();
       await page.waitForFunction(() => window.__cinder!.home?.focus?.() === 'trophyHall', undefined, { timeout: 30_000 });

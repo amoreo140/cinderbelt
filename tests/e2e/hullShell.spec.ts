@@ -445,7 +445,7 @@ test.describe('hull shell', () => {
       parts['armor:1'] = 4;
       parts['engine:1'] = 2;
     });
-    await page.keyboard.press('Digit4');
+    await page.keyboard.press('Digit3');
     await expect(page.getByTestId('shipyard')).toBeVisible();
     await waitTicks(page, 20);
 

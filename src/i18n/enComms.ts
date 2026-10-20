@@ -249,7 +249,7 @@ export const enComms: CommsTexts = {
       dockSell: ['In the Overview press "Sell the whole cargo" – that is all.', 'You sell the iron in the Overview. One click and done.'],
       installSide: ['R turns the engine until its nozzle points away from the ship.', 'The highlighted cells next to the hull are the right places. Then confirm with Enter.'],
       brakeBuoy: ['At the buoy let go of the throttle and brake with S. Below 1.5 u/s I will count it.', 'No need to hurry. Slowly to the buoy, and stop.'],
-      installReverse: ['Turn the engine with R so its nozzle points to the bow. Then Enter.', 'The second reverse engine waits in the storage – Shipyard, key 4.'],
+      installReverse: ['Turn the engine with R so its nozzle points to the bow. Then Enter.', 'The second reverse engine waits in the storage – Shipyard, key 3.'],
       craftCargo: ['In Crafting pick the cargo hold T1 and press Craft.', 'The crafted part is in the storage – mount it in the Shipyard.'],
       checklist: ['A part of the check is still missing – look at the list in the training panel.', 'Service refuels, G opens the objectives, M the map in flight.'],
       finishShip: ['Reactor, radar, gyroscope, a forward engine – it is all in the storage.', 'The training panel shows what is still missing. Then Enter.'],

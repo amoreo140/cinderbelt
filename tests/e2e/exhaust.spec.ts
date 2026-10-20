@@ -42,7 +42,7 @@ test('M3: a covered nozzle – shipyard warning and V layer, burning in flight w
   expect(await page.evaluate(() => window.__cinder!.sim.state.player.props.exhaustBurns.length)).toBe(1);
 
   // shipyard: the warning names the real penalty, the V layer (on by default) marks the nozzle
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('yard-view')).toBeVisible();
   await expect(page.getByText(/polovičný ťah/).first()).toBeVisible();
   await page.mouse.move(640, 650);

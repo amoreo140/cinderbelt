@@ -51,7 +51,8 @@ test('M2b: craft a cargo hold, mount it in the shipyard with the mouse and fly o
   const cargoBefore = await page.evaluate(() => window.__cinder!.sim.state.player.props.cargoCapacity);
 
   // 1. crafting a cargo space
-  await page.keyboard.press('Digit3');
+  await page.keyboard.press('Digit2');
+  await page.getByTestId('market-view-craft').click();
   await page.getByTestId('recipe-cargo:1').click();
   await expect(page.getByTestId('craft-detail')).toContainText('Nákladný priestor');
   await waitTicks(page, 10);
@@ -79,7 +80,7 @@ test('M2b: craft a cargo hold, mount it in the shipyard with the mouse and fly o
     const setting = '/src/render/hull/setting.ts';
     ((await import(/* @vite-ignore */ setting)) as typeof import('../../src/render/hull/setting')).setHullShellEnabled(false);
   });
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('shipyard')).toBeVisible();
   await waitTicks(page, 20);
   const joints0 = await connectors(page);
@@ -133,7 +134,7 @@ test('M2b: editor drag, erase, disconnected parts, leave confirmation and no GPU
   test.setTimeout(150_000);
   const errors = collectErrors(page);
   await start(page);
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('shipyard')).toBeVisible();
   await waitTicks(page, 20);
   const mem0 = await page.evaluate(() => window.__cinder!.renderer.memoryInfo());
@@ -214,7 +215,7 @@ test('M2b: repairs in the service tab', async ({ page }) => {
     game.sendAction({ type: 'debugDamage', partId: engine.id, hp: 10 });
     sim.state.credits = 500;
   });
-  await page.keyboard.press('Digit5');
+  await page.keyboard.press('Digit1');
   await expect(page.getByTestId('repairs')).toBeVisible();
   const row = page.locator('[data-testid^="repair-row-"]').first();
   await expect(row).toContainText('72 kr + 4 Fe');

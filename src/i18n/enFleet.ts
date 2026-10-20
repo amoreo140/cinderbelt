@@ -76,7 +76,7 @@ export const enFleet: FleetTexts = {
     slotsLabel: 'Slots',
     slots: (used, cap) => `${used} / ${cap}`,
     close: 'Close',
-    lockedHint: 'A node in the Archive (tab 7) unlocks templates.',
+    lockedHint: 'A node in the Archive (tab 5) unlocks templates.',
     empty: 'No templates yet. Save your ship or a shipyard draft.',
     saveTitle: 'Save the current design',
     nameLabel: 'Template name',

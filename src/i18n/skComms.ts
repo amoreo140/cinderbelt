@@ -481,7 +481,7 @@ export const skComms: CommsTexts = {
       dockSell: ['V Prehľade stlač „Predať celý náklad“ – nič viac.', 'Železo predáš v Prehľade. Jeden klik a je to.'],
       installSide: ['Motor otáčaš klávesom R, kým tryska nemieri von z lode.', 'Zvýraznené políčka vedľa trupu sú správne miesta. Potom potvrď Enterom.'],
       brakeBuoy: ['Pri bóji pusti plyn a brzdi S. Pod 1,5 j/s to uznám.', 'Nemusíš sa ponáhľať. Pomaly k bóji a zastav.'],
-      installReverse: ['Motor otoč klávesom R, aby tryska mierila k prove. Potom Enter.', 'Druhý spätný motor čaká v sklade – Lodenica, kláves 4.'],
+      installReverse: ['Motor otoč klávesom R, aby tryska mierila k prove. Potom Enter.', 'Druhý spätný motor čaká v sklade – Lodenica, kláves 3.'],
       craftCargo: ['Vo Výrobe vyber nákladný priestor T1 a stlač Vyrobiť.', 'Vyrobený diel je v sklade – namontuj ho v Lodenici.'],
       checklist: ['Ešte chýba kus kontroly – pozri sa na zoznam v paneli výcviku.', 'Servis natankuje, G otvorí ciele, M mapu v lete.'],
       finishShip: ['Reaktor, radar, gyroskop, motor dopredu – všetko je v sklade.', 'Panel výcviku ukazuje, čo ešte chýba. Potom Enter.'],

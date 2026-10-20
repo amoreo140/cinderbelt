@@ -64,7 +64,7 @@ test('M3.5a: board tab with contract slips, factions and wanted captains', async
   });
   await waitTicks(page, 30);
   await page.screenshot({ path: `${OUT}/m35a-overview.png` });
-  await page.keyboard.press('Digit6');
+  await page.keyboard.press('Digit4');
   await expect(page.getByTestId('board')).toBeVisible();
   await expect(page.getByTestId('board-sector')).not.toContainText('Pokojná');
   const offers = await page.locator('[data-testid^="offer-"]').count();
@@ -120,7 +120,7 @@ test('M3.5a: one contract from acceptance to turn-in (buoy survey)', async ({ pa
       part: null,
     });
   });
-  await page.keyboard.press('Digit6');
+  await page.keyboard.press('Digit4');
   const offerId = await page.evaluate(() => window.__cinder!.sim.state.career.boards.get('home')!.offers[0]!.id);
   await page.getByTestId(`accept-${offerId}`).click();
   await page.waitForFunction(() => window.__cinder!.sim.state.career.contracts.length === 1);
@@ -277,7 +277,7 @@ test('M3.5a: “where I left off” card after loading a saved game', async ({ p
   await expect(page.getByTestId('station-hub')).toBeVisible();
   // a contract from the board and a flight with cargo
   const offer = await page.evaluate(() => window.__cinder!.sim.state.career.boards.get('home')!.offers[0]!.id);
-  await page.keyboard.press('Digit6');
+  await page.keyboard.press('Digit4');
   await page.getByTestId(`accept-${offer}`).click();
   await page.waitForFunction(() => window.__cinder!.sim.state.career.contracts.length === 1);
   await page.getByTestId('undock').click();

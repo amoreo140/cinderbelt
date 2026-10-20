@@ -766,7 +766,7 @@ export class Game {
 
   private setTab(tab: StationTab): void {
     const station = this.dockedStation();
-    // also keeps tab 8 (Development, M4c) closed away from the home station
+    // also keeps the last tab (Development, M4c) closed away from the home station
     if (station && !tabEnabled(tab, station)) return;
     // a tab the Guild Training has not unlocked yet stays shut (the rail shows the lock)
     if (tabLockReason(tab, this.refreshReveal()) !== null) return;
@@ -1319,8 +1319,9 @@ export class Game {
         // an open dialog handles its keys itself (Esc, Enter on buttons)
         if (this.yard?.prompt) continue;
         if (this.yardOpen && this.yardKey(code)) continue;
-        const digit = /^Digit([1-8])$/.exec(code);
-        if (digit) this.setTab(STATION_TABS[Number(digit[1]) - 1]!);
+        const digit = /^Digit([1-9])$/.exec(code);
+        const digitTab = digit ? STATION_TABS[Number(digit[1]) - 1] : undefined;
+        if (digitTab) this.setTab(digitTab);
         if (code === 'Escape') {
           if (this.stationUi.tab === 'overview') this.hooks.onPauseRequest?.();
           else this.setTab('overview');
@@ -1532,6 +1533,7 @@ export class Game {
     const yard = this.yardOpen ? this.yard : null;
     return {
       tab: docked ? this.stationUi.tab : null,
+      marketKind: this.stationUi.marketKind,
       craftKey: this.stationUi.craftKey,
       yard: yard ? { selected: yard.selected, rot: yard.rot, grid: yard.draft.grid, dirty: yard.dirty } : null,
       mapOpen: this.mapOpen && !docked,
@@ -1640,7 +1642,7 @@ export class Game {
     const { player, credits } = this.sim.state;
     const key = this.hubViewKey(station);
     const autoBuy = this.stationUi.repairAutoBuy;
-    const repair = this.stationUi.tab === 'service' ? this.hubRepair.get([...key, autoBuy], () => ({ view: repairView(this.sim.state, station, autoBuy), rowOk: this.repairRowOk(station) })) : null;
+    const repair = this.stationUi.tab === 'overview' ? this.hubRepair.get([...key, autoBuy], () => ({ view: repairView(this.sim.state, station, autoBuy), rowOk: this.repairRowOk(station) })) : null;
     const storage = stationStorage(this.sim.state, station.id);
     return {
       station,
@@ -1662,7 +1664,7 @@ export class Game {
       ui: { ...this.stationUi },
       reveal: this.reveal,
       partsMarket: this.hubMarket.get([...key, this.stationUi.partTier], () => partsMarketRows(station, storage.parts, credits, this.stationUi.partTier, (k) => lockReason(this.sim.state, k))),
-      crafting: this.stationUi.tab === 'crafting' ? this.hubCrafting.get([...key, this.stationUi.craftTier], () => craftingRows(this.sim.state, station, this.stationUi.craftTier)) : [],
+      crafting: this.stationUi.tab === 'market' && this.stationUi.marketKind === 'craft' ? this.hubCrafting.get([...key, this.stationUi.craftTier], () => craftingRows(this.sim.state, station, this.stationUi.craftTier)) : [],
       repair: repair?.view ?? NO_REPAIRS,
       repairRowOk: repair?.rowOk ?? {},
       shipyard: this.stationUi.tab === 'shipyard' && station.services.shipyard ? this.yardData(this.yardFor(station)) : null,

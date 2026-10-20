@@ -63,19 +63,21 @@ import './hub.css';
 // the refined-ore row of the market (M4c workshop)
 import '../workshop/workshop.css';
 
-export type StationTab = 'overview' | 'market' | 'crafting' | 'shipyard' | 'service' | 'board' | 'archive' | 'development';
-/** Hub tabs in key order (1–8); Development (M4c) is last and exists only at the home station. */
-export const STATION_TABS: readonly StationTab[] = ['overview', 'market', 'crafting', 'shipyard', 'service', 'board', 'archive', 'development'];
+export type StationTab = 'overview' | 'market' | 'shipyard' | 'board' | 'archive' | 'development';
+/** Hub tabs in key order (1–6); Development (M4c) is last and exists only at the home station. Service lives in the Overview, Crafting in the Market. */
+export const STATION_TABS: readonly StationTab[] = ['overview', 'market', 'shipyard', 'board', 'archive', 'development'];
 
 /** Hub UI state that is not in the simulation (tab, toggles, selection). */
+export type MarketKind = 'resources' | 'parts' | 'craft';
+
 export interface StationUiState {
   tab: StationTab;
   qty: QtyMode;
   sellFrom: 'ship' | 'storage';
   /** Welcome text on the overview – until the first undocking. */
   welcome: boolean;
-  /** Market: resources or parts. */
-  marketKind: 'resources' | 'parts';
+  /** Market view: resources, parts or crafting. */
+  marketKind: MarketKind;
   partTier: Tier;
   craftTier: Tier;
   craftKey: PartKey | null;
@@ -177,9 +179,7 @@ type Props = StationHubData & { on: StationHubHandlers };
 /** The UI feature behind a tab (progressive reveal during the Guild Training); the overview is always open. */
 const TAB_FEATURE: Partial<Record<StationTab, UiFeature>> = {
   market: 'tab:market',
-  crafting: 'tab:crafting',
   shipyard: 'tab:shipyard',
-  service: 'tab:service',
   board: 'tab:board',
   archive: 'tab:archive',
   development: 'tab:development',
@@ -193,15 +193,20 @@ export function tabLockReason(tab: StationTab, reveal: ReadonlySet<UiFeature> = 
   return step === null ? tx().station.tabLockedAfter : tx().station.tabLockedStep(step);
 }
 
+/** Why the Craft view of the Market is locked by the Guild Training, or null when it is open. */
+export function craftLockReason(reveal: ReadonlySet<UiFeature> = ALL_FEATURES): string | null {
+  if (reveal.has('tab:crafting')) return null;
+  const step = unlockStep('tab:crafting');
+  return step === null ? tx().station.tabLockedAfter : tx().station.tabLockedStep(step);
+}
+
 export const tabListed = (tab: StationTab, station: StationDef): boolean => tab !== 'development' || station.id === HOME_STATION_ID;
 
 function tabEnabled(tab: StationTab, station: StationDef): boolean {
   if (!tabListed(tab, station)) return false;
-  if (tab === 'market') return station.services.market;
-  if (tab === 'crafting') return station.services.crafting;
+  if (tab === 'market') return station.services.market || station.services.partsMarket || station.services.crafting;
   if (tab === 'shipyard') return station.services.shipyard;
-  if (tab === 'service') return station.services.refuel || station.services.repair;
-  // board: every station has a Board
+  // overview, board, archive: every station has them
   return true;
 }
 
@@ -244,8 +249,6 @@ function Overview(p: Props) {
   const { on } = p;
   const used = cargoUsed(p.cargo);
   const sellValue = sellAllValue(p.cargo, p.prices.resources, p.refined, p.demand);
-  const ice = p.storage.resources.ice + p.cargo.ice;
-  const fuel = refuelQuote({ fuel: p.fuel, capacity: p.fuelMax, ice, credits: p.credits, ring: p.station.ring, ...(p.fuelPrice !== undefined ? { unitPrice: p.fuelPrice } : {}) });
   const sellAll = () => {
     for (const id of RESOURCE_IDS) {
       if (p.cargo[id] > 1e-9) on.action({ type: 'sellResource', resource: id, qty: 'all', from: 'ship' });
@@ -274,7 +277,6 @@ function Overview(p: Props) {
         <section>
           <Heading>{tx().station.ship}</Heading>
           <Panel material="screen" cut="md" class="hub-gauges">
-            <Gauge kind="fuel" label={tx().hud.fuel} value={p.fuel} max={p.fuelMax} />
             <Gauge kind="energy" label={tx().hud.energy} value={p.energy} max={p.energyMax} />
             <Gauge kind="cargo" label={tx().hud.cargo} value={used} max={p.cargoMax} decimals={1} invert />
           </Panel>
@@ -305,28 +307,14 @@ function Overview(p: Props) {
           >
             {tx().station.unloadAll}
           </Act>
-          <Act
-            on={on}
-            block
-            disabled={fuel.missing < 1e-9 || ice < 1e-9}
-            reason={fuel.missing < 1e-9 ? tx().service.tankFull : tx().service.noIce}
-            onClick={() => on.action({ type: 'refuel', source: 'ice', amount: 'full' })}
-            aside={`${formatAmount(fuel.iceUsed)} → ${formatAmount(fuel.iceFuel)}`}
-          >
-            {tx().station.refuelIce}
-          </Act>
-          <Act
-            on={on}
-            block
-            disabled={fuel.missing < 1e-9 || !fuel.affordableFull}
-            reason={fuel.missing < 1e-9 ? tx().service.tankFull : tx().service.notEnoughCredits}
-            onClick={() => on.action({ type: 'refuel', source: 'credits', amount: 'full' })}
-            aside={formatCredits(fuel.fullCost)}
-          >
-            {tx().station.refuelCredits}
-          </Act>
         </section>
       </div>
+      {(p.station.services.refuel || p.station.services.repair || p.repair.damaged) && (
+        <>
+          <Seam />
+          <Service {...p} />
+        </>
+      )}
       {p.board && (
         <>
           <Seam />
@@ -439,7 +427,7 @@ function OverviewCareer(p: Props) {
             </span>
           )}
           {tabLockReason('board', p.reveal) === null && (
-            <Act on={p.on} size="sm" variant="ghost" keyHint="6" testId="open-board" onClick={() => p.on.setTab('board')}>
+            <Act on={p.on} size="sm" variant="ghost" keyHint="4" testId="open-board" onClick={() => p.on.setTab('board')}>
               {tx().goals.board.tab}
             </Act>
           )}
@@ -454,35 +442,54 @@ const QTY_MODES: readonly QtyMode[] = [1, 10, 100, 'max'];
 function Market(p: Props) {
   const { on } = p;
   const free = p.cargoMax - cargoUsed(p.cargo);
-  const parts = p.ui.marketKind === 'parts' && p.station.services.partsMarket;
+  const svc = p.station.services;
+  const craftLock = craftLockReason(p.reveal);
+  const kind: MarketKind = p.ui.marketKind === 'craft' && svc.crafting && craftLock === null ? 'craft' : p.ui.marketKind === 'parts' && svc.partsMarket ? 'parts' : 'resources';
+  const parts = kind === 'parts';
   return (
-    <div class="hub-market">
+    <div class={`hub-market${kind === 'craft' ? ' hub-market--craft' : ''}`}>
       <div class="hub-toolbar">
         <Segmented
           label={tx().market.kind}
+          testIdPrefix="market-view-"
           options={[
             { value: 'resources' as const, label: tx().market.resourcesTab },
-            ...(p.station.services.partsMarket ? [{ value: 'parts' as const, label: tx().market.partsTab }] : []),
+            ...(svc.partsMarket ? [{ value: 'parts' as const, label: tx().market.partsTab }] : []),
+            ...(svc.crafting ? [{ value: 'craft' as const, label: tx().market.craftTab, disabled: craftLock !== null, ...(craftLock !== null ? { reason: craftLock, locked: true } : {}) }] : []),
           ]}
-          value={parts ? 'parts' : 'resources'}
+          value={kind}
           onChange={(kind) => {
             on.click();
             on.setUi({ marketKind: kind });
           }}
         />
-        <span class="hub-spacer" />
-        <span class="hub-toolbar-label">{tx().market.quantity}</span>
-        <Segmented
-          label={tx().market.quantity}
-          options={QTY_MODES.map((q) => ({ value: q, label: q === 'max' ? tx().market.max : String(q) }))}
-          value={p.ui.qty}
-          onChange={(q) => {
-            on.click();
-            on.setQty(q);
-          }}
-        />
+        {kind !== 'craft' && (
+          <>
+            <span class="hub-spacer" />
+            <span class="hub-toolbar-label">{tx().market.quantity}</span>
+            <Segmented
+              label={tx().market.quantity}
+              options={QTY_MODES.map((q) => ({ value: q, label: q === 'max' ? tx().market.max : String(q) }))}
+              value={p.ui.qty}
+              onChange={(q) => {
+                on.click();
+                on.setQty(q);
+              }}
+            />
+          </>
+        )}
       </div>
-      {parts ? (
+      {kind === 'craft' ? (
+        <Crafting
+          rows={p.crafting}
+          tier={p.ui.craftTier}
+          selected={p.ui.craftKey}
+          count={p.ui.craftCount}
+          available={svc.crafting}
+          ship={p.shipGrid}
+          on={{ ...on, setCraft: (patch) => on.setUi(patch), openShipyard: () => on.setTab('shipyard') }}
+        />
+      ) : parts ? (
         <>
           <div class="hub-toolbar">
             <span class="hub-toolbar-label">{tx().market.tier}</span>
@@ -635,6 +642,7 @@ function Market(p: Props) {
   );
 }
 
+/** Overview section: repairs (a list only when something is damaged) and the fuel gauge with the refuel buttons. */
 function Service(p: Props) {
   const { on } = p;
   const ice = p.storage.resources.ice + p.cargo.ice;
@@ -642,15 +650,18 @@ function Service(p: Props) {
   const full = q.missing < 1e-9;
   const ten = Math.min(10, q.missing);
   return (
-    <div class="hub-service">
-      <Repairs
-        view={p.repair}
-        rowOk={p.repairRowOk}
-        autoBuy={p.ui.repairAutoBuy}
-        available={p.station.services.repair}
-        on={{ ...on, setAutoBuy: (v) => on.setUi({ repairAutoBuy: v }) }}
-      />
-      <Seam />
+    <div class="hub-service" data-testid="service">
+      <Heading>{tx().station.serviceSection}</Heading>
+      {(p.station.services.repair || p.repair.damaged) && (
+        <Repairs
+          view={p.repair}
+          rowOk={p.repairRowOk}
+          autoBuy={p.ui.repairAutoBuy}
+          available={p.station.services.repair}
+          on={{ ...on, setAutoBuy: (v) => on.setUi({ repairAutoBuy: v }) }}
+        />
+      )}
+      {p.station.services.refuel && (
       <section>
         <Heading>{tx().service.refuel}</Heading>
         <Panel material="screen" cut="md" class="hub-gauges">
@@ -708,6 +719,7 @@ function Service(p: Props) {
         )}
         <p class="hub-note">{tx().service.energy}</p>
       </section>
+      )}
     </div>
   );
 }
@@ -846,18 +858,6 @@ export function StationHub(p: Props) {
             <div class="hub-page" key={p.ui.tab}>
               {p.ui.tab === 'overview' && <Overview {...p} />}
               {p.ui.tab === 'market' && <Market {...p} />}
-              {p.ui.tab === 'crafting' && (
-                <Crafting
-                  rows={p.crafting}
-                  tier={p.ui.craftTier}
-                  selected={p.ui.craftKey}
-                  count={p.ui.craftCount}
-                  available={station.services.crafting}
-                  ship={p.shipGrid}
-                  on={{ ...on, setCraft: (patch) => on.setUi(patch), openShipyard: () => on.setTab('shipyard') }}
-                />
-              )}
-              {p.ui.tab === 'service' && <Service {...p} />}
               {p.ui.tab === 'archive' && p.archive && on.explore && <Archive d={p.archive} on={on.explore} />}
               {p.ui.tab === 'development' && tabListed('development', station) && <Development d={p.development ?? null} on={on.development} click={on.click} />}
               {p.ui.tab === 'board' && p.board && (

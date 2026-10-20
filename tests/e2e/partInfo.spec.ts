@@ -34,7 +34,8 @@ test('part explanations in crafting, the parts market and the shipyard palette',
   });
 
   // 1. crafting: Gyroskop T2 – description, effect on the ship, glossary tooltip on the stat label
-  await page.keyboard.press('Digit3');
+  await page.keyboard.press('Digit2');
+  await page.getByTestId('market-view-craft').click();
   await page.getByRole('button', { name: 'T2 titán' }).click();
   await page.getByTestId('recipe-gyro:2').click();
   const detail = page.getByTestId('craft-detail');
@@ -87,7 +88,7 @@ test('part explanations in crafting, the parts market and the shipyard palette',
   await expect(info).toBeHidden();
 
   // 4. shipyard: hover a palette row → what the part does; select it → effect on the draft
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   const gyro = page.getByTestId('palette-gyro');
   await gyro.hover();
   await expect(tip).toContainText('Otáča loď');

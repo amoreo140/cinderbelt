@@ -264,7 +264,7 @@ export const skFleet: FleetTexts = {
     slotsLabel: 'Sloty',
     slots: (used, cap) => `${used} / ${cap}`,
     close: 'Zavrieť',
-    lockedHint: 'Šablóny odomkne uzol v Archíve (záložka 7).',
+    lockedHint: 'Šablóny odomkne uzol v Archíve (záložka 5).',
     empty: 'Zatiaľ žiadna šablóna. Ulož svoju loď alebo návrh z lodenice.',
     saveTitle: 'Uložiť aktuálny návrh',
     nameLabel: 'Názov šablóny',

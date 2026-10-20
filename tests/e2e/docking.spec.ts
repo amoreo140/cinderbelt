@@ -186,7 +186,7 @@ test('docking: the Archive docking computer relaxes the rules', async ({ page })
     s.discovery.dataFund = 60;
     s.credits = 1000;
   });
-  await page.keyboard.press('Digit7');
+  await page.keyboard.press('Digit5');
   await expect(page.getByTestId('archive')).toBeVisible();
   const node = page.getByTestId('archive-node-dockingComputer');
   await expect(node).toContainText('Dokovací počítač');

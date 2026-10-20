@@ -84,7 +84,7 @@ test('M4c flow 1: Rozvoj on key 8 at home – build the trophy hall and the pain
   const errors = collectErrors(page);
   await loadFixture(page, 'home-dev', { ticks: 30 });
   expect(await page.evaluate(() => window.__cinder!.sim.state.credits)).toBe(25_000);
-  await page.keyboard.press('Digit8');
+  await page.keyboard.press('Digit6');
   await expect(page.getByTestId('development')).toBeVisible();
   await expect(page.getByTestId('development')).toContainText('Rozvoj domova');
   await expect(page.getByTestId('dev-module-paintShop')).toHaveAttribute('data-state', 'buyable');
@@ -135,7 +135,7 @@ test('M4c flow 1: another module row while framed ends the focus', async ({ page
   test.setTimeout(90_000);
   const errors = collectErrors(page);
   await loadFixture(page, 'home-built', { ticks: 30 });
-  await page.keyboard.press('Digit8');
+  await page.keyboard.press('Digit6');
   await page.getByTestId('dev-module-paintShop').click();
   await page.getByTestId('dev-show').click();
   await expect.poll(() => page.evaluate(() => window.__cinder!.home!.focus!())).toBe('paintShop');
@@ -153,7 +153,7 @@ test('M4c flow 1: key 8 does nothing at another station', async ({ page }) => {
   expect(await page.evaluate(() => (window.__cinder!.sim.state.player.dock as { stationId?: string }).stationId)).not.toBe('home');
   await expect(page.getByTestId('station-hub')).toBeVisible();
   await expect(page.getByTestId('tab-development')).toHaveCount(0);
-  await page.keyboard.press('Digit8');
+  await page.keyboard.press('Digit6');
   await waitTicks(page, 10);
   await expect(page.getByTestId('development')).toHaveCount(0);
   expect(await page.evaluate(() => window.__cinder!.home!.data!())).toBeNull();
@@ -166,7 +166,7 @@ test('M4c flow 2: paint the active and the stored ship – hub, hangar, shipyard
   await loadFixture(page, 'home-dev', { ticks: 30 });
   await page.evaluate(() => window.__cinder!.home!.build!('paintShop'));
   await page.waitForFunction(() => window.__cinder!.sim.state.home.modules.has('paintShop'));
-  await page.keyboard.press('Digit8');
+  await page.keyboard.press('Digit6');
   await page.getByTestId('dev-module-paintShop').click();
   await expect(page.getByTestId('paint-shop')).toBeVisible();
   await expect(page.getByTestId('paint-ship-1')).toHaveAttribute('aria-pressed', 'true');
@@ -205,7 +205,7 @@ test('M4c flow 2: paint the active and the stored ship – hub, hangar, shipyard
 
   // the shipyard hall: the edited ship and the parked one in their paints
   await page.evaluate(() => window.__cinder!.renderer.setGraphicsQuality('medium'));
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('yard-ship')).toBeVisible();
   await page.waitForFunction(() => window.__cinder!.renderer.hangar.parkedStats().ships === 1, undefined, { timeout: 60_000 });
   await expect.poll(() => paintsOn(page, 'hangar')).toEqual(['graphite']);
@@ -224,7 +224,7 @@ test('M4c flow 2: paint the active and the stored ship – hub, hangar, shipyard
   expect(await page.evaluate(() => window.__cinder!.sim.state.fleet.stored.find((s) => s.record.id === 1)?.record.paint)).toBe('graphite');
   await page.getByTestId('hangar-close').click();
   await expect.poll(() => paintsOn(page, 'ship')).toEqual(['sand']);
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect.poll(() => paintsOn(page, 'hangar')).toEqual(['sand']);
   await expect.poll(() => paintsOn(page, 'parked'), { timeout: 30_000 }).toEqual(['graphite']);
 
@@ -243,7 +243,7 @@ test('M4c flow 3: trophy hall – replicas and the fortress trophy on the pedest
   const errors = collectErrors(page);
   await loadFixture(page, 'home-built', { ticks: 30 });
   expect(await page.evaluate(() => window.__cinder!.sim.state.home.trophyPins)).toEqual(['cap:0', 'cap:1', 'fort:1']);
-  await page.keyboard.press('Digit8');
+  await page.keyboard.press('Digit6');
   await page.getByTestId('dev-module-trophyHall').click();
   await expect(page.getByTestId('trophy-hall')).toBeVisible();
   await page.getByTestId('dev-show').click();
@@ -466,7 +466,7 @@ test('M4c flow 5: shipyard – the three parts with icons, the reactor-by-cockpi
     const st = sim.state.stations.get('home')!;
     for (const k of ['largeReactor:1', 'repairModule:1', 'refinery:1', 'gyro:1:flywheel'] as const) st.parts[k] = (st.parts[k] ?? 0) + 2;
   });
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('shipyard')).toBeVisible();
   await waitTicks(page, 20);
   for (const key of ['largeReactor', 'repairModule', 'refinery'] as const) {
@@ -509,7 +509,7 @@ test('M4c flow 6: the language switches SK → EN live with Rozvoj open', async 
   test.setTimeout(90_000);
   const errors = collectErrors(page);
   await loadFixture(page, 'home-built', { ticks: 30 });
-  await page.keyboard.press('Digit8');
+  await page.keyboard.press('Digit6');
   await page.getByTestId('dev-module-paintShop').click();
   await expect(page.getByTestId('development')).toContainText('Rozvoj domova');
   await expect(page.getByTestId('paint-apply')).toContainText('Nalakovať');
@@ -522,7 +522,7 @@ test('M4c flow 6: the language switches SK → EN live with Rozvoj open', async 
   await expect(page.getByTestId('development')).toContainText('Home development');
   await expect(page.getByTestId('paint-apply')).toContainText('Apply paint');
   await expect(page.getByTestId('dev-module-trophyHall')).toContainText('Trophy hall');
-  await expect(page.getByTestId('tab-development')).toContainText('Home');
+  await expect(page.getByTestId('tab-development')).toContainText('Development');
   await waitTicks(page, 10);
   await shot(page, 'flow6-rozvoj-en');
   expect(errors).toEqual([]);

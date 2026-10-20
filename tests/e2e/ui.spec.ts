@@ -49,7 +49,7 @@ test('UI: station hub tabs', async ({ page }) => {
   await waitTicks(page, 20);
   await page.screenshot({ path: 'test-results/ui-hub-market.png' });
 
-  await page.keyboard.press('Digit5');
+  await page.keyboard.press('Digit1');
   await waitTicks(page, 20);
   await page.mouse.move(10, 10);
   await page.screenshot({ path: 'test-results/ui-hub-service.png' });
@@ -170,7 +170,7 @@ async function homeScreens(page: Page, lang: 'sk' | 'en'): Promise<void> {
   const errors = collectErrors(page);
   await loadFixture(page, 'home-dev', { ticks: 30 });
   expect(await page.evaluate(() => document.documentElement.lang)).toBe(lang);
-  await page.keyboard.press('Digit8');
+  await page.keyboard.press('Digit6');
   await expect(page.getByTestId('development')).toBeVisible();
   await page.getByTestId('dev-module-paintShop').click();
   await waitTicks(page, 20);
@@ -238,7 +238,7 @@ async function workshopScreens(page: Page, lang: 'sk' | 'en'): Promise<void> {
     const st = window.__cinder!.sim.state.stations.get('home')!;
     for (const k of ['largeReactor:1', 'repairModule:1', 'refinery:1'] as const) st.parts[k] = (st.parts[k] ?? 0) + 1;
   });
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('shipyard')).toBeVisible();
   for (const key of ['refinery', 'repairModule', 'largeReactor'] as const) {
     const row = page.getByTestId(`palette-${key}`);

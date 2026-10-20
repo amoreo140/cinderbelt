@@ -50,7 +50,7 @@ test('Guild loan: a broke laserless player gets a lent laser on the hull, the sh
   expect(await page.evaluate(() => window.__cinder!.sim.state.credits)).toBe(0);
   await shot(page, 'guild-loan-toast');
 
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('shipyard')).toBeVisible();
   const band = page.getByTestId('yard-loan-band');
   await expect(band).toBeVisible();

@@ -90,24 +90,55 @@ export function KeyHint({ keys, children, dark }: { keys: string | readonly stri
 }
 
 /** Switch of several choices (quantity, sale source). */
+export interface SegmentedOption<T> {
+  value: T;
+  label: ComponentChildren;
+  /** Not selectable (stays focusable so the reason can be read). */
+  disabled?: boolean;
+  /** Why the option is disabled (tooltip). */
+  reason?: string;
+  /** Locked by progression: marked with data-locked and a lock glyph. */
+  locked?: boolean;
+}
+
+function SegmentedOpt<T extends string | number>({ o, active, testIdPrefix, onPick }: { o: SegmentedOption<T>; active: boolean; testIdPrefix?: string; onPick: (value: T) => void }) {
+  const handlers = useTip(o.disabled ? o.reason : undefined, 'reason', 'below');
+  return (
+    <button
+      type="button"
+      class="af-segmented-opt"
+      aria-pressed={active}
+      aria-disabled={o.disabled ? 'true' : undefined}
+      data-locked={o.locked ? 'true' : undefined}
+      data-testid={testIdPrefix ? `${testIdPrefix}${String(o.value)}` : undefined}
+      onClick={() => {
+        if (!o.disabled) onPick(o.value);
+      }}
+      {...handlers}
+    >
+      {o.label}
+      {o.locked && (
+        <svg class="af-tab-lock" viewBox="0 0 10 11" aria-hidden="true">
+          <path d="M2.5 5V3.5a2.5 2.5 0 0 1 5 0V5" fill="none" stroke="currentColor" stroke-width="1.4" />
+          <path d="M1 5h8v6H1z" fill="currentColor" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
 export function Segmented<T extends string | number>(p: {
   label: string;
-  options: readonly { value: T; label: ComponentChildren }[];
+  options: readonly SegmentedOption<T>[];
   value: T;
   onChange: (value: T) => void;
+  /** Stable test ids: `<prefix><value>` on each option. */
+  testIdPrefix?: string;
 }) {
   return (
     <span class="af-segmented" role="group" aria-label={p.label}>
       {p.options.map((o) => (
-        <button
-          type="button"
-          key={String(o.value)}
-          class="af-segmented-opt"
-          aria-pressed={p.value === o.value}
-          onClick={() => p.onChange(o.value)}
-        >
-          {o.label}
-        </button>
+        <SegmentedOpt key={String(o.value)} o={o} active={p.value === o.value} testIdPrefix={p.testIdPrefix} onPick={p.onChange} />
       ))}
     </span>
   );

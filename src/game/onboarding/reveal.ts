@@ -6,9 +6,10 @@ import type { TrainingState } from '../../sim/training/types';
 export type UiFeature =
   | 'hull' | 'fuel' | 'goal' | 'helpChip' | 'radio'
   | 'radar' | 'energy' | 'heat' | 'cargo'
-  | 'dockPrompt' | 'credits' | 'tab:market' | 'tab:service'
+  | 'dockPrompt' | 'credits' | 'tab:market'
   | 'tab:shipyard'
   | 'speed' | 'dampers'
+  /** The Craft view of the Market tab. */
   | 'tab:crafting'
   | 'map' | 'objectives' | 'location' | 'radioLog'
   | 'scanner' | 'radarLegend' | 'storage'
@@ -18,7 +19,7 @@ export type UiFeature =
 const BY_STEP: Record<TrainingStepId, readonly UiFeature[]> = {
   flyBuoy: ['hull', 'fuel', 'goal', 'helpChip', 'radio', 'tow'],
   mineIron: ['radar', 'energy', 'heat', 'cargo'],
-  dockSell: ['dockPrompt', 'credits', 'tab:market', 'tab:service'],
+  dockSell: ['dockPrompt', 'credits', 'tab:market'],
   installSide: ['tab:shipyard'],
   brakeBuoy: ['speed', 'dampers'],
   installReverse: [],

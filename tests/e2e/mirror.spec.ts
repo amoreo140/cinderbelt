@@ -43,7 +43,7 @@ async function openShipyard(page: Page): Promise<void> {
     parts['armor:1'] = 6;
     parts['engine:1'] = 2;
   });
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('shipyard')).toBeVisible();
   await waitTicks(page, 20);
 }

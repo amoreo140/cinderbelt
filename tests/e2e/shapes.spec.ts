@@ -183,7 +183,7 @@ const parkMouse = (page: Page) => page.mouse.move(150, 600);
 
 async function openShipyard(page: Page): Promise<void> {
   await expect(page.getByTestId('station-hub')).toBeVisible({ timeout: 60_000 });
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('shipyard')).toBeVisible();
   await waitTicks(page, 20);
 }
@@ -473,7 +473,7 @@ test('service: the damaged wedge repairs for the price of the same HP on a full 
   expect(quote.parity.credits).toBeLessThan(quote.naive.credits);
   // the price is the repair alone (no auto-buy of the material)
   await stockRepairMaterial(page, quote);
-  await page.keyboard.press('Digit5');
+  await page.keyboard.press('Digit1');
   await expect(page.getByTestId('repairs')).toBeVisible();
   const row = page.getByTestId(`repair-row-${quote.id}`);
   await expect(row).toContainText(`${Math.round(quote.hp)} / ${quote.max}`);

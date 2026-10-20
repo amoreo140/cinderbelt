@@ -102,7 +102,7 @@ test('M2a: refuel from ice and for credits in the service tab', async ({ page })
     p.fuel = 40;
     p.cargo.ice = 10;
   });
-  await page.keyboard.press('Digit5');
+  await page.keyboard.press('Digit1');
   await page.getByTestId('refuel-ice').click();
   await page.waitForFunction(() => window.__cinder!.sim.state.player.fuel >= 60 - 1e-6);
   expect(await page.evaluate(() => window.__cinder!.sim.state.player.cargo.ice)).toBe(0);

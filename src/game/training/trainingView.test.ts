@@ -9,7 +9,7 @@ import { dockPoint } from '../../sim/station/dock';
 import { installNeeds, trainingCallouts, trainingTargetName, trainingGuide, trainingObjective, type TrainingContext } from './trainingView';
 import { homeStation } from '../../sim/world/stations';
 
-const ctx = (patch: Partial<TrainingContext> = {}): TrainingContext => ({ tab: 'overview', craftKey: null, yard: null, mapOpen: false, inCombat: false, ...patch });
+const ctx = (patch: Partial<TrainingContext> = {}): TrainingContext => ({ tab: 'overview', marketKind: 'resources', craftKey: null, yard: null, mapOpen: false, inCombat: false, ...patch });
 const at = (sim: Simulation, id: (typeof TRAINING_STEPS)[number]['id']): void => {
   sim.state.career.training.step = TRAINING_STEPS.findIndex((s) => s.id === id);
 };
@@ -82,7 +82,7 @@ describe('training guide – flight and dock', () => {
       at(sim, s.id);
       for (const dock of [true, false]) {
         if (!dock && sim.state.player.dock.mode === 'docked') undock(sim);
-        for (const tab of ['overview', 'shipyard', 'crafting', 'service'] as const) {
+        for (const tab of ['overview', 'shipyard', 'market'] as const) {
           const g = trainingGuide(sim.state, ctx({ tab: dock ? tab : null, yard: tab === 'shipyard' && dock ? yard(sim.state.player.grid, null, 0) : null }))!;
           const current = g.phases.filter((p) => p.state === 'current').length;
           const allDone = g.phases.every((p) => p.state === 'done');
@@ -139,16 +139,17 @@ describe('training guide – flight and dock', () => {
     expect(trainingCallouts(sim.state)[0]).toMatchObject({ id: 'training:dock', world: clamp, keys: 'F' });
   });
 
-  it('the checklist ticks off what is done and points at the service tab first', () => {
+  it('the checklist ticks off what is done and points at the overview refuel first', () => {
     const sim = trainingSim(1337);
     at(sim, 'checklist');
     sim.state.player.fuel = 50;
     const g = trainingGuide(sim.state, ctx({ tab: 'overview' }))!;
     expect(g.phases.map((p) => p.state)).toEqual(['current', 'todo', 'todo']);
-    expect(g.highlight).toEqual(['[data-testid="tab-service"]']);
-    expect(trainingGuide(sim.state, ctx({ tab: 'service' }))!.highlight).toEqual(['[data-testid="refuel-full"]']);
+    // the Service section lives in the Overview: refuel-full is highlighted straight away
+    expect(g.highlight).toEqual(['[data-testid="refuel-full"]']);
+    expect(trainingGuide(sim.state, ctx({ tab: 'market' }))!.highlight).toEqual(['[data-testid="tab-overview"]']);
     sim.state.career.training.flags = 1 | 4;
-    const after = trainingGuide(sim.state, ctx({ tab: 'service' }))!;
+    const after = trainingGuide(sim.state, ctx({ tab: 'overview' }))!;
     expect(after.phases.map((p) => p.state)).toEqual(['done', 'current', 'done']);
     expect(after.hint).toMatch(/Mapa sa otvára v lete/);
   });
@@ -197,14 +198,16 @@ describe('training guide – the shipyard, step by step', () => {
     }
   });
 
-  it('the cargo step crafts first (crafting tab → recipe → craft), then installs', () => {
+  it('the cargo step crafts first (market tab → Craft segment → recipe → craft), then installs', () => {
     const sim = trainingSim(1337);
     at(sim, 'craftCargo');
-    expect(trainingGuide(sim.state, ctx({ tab: 'overview' }))!.highlight).toEqual(['[data-testid="tab-crafting"]']);
-    expect(trainingGuide(sim.state, ctx({ tab: 'crafting' }))!.highlight).toEqual(['[data-testid="recipe-cargo:1"]']);
-    expect(trainingGuide(sim.state, ctx({ tab: 'crafting', craftKey: 'cargo:1' }))!.highlight).toEqual(['[data-testid="craft"]']);
+    expect(trainingGuide(sim.state, ctx({ tab: 'overview' }))!.highlight).toEqual(['[data-testid="tab-market"]']);
+    expect(trainingGuide(sim.state, ctx({ tab: 'market', marketKind: 'resources' }))!.highlight).toEqual(['[data-testid="market-view-craft"]']);
+    expect(trainingGuide(sim.state, ctx({ tab: 'market', marketKind: 'parts' }))!.highlight).toEqual(['[data-testid="market-view-craft"]']);
+    expect(trainingGuide(sim.state, ctx({ tab: 'market', marketKind: 'craft' }))!.highlight).toEqual(['[data-testid="recipe-cargo:1"]']);
+    expect(trainingGuide(sim.state, ctx({ tab: 'market', marketKind: 'craft', craftKey: 'cargo:1' }))!.highlight).toEqual(['[data-testid="craft"]']);
     sim.state.stations.get(HOME_STATION_ID)!.parts['cargo:1'] = 1;
-    expect(trainingGuide(sim.state, ctx({ tab: 'crafting', craftKey: 'cargo:1' }))!.highlight).toEqual(['[data-testid="tab-shipyard"]']);
+    expect(trainingGuide(sim.state, ctx({ tab: 'market', marketKind: 'craft', craftKey: 'cargo:1' }))!.highlight).toEqual(['[data-testid="tab-shipyard"]']);
   });
 
   it('the crafted cargo hold keeps the craft phases done after undocking', () => {

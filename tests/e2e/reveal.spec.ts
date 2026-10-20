@@ -77,22 +77,31 @@ test('mid training: unlocked tabs open, locked ones ignore click and digit key',
   await loadFixture(page, 'training-mid');
   await expect(page.getByTestId('station-hub')).toBeVisible();
   await expect(page.getByTestId('tab-shipyard')).not.toHaveAttribute('data-locked', 'true');
-  await expect(page.getByTestId('tab-crafting')).toHaveAttribute('data-locked', 'true');
+  await expect(page.getByTestId('tab-crafting')).toHaveCount(0);
+  await expect(page.getByTestId('tab-service')).toHaveCount(0);
   await expect(page.getByTestId('tab-board')).toHaveAttribute('data-locked', 'true');
   await expect(page.getByTestId('open-board')).toHaveCount(0);
   await page.getByTestId('tab-board').hover();
   await expect(page.getByText('Odomkne sa po výcviku Cechu')).toBeVisible();
-  await page.getByTestId('tab-crafting').hover();
-  await expect(page.getByText('Odomkne sa v kroku 7 výcviku Cechu')).toBeVisible();
   await page.screenshot({ path: `${OUT}/reveal-02-training-mid-tabs.png` });
   // the board's digit key and a click on the locked tab do nothing
-  await page.keyboard.press('Digit6');
+  await page.keyboard.press('Digit4');
   await page.getByTestId('tab-board').click({ force: true });
-  await page.keyboard.press('Digit3');
+  await page.keyboard.press('Digit5');
   const tab = () => page.evaluate(() => (window.__cinder!.game as unknown as { stationUi: { tab: string } }).stationUi.tab);
   expect(await tab()).toBe('overview');
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect.poll(tab).toBe('shipyard');
+  // crafting is a Market view: locked until step 7, with the reason on hover
+  // in the editor the digit keys pick parts: use the tab
+  await page.getByTestId('tab-market').click();
+  await expect.poll(tab).toBe('market');
+  const craft = page.getByTestId('market-view-craft');
+  await expect(craft).toHaveAttribute('data-locked', 'true');
+  await craft.hover();
+  await expect(page.getByText('Odomkne sa v kroku 7 výcviku Cechu')).toBeVisible();
+  await craft.click({ force: true });
+  await expect(page.getByTestId('craft-detail')).toHaveCount(0);
 });
 
 test('a skipped training shows everything', async ({ page }) => {

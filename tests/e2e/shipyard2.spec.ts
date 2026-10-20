@@ -39,7 +39,7 @@ async function openShipyard(page: Page): Promise<void> {
     const parts = s.stations.get('home')!.parts;
     parts['armor:1'] = 3;
   });
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('shipyard')).toBeVisible();
   await waitTicks(page, 20);
 }
@@ -211,7 +211,7 @@ test('SL2 E2 shapes: the effect counts the shape in hand, an empty hand previews
   const errors = collectErrors(page);
   await loadFixture(page, 'shapes', { ticks: 10 });
   await expect(page.getByTestId('station-hub')).toBeVisible({ timeout: 60_000 });
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('shipyard')).toBeVisible();
   // 1280 × 720: the bow marker is not under the "Top view" button
   const bow = (await page.locator('.yd-bow').boundingBox())!;

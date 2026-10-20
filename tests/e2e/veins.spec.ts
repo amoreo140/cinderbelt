@@ -234,7 +234,7 @@ test('M2d: shipyard hull budget, heavy laser and large cargo with hull connector
     home.parts['armor:1'] = 12;
   });
 
-  await page.keyboard.press('Digit4');
+  await page.keyboard.press('Digit3');
   await expect(page.getByTestId('shipyard')).toBeVisible();
   await expect(page.getByTestId('yard-hull')).toContainText('14 / 28 b');
   await expect(page.getByTestId('yard-hull')).toContainText('kokpit T1');

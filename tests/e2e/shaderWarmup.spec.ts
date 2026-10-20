@@ -281,7 +281,7 @@ const yardParts = (page: Page) =>
 
 /** Opens a station tab and lets the scene draw. */
 async function tab(page: Page, name: 'overview' | 'shipyard'): Promise<void> {
-  if (name === 'shipyard') await page.keyboard.press('Digit4');
+  if (name === 'shipyard') await page.keyboard.press('Digit3');
   else await page.getByTestId('tab-overview').click();
   await expect(page.getByTestId('shipyard')).toBeVisible({ visible: name === 'shipyard' });
   await frames(page, 10);

@@ -545,7 +545,7 @@ export const skDiscovery = {
     { title: 'Pulz skenera (ťuknutie Tab)', text: 'Stojí 30 energie a nabíja sa 8 s. Zachytí signály do trojnásobku dosahu radaru: kovový objekt, anomália, slabý odraz úkrytu, tón Ozveny. Signál je kruh, kde niečo je – presne to uvidíš až zblízka.' },
     { title: 'Analýza (podržať Tab)', text: 'Namier kurzor na objekt v dosahu radaru a podrž Tab 2 s. Prvá analýza dá Dáta, záznam v denníku a pri vraku ukáže, či nesie fragment plánu.' },
     { title: 'Triangulácia', text: 'Úkryt ani vzdialenú Ozvenu nezameriaš z jedného miesta. Každý pulz z iného miesta (aspoň 120–150 j od predošlých) kruh neistoty zmenší. Úkryt otvoríš klávesom F.' },
-    { title: 'Dáta a Archív', text: 'Dáta sa nepredávajú ani nekupujú – zbierajú sa skenmi a kontraktmi Inštitútu. V Archíve (záložka 7 v doku) za ne odomkneš diely a varianty. Kľúčové uzly majú prah nazbieraných Dát.' },
+    { title: 'Dáta a Archív', text: 'Dáta sa nepredávajú ani nekupujú – zbierajú sa skenmi a kontraktmi Inštitútu. V Archíve (záložka 5 v doku) za ne odomkneš diely a varianty. Kľúčové uzly majú prah nazbieraných Dát.' },
     { title: 'Plány a varianty', text: 'Tri fragmenty z vrakov a úkrytov dajú plán variantu dielu. Fragmenty sú kľúčové predmety – nestratia sa ani pri zničení lode.' },
     { title: 'Anomálie a obri', text: 'Prelet jadrom anomálie dá krátky bonus (raz za 5 min). Škrupinu obrieho asteroidu rozbije len ťažký laser alebo kanón – jadro potom ťaží každý laser rýchlejšie.' },
     { title: 'Núdzové signály', text: 'Lode v núdzi vysielajú samy. Pomoc (palivo alebo 20 železa) platí Cech. Pasca sa prezradí pri druhej analýze – nesúlad signatúry.' },
