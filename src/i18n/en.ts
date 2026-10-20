@@ -16,6 +16,7 @@ export const en: CoreTexts = {
     date: (day, month, year) => `${day} ${MONTHS[month - 1] ?? month} ${year}`,
   },
   hud: {
+    newTag: 'NEW',
     speed: 'Speed',
     speedUnit: 'u/s',
     dampers: 'Dampers',
@@ -76,6 +77,8 @@ export const en: CoreTexts = {
     tabsShort: ['Overview', 'Trade', 'Craft', 'Yard', 'Service', 'Board', 'Archive', 'Home'],
     tabSoon: 'Coming in a later version',
     tabUnavailable: 'This station does not offer this service',
+    tabLockedStep: (n: number): string => `Unlocks in Guild Training step ${n}`,
+    tabLockedAfter: 'Unlocks after the Guild Training',
     ring: (n, name) => `depth ${n} · ${name}`,
     undock: 'Undock',
     coveredNozzles: {

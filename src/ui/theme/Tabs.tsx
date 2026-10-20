@@ -10,6 +10,8 @@ export interface TabDef<T extends string> {
   disabled?: boolean;
   /** Why the tab is locked. */
   reason?: string;
+  /** Locked by progression (not by the station): marked with data-locked. */
+  locked?: boolean;
 }
 
 function LockGlyph() {
@@ -30,6 +32,7 @@ function Tab<T extends string>({ tab, active, onSelect, testIdPrefix }: { tab: T
       class="af-tab af-focusable"
       aria-selected={active}
       aria-disabled={tab.disabled ? 'true' : undefined}
+      data-locked={tab.locked ? 'true' : undefined}
       tabIndex={active ? 0 : -1}
       data-testid={testIdPrefix ? `${testIdPrefix}${tab.id}` : undefined}
       onClick={() => {

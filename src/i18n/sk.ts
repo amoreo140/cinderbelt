@@ -28,6 +28,8 @@ export interface CoreTexts {
     date: (day: number, month: number, year: number) => string;
   };
   hud: {
+    /** Tag on a HUD part that has just been unlocked. */
+    newTag: string;
     speed: string;
     speedUnit: string;
     dampers: string;
@@ -108,6 +110,9 @@ export interface CoreTexts {
     tabsShort: readonly string[];
     tabSoon: string;
     tabUnavailable: string;
+    /** Tooltip of a tab locked by the Guild Training: unlocks in step n. */
+    tabLockedStep: (n: number) => string;
+    tabLockedAfter: string;
     ring: (n: number, name: string) => string;
     undock: string;
     coveredNozzles: {
@@ -816,6 +821,7 @@ export const sk = {
     date: (day: number, month: number, year: number): string => `${day}. ${month}. ${year}`,
   },
   hud: {
+    newTag: 'NOVÉ',
     speed: 'Rýchlosť',
     speedUnit: 'j/s',
     dampers: 'Tlmiče',
@@ -876,6 +882,8 @@ export const sk = {
     tabsShort: ['Prehľad', 'Trh', 'Výroba', 'Lodenica', 'Servis', 'Tabuľa', 'Archív', 'Rozvoj'],
     tabSoon: 'Pribudne v ďalšej verzii',
     tabUnavailable: 'Táto stanica túto službu nemá',
+    tabLockedStep: (n: number): string => `Odomkne sa v kroku ${n} výcviku Cechu`,
+    tabLockedAfter: 'Odomkne sa po výcviku Cechu',
     ring: (n: number, name: string): string => `hĺbka ${n} · ${name}`,
     undock: 'Odletieť',
     coveredNozzles: {

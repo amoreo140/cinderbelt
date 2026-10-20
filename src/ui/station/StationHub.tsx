@@ -12,6 +12,7 @@ import { SectorStrip } from '../board/SectorStrip';
 import type { GameActionInput } from '../../sim/commands';
 import type { ShipGrid } from '../../sim/ship/types';
 import { refinedBonusAt } from '../../sim/ship/workshop';
+import { ALL_FEATURES, unlockStep, type UiFeature } from '../../game/onboarding/reveal';
 import { HOME_STATION_ID, type StationDef } from '../../sim/world/stations';
 import { formatAmount, formatCredits, formatInt, formatNumber, formatPercent, formatPrice } from '../format';
 import { splitKeyList } from '../keyLabel';
@@ -139,6 +140,8 @@ export interface StationHubData {
   overlays?: ComponentChildren;
   /** Development tab of the home station (M4c; null elsewhere and on the other tabs). */
   development?: DevelopmentData | null;
+  /** Unlocked UI features (Guild Training); absent = every tab is open. */
+  reveal?: ReadonlySet<UiFeature>;
 }
 
 export interface StationHubHandlers {
@@ -171,6 +174,25 @@ export interface StationHubHandlers {
 type Props = StationHubData & { on: StationHubHandlers };
 
 /** The tab exists at this station (Development only at home – elsewhere it is not even listed). */
+/** The UI feature behind a tab (progressive reveal during the Guild Training); the overview is always open. */
+const TAB_FEATURE: Partial<Record<StationTab, UiFeature>> = {
+  market: 'tab:market',
+  crafting: 'tab:crafting',
+  shipyard: 'tab:shipyard',
+  service: 'tab:service',
+  board: 'tab:board',
+  archive: 'tab:archive',
+  development: 'tab:development',
+};
+
+/** Why a tab is locked by the Guild Training (tooltip text), or null when it is open. */
+export function tabLockReason(tab: StationTab, reveal: ReadonlySet<UiFeature> = ALL_FEATURES): string | null {
+  const feature = TAB_FEATURE[tab];
+  if (!feature || reveal.has(feature)) return null;
+  const step = unlockStep(feature);
+  return step === null ? tx().station.tabLockedAfter : tx().station.tabLockedStep(step);
+}
+
 export const tabListed = (tab: StationTab, station: StationDef): boolean => tab !== 'development' || station.id === HOME_STATION_ID;
 
 function tabEnabled(tab: StationTab, station: StationDef): boolean {
@@ -257,7 +279,7 @@ function Overview(p: Props) {
             <Gauge kind="cargo" label={tx().hud.cargo} value={used} max={p.cargoMax} decimals={1} invert />
           </Panel>
           {p.designGap && <DesignGapCard gap={p.designGap} on={on} />}
-          {(p.coveredNozzles ?? 0) > 0 && <CoveredNozzlesCard engines={p.coveredNozzles!} on={on} shipyard={p.station.services.shipyard} />}
+          {(p.coveredNozzles ?? 0) > 0 && <CoveredNozzlesCard engines={p.coveredNozzles!} on={on} shipyard={p.station.services.shipyard && tabLockReason('shipyard', p.reveal) === null} />}
         </section>
         <section class="hub-quick">
           <Heading>{tx().station.quickActions}</Heading>
@@ -416,9 +438,11 @@ function OverviewCareer(p: Props) {
               {ready > 0 && <strong class="hub-career-ready"> · {tx().goals.slip.ready} {ready}</strong>}
             </span>
           )}
-          <Act on={p.on} size="sm" variant="ghost" keyHint="6" testId="open-board" onClick={() => p.on.setTab('board')}>
-            {tx().goals.board.tab}
-          </Act>
+          {tabLockReason('board', p.reveal) === null && (
+            <Act on={p.on} size="sm" variant="ghost" keyHint="6" testId="open-board" onClick={() => p.on.setTab('board')}>
+              {tx().goals.board.tab}
+            </Act>
+          )}
         </div>
       </div>
     </section>
@@ -765,7 +789,8 @@ export function StationHub(p: Props) {
   const labels = short ? tx().station.tabsShort : tx().station.tabs;
   const tabs: TabDef<StationTab>[] = STATION_TABS.flatMap((tab, i) => {
     if (!tabListed(tab, station)) return [];
-    const enabled = tabEnabled(tab, station);
+    const lock = tabLockReason(tab, p.reveal);
+    const enabled = lock === null && tabEnabled(tab, station);
     const label = labels[i];
     return {
       id: tab,
@@ -773,7 +798,8 @@ export function StationHub(p: Props) {
       // in the editor the keys 1–9 pick parts from the palette
       keyHint: yard ? undefined : String(i + 1),
       disabled: !enabled,
-      reason: enabled ? undefined : tx().station.tabUnavailable,
+      reason: lock ?? (enabled ? undefined : tx().station.tabUnavailable),
+      locked: lock !== null,
     };
   });
   return (
