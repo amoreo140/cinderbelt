@@ -21,10 +21,10 @@
 }
 /* the toast (top centre too) moves below the radio line */
 .cm-line:not(.is-docked) ~ .ui-toast {
-  top: calc(var(--af-edge) + 6.2rem);
+  top: calc(var(--af-edge) + 7.8rem);
 }
 .hud:has(.cb-threat) ~ .cm-line:not(.is-docked) ~ .ui-toast {
-  top: calc(var(--af-edge) + 9.8rem);
+  top: calc(var(--af-edge) + 11.4rem);
 }
 /* screens under 1360 px keep the training panel top left (up to 29 rem; training.css): the line moves right of it */
 @media (max-width: 1359px) {
@@ -187,8 +187,8 @@
   margin: 0;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   overflow: hidden;
 }
 .cm-lines.is-echo {
