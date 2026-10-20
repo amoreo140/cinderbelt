@@ -758,6 +758,8 @@ export class App {
 
   private applyUiScale(): void {
     document.documentElement.style.setProperty('--af-ui-scale', String(this.settings.uiScale));
+    // media and container queries see the window's pixels, not the scaled rem: CSS that needs to know the UI is large asks this
+    document.documentElement.toggleAttribute('data-ui-large', this.settings.uiScale >= 1.25);
   }
 
   private applyMotion(): void {

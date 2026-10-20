@@ -39,6 +39,17 @@
 .hub--yard .hub-foot .af-btn--primary {
   min-width: 13rem;
 }
+/* the key hints wrap into a tall column when the foot is narrow for the scaled UI (the media query below
+   sees the window, not the scaled rem, so a large UI scale on a small window squeezes the hangar view):
+   hide them there (App sets data-ui-large from 125 %) */
+.hub--yard .hub-foot {
+  container-type: inline-size;
+}
+@container (max-width: 1600px) {
+  :root[data-ui-large] .yd-hints {
+    display: none;
+  }
+}
 
 /* ───────────── layout ───────────── */
 .yd {
