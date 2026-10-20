@@ -240,8 +240,8 @@ export const enComms: CommsTexts = {
       kit: (c) => `${c} and the materials for a cargo hold`,
     },
     done: [
-      'The ship is finished and it is yours. The station Board offers work. Fly safe, pilot.',
-      'And now you are a Guild pilot. Contracts are on the station Board. Call if you need anything.',
+      'The ship is finished and it is yours. The station’s Jobs tab offers work. Fly safe, pilot.',
+      'And now you are a Guild pilot. Contracts are in the station’s Jobs tab. Call if you need anything.',
     ],
     nudge: {
       flyBuoy: ['The buoy is where the arrow points. W is the throttle, A and D turn.', 'Pilot, the buoy will not wait forever. Turn after the arrow and open the throttle.'],

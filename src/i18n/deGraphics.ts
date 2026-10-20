@@ -11,6 +11,7 @@ export const deGraphics: GraphicsTexts = {
     label: 'Hintergrundhelligkeit',
     hint: 'Helligkeit und Sättigung von Sternen, Nebeln, Planeten und Sonne. Ein dunklerer Hintergrund lässt Schiffe, Asteroiden und Stationen besser hervortreten, auch herausgezoomt.',
   },
+  uiScale: { label: 'Oberflächengröße', hint: 'Macht alle Texte und Fenster größer oder kleiner.' },
   hullShell: {
     label: 'Rumpfhülle',
     hint: 'Schiffe wirken wie ein Rumpf: ein durchgehendes Seitenband, eine Zierkante in der Farbe des Cockpits, Fugen zwischen den Teilen und Positionslichter. Aus = nackte Teile mit Verbindern, wie bisher.',

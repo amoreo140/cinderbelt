@@ -76,7 +76,7 @@ export const deFleet: FleetTexts = {
     slotsLabel: 'Plätze',
     slots: (used, cap) => `${used} / ${cap}`,
     close: 'Schließen',
-    lockedHint: 'Ein Knoten im Archiv (Tab 7) schaltet Vorlagen frei.',
+    lockedHint: 'Ein Knoten im Archiv (Tab 5) schaltet Vorlagen frei.',
     empty: 'Noch keine Vorlagen. Speichere dein Schiff oder einen Werftentwurf.',
     saveTitle: 'Aktuellen Entwurf speichern',
     nameLabel: 'Name der Vorlage',

@@ -396,7 +396,7 @@ export const skDiscovery = {
     locate0Why: 'Tón pri domove nikto nezameral. Z jedného miesta poznáš len smer.',
     analyse: (i: number): string => `Analyzuj Ozvenu-${i} – podrž Tab pri majáku`,
     analyseWhy: 'Maják Kováčov je starší než čokoľvek tu. Inštitút platí 100 Dát.',
-    decoder: 'Archív (7): odomkni Frekvencie Kováčov',
+    decoder: 'Archív (5): odomkni Frekvencie Kováčov',
     decoderWhy: 'V signáli Ozveny-0 je druhá vrstva – bez dekódera ju skener nepočuje.',
     listen: (i: number): string => `Pulzuj ďalej od domova – hľadaj Ozvenu-${i}`,
     listen1Why: 'Ozvena-0 mieri von, k Vonkajším pásom.',

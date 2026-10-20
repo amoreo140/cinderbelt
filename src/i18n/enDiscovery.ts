@@ -164,7 +164,7 @@ export const enDiscovery: DiscoveryTexts = {
     locate0Why: 'Nobody has pinned down the tone near home. From one place you only get a direction.',
     analyse: (i) => `Analyse Echo-${i} – hold Tab at the beacon`,
     analyseWhy: 'The Forge-smith beacon is older than anything here. The Institute pays 100 Data.',
-    decoder: 'Archive (7): unlock Forge-smith frequencies',
+    decoder: 'Archive (5): unlock Forge-smith frequencies',
     decoderWhy: 'The Echo-0 signal has a second layer – without the decoder the scanner cannot hear it.',
     listen: (i) => `Pulse farther from home – look for Echo-${i}`,
     listen1Why: 'Echo-0 points outwards, to the Outer Belts.',

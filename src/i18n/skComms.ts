@@ -472,8 +472,8 @@ export const skComms: CommsTexts = {
       kit: (c) => `${c} a materiál na nákladný priestor`,
     },
     done: [
-      'Loď je hotová a je tvoja. Prácu ti ponúkne Tabuľa stanice. Dobrý let, pilot.',
-      'A si pilot Cechu. Kontrakty nájdeš na Tabuli stanice. Ozvi sa, keby niečo.',
+      'Loď je hotová a je tvoja. Prácu ti ponúknu Zákazky na stanici. Dobrý let, pilot.',
+      'A si pilot Cechu. Kontrakty nájdeš v Zákazkách na stanici. Ozvi sa, keby niečo.',
     ],
     nudge: {
       flyBuoy: ['Bója je tam, kam ukazuje šípka. W je plyn, A a D otáčanie.', 'Pilot, bója nepočká večne. Natoč sa za šípkou a daj plyn.'],

@@ -239,8 +239,8 @@ export const deComms: CommsTexts = {
       kit: (c) => `${c} und das Material für einen Frachtraum`,
     },
     done: [
-      'Das Schiff ist fertig und gehört dir. Die Tafel der Station bietet Arbeit. Guten Flug, Pilot.',
-      'Und jetzt bist du Pilot der Gilde. Aufträge hängen an der Tafel der Station. Melde dich, wenn du was brauchst.',
+      'Das Schiff ist fertig und gehört dir. Die Aufträge der Station bieten Arbeit. Guten Flug, Pilot.',
+      'Und jetzt bist du Pilot der Gilde. Aufträge findest du im Reiter Aufträge der Station. Melde dich, wenn du was brauchst.',
     ],
     nudge: {
       flyBuoy: ['Die Boje ist dort, wo der Pfeil hinzeigt. W ist der Schub, A und D drehen.', 'Pilot, die Boje wartet nicht ewig. Dreh dem Pfeil nach und gib Schub.'],
@@ -248,7 +248,7 @@ export const deComms: CommsTexts = {
       dockSell: ['Drück in der Übersicht „Ganze Fracht verkaufen“ – das ist alles.', 'Das Eisen verkaufst du in der Übersicht. Ein Klick und fertig.'],
       installSide: ['R dreht das Triebwerk, bis seine Düse vom Schiff wegzeigt.', 'Die hervorgehobenen Zellen neben dem Rumpf sind die richtigen Plätze. Dann mit Enter bestätigen.'],
       brakeBuoy: ['Lass an der Boje den Schub los und brems mit S. Unter 1,5 E/s zählt es.', 'Keine Eile. Langsam zur Boje, und anhalten.'],
-      installReverse: ['Dreh das Triebwerk mit R, bis seine Düse zum Bug zeigt. Dann Enter.', 'Das zweite Rückwärtstriebwerk wartet im Lager – Werft, Taste 4.'],
+      installReverse: ['Dreh das Triebwerk mit R, bis seine Düse zum Bug zeigt. Dann Enter.', 'Das zweite Rückwärtstriebwerk wartet im Lager – Werft, Taste 3.'],
       craftCargo: ['Wähl in der Fertigung den Frachtraum T1 und drück Fertigen.', 'Das gefertigte Teil liegt im Lager – bau es in der Werft ein.'],
       checklist: ['Ein Teil der Prüfung fehlt noch – schau auf die Liste im Ausbildungsfenster.', 'Service tankt auf, G öffnet die Ziele, M im Flug die Karte.'],
       finishShip: ['Reaktor, Radar, Gyroskop, ein Haupttriebwerk – alles liegt im Lager.', 'Das Ausbildungsfenster zeigt, was noch fehlt. Dann Enter.'],

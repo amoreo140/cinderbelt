@@ -149,7 +149,9 @@ all of them different and in the same order.
 
 | English | German |
 |---|---|
-| Overview · Market · Crafting · Shipyard · Service · Board · Archive | Übersicht · Markt · Fertigung · Werft · Service · Tafel · Archiv |
+| station tabs: Overview · Market · Shipyard · Jobs · Archive · Development | Übersicht · Markt · Werft · Aufträge · Archiv · Ausbau |
+| Market sub-views: Resources · Parts · Craft; Overview section: Service | Rohstoffe · Teile · Fertigung; Abschnitt der Übersicht: Service |
+| Recommended (contract), After docking (card) | Empfohlen, Nach dem Andocken |
 | resource market / parts market | Rohstoffmarkt / Teilemarkt |
 | storage | Lager |
 | courier | Kurier |
