@@ -283,6 +283,11 @@
   background: rgba(10, 21, 33, 0.7);
   pointer-events: none;
   will-change: transform;
+  /* shown once Game has put it at the cursor (before that it would sit at the top-left corner) */
+  visibility: hidden;
+}
+.pr-reticle[data-placed] {
+  visibility: visible;
 }
 .pr-reticle i {
   width: 6px;

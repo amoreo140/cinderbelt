@@ -1775,7 +1775,8 @@ export class Game {
       this.reticleAt.x = NaN;
     }
     const el = this.reticleEl;
-    if (!el) return;
+    // before the first pointer event there is no cursor: the reticle stays hidden (pirates.css), not at 0, 0
+    if (!el || !this.pointer.seen) return;
     const rect = this.layout.rect;
     const x = Math.round(this.pointer.x - rect.left + 16);
     const y = Math.round(this.pointer.y - rect.top + 14);
@@ -1783,6 +1784,7 @@ export class Game {
     this.reticleAt.x = x;
     this.reticleAt.y = y;
     el.style.transform = `translate(${x}px, ${y}px)`;
+    el.dataset.placed = '';
   }
 
   /**

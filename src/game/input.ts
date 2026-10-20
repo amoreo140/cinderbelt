@@ -29,8 +29,8 @@ export const letterKey = (letter: string): string => `key:${letter}`;
 /** Held while the "?" key is down (the radar legend): `pressed` has it besides the physical code. */
 export const QUESTION_HELD = 'key:?';
 
-/** Is this the "?" key – by what it types (any layout) or by the Slash position? */
-const isQuestionKey = (code: string, key: string): boolean => key === '?' || code === 'Slash';
+/** Is this the "?" key – by what it types (any layout)? */
+const isQuestionKey = (key: string): boolean => key === '?';
 
 /**
  * Turns the keyboard and mouse state into a command for the simulation.
@@ -87,7 +87,7 @@ export class KeyboardState {
         if (fromEditable(e)) return;
         if (e.code === 'Tab') e.preventDefault();
         this.pressed.add(e.code);
-        if (isQuestionKey(e.code, e.key ?? '')) {
+        if (isQuestionKey(e.key ?? '')) {
           this.pressed.add(QUESTION_HELD);
           this.questionCode = e.code;
         }
@@ -148,6 +148,8 @@ export class KeyboardState {
 export class PointerState {
   x = 0;
   y = 0;
+  /** The pointer has moved or pressed over the game at least once (x / y are real, not the 0, 0 default). */
+  seen = false;
   private buttons = 0;
   /** The button was pressed (anywhere in the window) after the last release() and not released yet. */
   private armed = false;
@@ -157,6 +159,7 @@ export class PointerState {
       const e = event as PointerEvent;
       this.x = e.clientX;
       this.y = e.clientY;
+      this.seen = true;
       // over the canvas the buttons of the event count if the player pressed them after the last
       // release() (over the UI too – e.g. an alert band appeared under the cursor); holding is not enough
       this.buttons = this.armed || this.buttons !== 0 ? e.buttons : 0;
@@ -168,6 +171,7 @@ export class PointerState {
       const e = event as PointerEvent;
       this.x = e.clientX;
       this.y = e.clientY;
+      this.seen = true;
       this.buttons = e.buttons;
     };
     const up = (event: Event) => {

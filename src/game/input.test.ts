@@ -122,6 +122,23 @@ describe('KeyboardState', () => {
     expect(keyboard.pressed.has(QUESTION_HELD)).toBe(false);
   });
 
+  it('the Slash position alone is not "?": the Slovak "-" key and the US "/" key do not hold it', () => {
+    const { keyboard, down, up } = setup();
+    down({ code: 'Slash', key: '-' });
+    expect(keyboard.pressed.has(QUESTION_HELD)).toBe(false);
+    up({ code: 'Slash', key: '-' });
+    down({ code: 'Slash', key: '/' });
+    expect(keyboard.pressed.has(QUESTION_HELD)).toBe(false);
+  });
+
+  it('the Slovak "?" (Shift + the comma key) holds it, a window blur clears it', () => {
+    const { target, keyboard, down } = setup();
+    down({ code: 'Comma', key: '?', shiftKey: true });
+    expect(keyboard.pressed.has(QUESTION_HELD)).toBe(true);
+    target.dispatchEvent(new Event('blur'));
+    expect(keyboard.pressed.has(QUESTION_HELD)).toBe(false);
+  });
+
   it('remembers which fresh presses came with Shift, even when Shift is released before the frame', () => {
     const { keyboard, down, up } = setup();
     down({ code: 'ShiftLeft', key: 'Shift', shiftKey: true });
