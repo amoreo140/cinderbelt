@@ -1,5 +1,21 @@
 /* Flight HUD – the ship console. Minimal during flight, readouts in the corners, centre free. */
 
+/* Larger type for what the pilot reads in flight (readability pass, Stage 4: HUD text was 11-13 px). The
+   scale is overridden only inside these HUD containers; the station, the shipyard and the menus keep the
+   global --af-fs-* scale (theme/tokens.css). Values/body 16 px, labels and keycaps 13 px, descriptions 14 px. */
+.hud,
+.ev-chips,
+.gs-chips,
+.cm-line,
+.cm-log,
+.tr-layer,
+.ui-toast {
+  --af-fs-xs: 0.8125rem;
+  --af-fs-sm: 0.875rem;
+  --af-fs-md: 1rem;
+  --af-fs-lg: 1.0625rem;
+}
+
 .hud {
   position: absolute;
   inset: 0;

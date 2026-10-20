@@ -104,7 +104,7 @@
 }
 .tr-layer.is-yard .tr-why,
 .tr-layer.is-yard .tr-note {
-  font-size: 0.78rem;
+  font-size: 0.8125rem;
 }
 .tr-layer.is-yard .tr-lines li,
 .tr-layer.is-yard .tr-lines .af-keyhint,
@@ -310,7 +310,7 @@
 
 .tr-note {
   margin: 0;
-  font-size: var(--af-fs-sm);
+  font-size: var(--af-fs-md);
   line-height: var(--af-lh);
   color: var(--af-text-dim);
 }
