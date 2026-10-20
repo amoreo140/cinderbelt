@@ -41,6 +41,12 @@ export const CONSOLE_ZONE_DEFAULT = { width: CONSOLE_ZONE.width, height: CONSOLE
  */
 export const LEFT_COLUMN: { chipsBottom: number; chipsRight?: number; log: ZoneRect | null } = { chipsBottom: 0, log: null };
 
+/**
+ * Top centre: the pirate threat band and the radio line (both hang from the top edge, centred; the radio
+ * moves right of the training panel on narrow screens). Hud measures their union; null = neither is shown.
+ */
+export const TOP_CENTRE: { zone: ZoneRect | null } = { zone: null };
+
 /** The measured HUD zones the edge arrows and the world callouts avoid. */
 export interface HudZones {
   nav: { width: number; height: number };
@@ -53,11 +59,13 @@ export interface HudZones {
   chipsRight?: number;
   /** The comm log (L; null = closed). */
   log?: ZoneRect | null;
+  /** The threat band and the radio line at the top centre (null = none on screen). */
+  topCentre?: ZoneRect | null;
 }
 
 /** The zones as Hud measured them last. */
 export function currentHudZones(): HudZones {
-  return { nav: NAV_ZONE, topRight: TOP_RIGHT_ZONE, console: CONSOLE_ZONE, chipsBottom: LEFT_COLUMN.chipsBottom, chipsRight: LEFT_COLUMN.chipsRight, log: LEFT_COLUMN.log };
+  return { nav: NAV_ZONE, topRight: TOP_RIGHT_ZONE, console: CONSOLE_ZONE, chipsBottom: LEFT_COLUMN.chipsBottom, chipsRight: LEFT_COLUMN.chipsRight, log: LEFT_COLUMN.log, topCentre: TOP_CENTRE.zone };
 }
 
 /**

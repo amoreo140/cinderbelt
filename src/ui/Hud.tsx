@@ -50,7 +50,7 @@ import {
   type ConsoleGaugesProps,
 } from './hudMemo';
 import { EdgeArrowLayer, type EdgeArrowMark } from './EdgeArrowLayer';
-import { CONSOLE_ZONE, CONSOLE_ZONE_DEFAULT, LEFT_COLUMN, NAV_ZONE, TOP_RIGHT_ZONE } from './hudZones';
+import { CONSOLE_ZONE, CONSOLE_ZONE_DEFAULT, LEFT_COLUMN, NAV_ZONE, TOP_CENTRE, TOP_RIGHT_ZONE } from './hudZones';
 import { goalLabelFlips, goalText, sameGoalHud, type GoalHud } from './goalMark';
 import { LiveSlot, LiveText } from './liveText';
 import { flightHudRects, goalLabelOffset, placeHudArrows } from './edgeArrows';
@@ -488,7 +488,7 @@ const RadarRangePart = pure(function RadarRange({ range }: { range: number }) {
 });
 
 /** The measured panel zones as a string: the goal label's flip recomputes when they move. */
-const zonesKey = (): string => `${NAV_ZONE.width},${NAV_ZONE.height},${TOP_RIGHT_ZONE.width},${TOP_RIGHT_ZONE.height},${LEFT_COLUMN.chipsBottom},${LEFT_COLUMN.chipsRight ?? 0},${LEFT_COLUMN.log?.y ?? 0}`;
+const zonesKey = (): string => `${NAV_ZONE.width},${NAV_ZONE.height},${TOP_RIGHT_ZONE.width},${TOP_RIGHT_ZONE.height},${LEFT_COLUMN.chipsBottom},${LEFT_COLUMN.chipsRight ?? 0},${LEFT_COLUMN.log?.y ?? 0},${TOP_CENTRE.zone ? `${TOP_CENTRE.zone.x}:${TOP_CENTRE.zone.width}:${TOP_CENTRE.zone.height}` : 0}`;
 
 type HudArrowProps = { arrow: EdgeArrow & { label: string }; kind: 'station' | 'goal' };
 
@@ -917,7 +917,7 @@ function applyLeftFit(root: HTMLElement, fit: LeftFit, events: Element | null): 
 /** The chips drop in (240 ms): the column is measured on every redraw meanwhile. */
 const LEFT_SETTLE_MS = 400;
 
-type LeftSlot = 'events' | 'guild' | 'log' | 'console';
+type LeftSlot = 'events' | 'guild' | 'log' | 'console' | 'radio' | 'threat';
 
 /**
  * The left column under the top-left stack, measured into LEFT_COLUMN (hudZones.ts): the event chips,
@@ -936,7 +936,7 @@ class LeftColumnWatch {
   private readonly observer: ResizeObserver | null;
   private dirty = true;
   private settleUntil = 0;
-  private readonly el: Record<LeftSlot, Element | null> = { events: null, guild: null, log: null, console: null };
+  private readonly el: Record<LeftSlot, Element | null> = { events: null, guild: null, log: null, console: null, radio: null, threat: null };
   /** The content key (cheap: no layout read). */
   private content = '';
   /** The key of the last fit and its fold. */
@@ -962,11 +962,13 @@ class LeftColumnWatch {
     let events: Element | null = null;
     let guild: Element | null = null;
     let log: Element | null = null;
+    let radio: Element | null = null;
     for (let el = this.root.firstElementChild; el; el = el.nextElementSibling) {
       const c = el.classList;
       if (c.contains('ev-chips')) events ??= c.contains('ev-chips--inline') ? null : el;
       else if (c.contains('gs-chips')) guild ??= c.contains('gs-chips--inline') ? null : el;
       else if (c.contains('cm-log')) log ??= c.contains('is-docked') ? null : el;
+      else if (c.contains('cm-line')) radio ??= c.contains('is-docked') ? null : el;
     }
     const known = this.el.console;
     const console = known?.isConnected ? known : this.hud.querySelector('.hud-console');
@@ -975,6 +977,8 @@ class LeftColumnWatch {
     changed = this.watch('guild', guild) || changed;
     changed = this.watch('log', log) || changed;
     changed = this.watch('console', console) || changed;
+    changed = this.watch('radio', radio) || changed;
+    changed = this.watch('threat', this.hud.querySelector('.cb-threat')) || changed;
     const content = this.contentKey();
     if (content !== this.content) {
       this.content = content;
@@ -1018,6 +1022,15 @@ class LeftColumnWatch {
       CONSOLE_ZONE.width = Math.round(consoleBox.right) + 16;
       CONSOLE_ZONE.height = Math.round(window.innerHeight - consoleBox.top) + 8;
     }
+    // the threat band and the radio line (top centre): the edge arrows keep off their union
+    let top: DOMRect | null = null;
+    for (const el of [this.el.threat, this.el.radio]) {
+      if (!el?.isConnected) continue;
+      const b = el.getBoundingClientRect();
+      if (b.width <= 0) continue;
+      top = top ? new DOMRect(Math.min(top.left, b.left), Math.min(top.top, b.top), Math.max(top.right, b.right) - Math.min(top.left, b.left), Math.max(top.bottom, b.bottom) - Math.min(top.top, b.top)) : b;
+    }
+    TOP_CENTRE.zone = top ? { x: Math.round(top.left), y: Math.round(top.top), width: Math.round(top.width), height: Math.round(top.height) } : null;
     const { events, guild, log } = this.el;
     const parts = [events, guild];
     const claim = (): FitRect | null => (log ? logClaim(boxOf(log)) : null);
@@ -1057,6 +1070,7 @@ class LeftColumnWatch {
     LEFT_COLUMN.chipsBottom = 0;
     LEFT_COLUMN.chipsRight = 0;
     LEFT_COLUMN.log = null;
+    TOP_CENTRE.zone = null;
     CONSOLE_ZONE.width = CONSOLE_ZONE_DEFAULT.width;
     CONSOLE_ZONE.height = CONSOLE_ZONE_DEFAULT.height;
     applyLeftFit(this.root, 'full', null);

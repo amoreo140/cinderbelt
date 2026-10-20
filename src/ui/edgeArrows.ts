@@ -198,6 +198,8 @@ function slideInward(arrow: EdgeArrow, view: { width: number; height: number }, 
 
 /** How far an arrow's label reaches from its head towards the centre (EdgeArrowLayer: ~150 × 30 px). */
 const LABEL_REACH = { x: 80, y: 20 };
+/** How far an arrow's head and label reach sideways from its tip (px): the top-centre zone is grown by it. */
+const TOP_CENTRE_PAD = 150;
 
 /**
  * The flight HUD's panels (console, radar with the scanner, the top-left navigation and objectives
@@ -219,6 +221,8 @@ export function flightHudRects(view: { width: number; height: number }, zones: H
   }
   const beside = chipsBesideZone(zones);
   if (beside) rects.push({ x: 0, y: beside.y - LABEL_REACH.y, width: beside.width + LABEL_REACH.x, height: beside.height + 2 * LABEL_REACH.y });
+  const top = zones.topCentre;
+  if (top) rects.push({ x: top.x - TOP_CENTRE_PAD, y: 0, width: top.width + 2 * TOP_CENTRE_PAD, height: top.y + top.height + LABEL_REACH.y });
   const radio = zones.log;
   if (radio) {
     rects.push({ x: 0, y: radio.y - LABEL_REACH.y, width: radio.x + radio.width + LABEL_REACH.x, height: radio.height + 2 * LABEL_REACH.y });
@@ -288,6 +292,27 @@ const LEGEND_ZONE = { width: 330, top: 400, bottom: 200 };
 /** Half the height of the station / goal arrow with its label beside it (px). */
 const ARROW_HALF = 22;
 
+
+/**
+ * An arrow on the top edge under the threat band / the radio line (top centre): slides along the edge to the
+ * side nearer to it, the other side when that lands on the top-left stack or the credits, else below the band.
+ */
+function avoidTopCentre(a: EdgeArrow, view: { width: number }, zones: HudZones, tl: { width: number; height: number }): EdgeArrow {
+  const z = zones.topCentre;
+  if (!z) return a;
+  const left = z.x - TOP_CENTRE_PAD;
+  const right = z.x + z.width + TOP_CENTRE_PAD;
+  if (a.y > z.y + z.height + 40 || a.x < left || a.x > right) return a;
+  const tr = zones.topRight;
+  const candidates = [left, right].sort((p, q) => Math.abs(p - a.x) - Math.abs(q - a.x));
+  for (const x of candidates) {
+    const inTl = x < tl.width && a.y < tl.height;
+    const inTr = tr.width > 0 && a.y < tr.height && x > view.width - tr.width;
+    if (x > 0 && !inTl && !inTr) return { ...a, x };
+  }
+  return { ...a, y: z.y + z.height + 24 };
+}
+
 /**
  * Moves the station or goal arrow (Hud) off the HUD panels: above the console, below the top-left
  * block (the navigation stack and the event chips – moving right would hit the toast in the centre),
@@ -313,6 +338,7 @@ export function avoidHudPanels(arrow: EdgeArrow, view: { width: number; height: 
     left = true;
   }
   if (left) return a;
+  a = avoidTopCentre(a, view, zones, tl);
   if (a.x > view.width - RADAR_ZONE.width && a.y > view.height - RADAR_ZONE.height) a = { ...a, y: view.height - RADAR_ZONE.height };
   // on the top edge: left of the credits and the help; on the right edge: below them
   const tr = zones.topRight;

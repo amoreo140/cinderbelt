@@ -100,6 +100,7 @@ export function hudPanelBoxes(view: { width: number; height?: number }): Box[] {
   if (tr.width > 0) out.push({ x: view.width - tr.width, y: 0, w: tr.width, h: tr.height });
   const beside = chipsBesideZone(zones);
   if (beside) out.push({ x: beside.x, y: beside.y, w: beside.width, h: beside.height });
+  if (zones.topCentre) out.push({ x: zones.topCentre.x, y: zones.topCentre.y, w: zones.topCentre.width, h: zones.topCentre.height });
   if (zones.log) out.push({ x: zones.log.x, y: zones.log.y, w: zones.log.width, h: zones.log.height });
   // the bottom corners: the console (measured) and the radar with the scanner and K chips
   if (view.height !== undefined) {

@@ -243,6 +243,26 @@ describe('avoidHudPanels', () => {
     expect(a.y).toBe(420);
   });
 
+  it('slides an arrow on the top edge out from under the threat band / radio line', () => {
+    const top: HudZones = { ...column, topCentre: { x: 420, y: 16, width: 440, height: 44 } };
+    const under = avoidHudPanels({ x: 600, y: 24, angle: -Math.PI / 2 }, view, false, top);
+    expect(under.x <= 420 - 150 || under.x >= 860 + 150).toBe(true);
+    expect(under.y).toBe(24);
+    // the nearer side lands on the top-left stack (470 wide): the arrow goes to the right side
+    const wide: HudZones = { ...column, topCentre: { x: 520, y: 16, width: 340, height: 44 } };
+    const nearLeft = avoidHudPanels({ x: 540, y: 24, angle: -Math.PI / 2 }, view, false, wide);
+    expect(nearLeft.x).toBeGreaterThanOrEqual(860 + 150);
+    // an arrow on a side edge or well below the band is left alone
+    expect(avoidHudPanels({ x: 1240, y: 24, angle: 0 }, view, false, top).x).toBe(1240);
+    expect(avoidHudPanels({ x: 600, y: 300, angle: 0 }, view, false, top)).toEqual({ x: 600, y: 300, angle: 0 });
+  });
+
+  it('flightHudRects covers the top-centre zone with the label reach', () => {
+    const top: HudZones = { ...column, topCentre: { x: 420, y: 16, width: 440, height: 44 } };
+    const r = flightHudRects(view, top).find((q) => q.x < 420 && q.x + q.width > 860 && q.y === 0);
+    expect(r).toBeDefined();
+  });
+
   it('leaves an arrow clear of every panel alone', () => {
     expect(avoidHudPanels(arrow(40, 340), view, false, column)).toEqual(arrow(40, 340));
     expect(avoidHudPanels(arrow(1240, 300), view, false, column)).toEqual(arrow(1240, 300));
