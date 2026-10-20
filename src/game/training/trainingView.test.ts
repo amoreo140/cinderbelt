@@ -165,9 +165,14 @@ describe('training guide – the shipyard, step by step', () => {
     const rotate = trainingGuide(sim.state, ctx({ tab: 'shipyard', yard: yard(grid, 'engine:1', 0) }))!;
     expect(rotate.phases.find((p) => p.state === 'current')!.keys).toEqual(['R']);
     expect(rotate.highlight).toEqual(['[data-testid="yard-ghost"]']);
+    // the cells are there before the part is turned, flagged as waiting for the rotation (they are the ones for rot 1)
+    expect(rotate.cells.length).toBeGreaterThan(0);
+    expect(rotate.turn).toEqual({ kind: 'side', rot: 0, want: 1 });
     // rot 1 pushes left: the suggested cells are valid and give left thrust, on the right side (exhaust outwards)
     const place = trainingGuide(sim.state, ctx({ tab: 'shipyard', yard: yard(grid, 'engine:1', 1) }))!;
+    expect(place.turn).toBeNull();
     expect(place.cells.length).toBeGreaterThan(0);
+    expect(place.cells).toEqual(rotate.cells);
     for (const c of place.cells) {
       const r = applyEditorOp(grid, { op: 'place', key: 'engine:1', x: c.x, y: c.y, rot: 1 });
       expect(r.ok).toBe(true);

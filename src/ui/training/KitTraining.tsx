@@ -27,6 +27,7 @@ const base = (patch: Partial<TrainingGuide>): TrainingGuide => ({
   reward: tx().training.reward('100 cr'),
   highlight: [],
   cells: [],
+  turn: null,
   ...patch,
 });
 

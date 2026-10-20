@@ -35,6 +35,10 @@ export interface TrainingTexts {
     pick: (part: string) => GuideLine;
     tierOne: GuideLine;
     rotate: Record<'side' | 'reverse' | 'forward', GuideLine>;
+    /** The big prompt by the ghost while the part is turned wrong (the R key is drawn next to it). */
+    turn: Record<'side' | 'reverse' | 'forward', string>;
+    /** Its small arrow: where the nozzle points now. */
+    nozzleNow: string;
     placeOn: GuideLine;
     placeAny: GuideLine;
     commit: GuideLine;
@@ -141,6 +145,12 @@ export const skTraining: TrainingTexts = {
       reverse: { keys: ['R'], text: 'otoč motor tryskou k prove – tlačí dozadu' },
       forward: { keys: ['R'], text: 'otoč motor tryskou dozadu – tlačí dopredu' },
     },
+    turn: {
+      side: 'otoč trysku von z lode',
+      reverse: 'otoč trysku k prove',
+      forward: 'otoč trysku dozadu',
+    },
+    nozzleNow: 'Tryska teraz',
     placeOn: { keys: [], text: 'Klikni na zvýraznené miesto vedľa trupu' },
     placeAny: { keys: [], text: 'Klikni na voľné miesto vedľa trupu' },
     commit: { keys: ['Enter'], text: 'Potvrď zmeny' },

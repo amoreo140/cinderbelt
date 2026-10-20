@@ -462,6 +462,46 @@
   animation: tr-clamp 1.1s steps(2, jump-none) infinite;
 }
 
+/* the part still has to be turned (R): the same cells in the warning amber */
+.tr-cell.is-turn {
+  border-color: var(--af-trim);
+  background: rgba(242, 122, 44, 0.24);
+}
+.tr-turn {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 41;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.5rem 0.9rem;
+  background: rgba(10, 21, 33, 0.92);
+  box-shadow: inset 0 0 0 2px var(--af-trim);
+  color: var(--af-text);
+  font-size: var(--af-fs-md, 1.05rem);
+  font-weight: 700;
+  pointer-events: none;
+}
+.tr-turn .af-key {
+  min-width: 2.4rem;
+  min-height: 2.4rem;
+  font-size: 1.5rem;
+  background: var(--af-trim);
+  color: #1b1007;
+  animation: tr-clamp 1.1s steps(2, jump-none) infinite;
+}
+.tr-turn-nozzle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--af-trim);
+}
+.tr-turn-nozzle small {
+  color: var(--af-text-dim);
+  font-weight: 400;
+}
+
 @keyframes tr-pulse {
   50% {
     opacity: 0.35;
@@ -479,14 +519,16 @@
   .tr-panel,
   .tr-track i.is-now,
   .tr-hl,
-  .tr-cell {
+  .tr-cell,
+  .tr-turn .af-key {
     animation: none;
   }
 }
 :root[data-reduced-motion] .tr-panel,
 :root[data-reduced-motion] .tr-track i.is-now,
 :root[data-reduced-motion] .tr-hl,
-:root[data-reduced-motion] .tr-cell {
+:root[data-reduced-motion] .tr-cell,
+:root[data-reduced-motion] .tr-turn .af-key {
   animation: none;
 }
 

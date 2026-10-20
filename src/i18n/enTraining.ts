@@ -38,6 +38,12 @@ export const enTraining: TrainingTexts = {
       reverse: { keys: ['R'], text: 'turn the nozzle towards the bow – it pushes backwards' },
       forward: { keys: ['R'], text: 'turn the nozzle backwards – it pushes forwards' },
     },
+    turn: {
+      side: 'turn the nozzle out of the ship',
+      reverse: 'turn the nozzle towards the bow',
+      forward: 'turn the nozzle backwards',
+    },
+    nozzleNow: 'Nozzle now',
     placeOn: { keys: [], text: 'Click a highlighted cell next to the hull' },
     placeAny: { keys: [], text: 'Click a free cell next to the hull' },
     commit: { keys: ['Enter'], text: 'Confirm the changes' },

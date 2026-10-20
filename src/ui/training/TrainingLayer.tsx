@@ -7,7 +7,7 @@ import { tx } from '../../i18n';
 import type { TrainingCellBox, TrainingHandlers, TrainingUiData } from '../../game/training/trainingUi';
 import type { TrainingGuide } from '../../game/training/trainingView';
 import { formatInt } from '../format';
-import { KeyHint, Lamp, Modal, Panel } from '../theme';
+import { Key, KeyHint, Lamp, Modal, Panel } from '../theme';
 import { TRAINING_PANEL } from '../hudZones';
 import './training.css';
 
@@ -186,6 +186,58 @@ function Highlight({ selectors }: { selectors: readonly string[] }) {
   );
 }
 
+/** Screen angle (degrees clockwise from up) of the nozzle for a rotation, from a suggested cell's projected axes. */
+export function nozzleAngle(c: TrainingCellBox | undefined, rot: number): number | null {
+  if (!c || c.ax === undefined || c.ay === undefined || c.bx === undefined || c.by === undefined) return null;
+  // `a` points starboard, `b` towards the stern; rotation 0 pushes forward, so the nozzle faces the stern
+  const v: [number, number][] = [[c.bx, c.by], [c.ax, c.ay], [-c.bx, -c.by], [-c.ax, -c.ay]];
+  const [x, y] = v[((rot % 4) + 4) % 4]!;
+  return (Math.atan2(x, -y) * 180) / Math.PI;
+}
+
+/**
+ * The big "R" prompt under the ghost card while the part in hand has to be turned first (the suggested
+ * cells are already shown): the key, what to do, and an arrow where the nozzle points now. Placed from the
+ * ghost card's box every frame (written only when it moved).
+ */
+function TurnPrompt({ turn, cell }: { turn: NonNullable<TrainingGuide['turn']>; cell: TrainingCellBox | undefined }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    let frame = 0;
+    let last = '';
+    const place = () => {
+      const el = ref.current;
+      const r = document.querySelector<HTMLElement>('[data-testid="yard-ghost"]')?.getBoundingClientRect();
+      if (el) {
+        const next = !r || r.width === 0 ? 'hide' : `${Math.round(r.right)}|${Math.round(r.bottom)}`;
+        if (next !== last) {
+          last = next;
+          el.style.visibility = next === 'hide' ? 'hidden' : '';
+          if (r && next !== 'hide') el.style.transform = `translate(calc(${Math.round(r.right)}px - 100%), ${Math.round(r.bottom) + 8}px)`;
+        }
+      }
+      frame = requestAnimationFrame(place);
+    };
+    place();
+    return () => cancelAnimationFrame(frame);
+  }, []);
+  const angle = nozzleAngle(cell, turn.rot);
+  return (
+    <div ref={ref} class="tr-turn af-cut2" data-testid="yard-rotate-prompt" data-kind={turn.kind} style={{ visibility: 'hidden' }}>
+      <Key dark>R</Key>
+      <span class="tr-turn-text">{t().guide.turn[turn.kind]}</span>
+      {angle !== null && (
+        <span class="tr-turn-nozzle" title={t().guide.nozzleNow}>
+          <svg viewBox="0 0 10 12" width="18" height="22" style={{ transform: `rotate(${angle.toFixed(1)}deg)` }} aria-hidden="true" data-testid="yard-nozzle-arrow">
+            <path d="M5 0 L10 7 H6.5 V12 H3.5 V7 H0 Z" fill="currentColor" />
+          </svg>
+          <small>{t().guide.nozzleNow}</small>
+        </span>
+      )}
+    </div>
+  );
+}
+
 function DoneCard({ on }: { on: TrainingHandlers }) {
   return (
     <Panel material="band" cut="md" trim="top" class="tr-panel tr-done" as="section" aria-label={t().panel.doneTitle} testId="training-done">
@@ -344,11 +396,12 @@ export function TrainingLayer({ d, on }: { d: TrainingUiData; on: TrainingHandle
       {d.cells.map((c, i) => (
         <span
           key={`${i}:${c.x}:${c.y}`}
-          class="tr-cell"
+          class={g?.turn ? 'tr-cell is-turn' : 'tr-cell'}
           data-testid="training-cell"
           style={cellStyle(c)}
         />
       ))}
+      {g?.turn && !g.completed && <TurnPrompt turn={g.turn} cell={d.cells[0]} />}
       {d.confirmSkip && (
         <Modal title={t().skip.title} confirmLabel={t().skip.confirm} cancelLabel={t().skip.cancel} cancelKey="Esc" onConfirm={on.confirmSkip} onCancel={on.cancelSkip}>
           {t().skip.body}

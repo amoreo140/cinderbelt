@@ -68,8 +68,10 @@ export interface TrainingGuide {
   reward: string | null;
   /** CSS selectors of the UI elements to point at. */
   highlight: string[];
-  /** Hangar cells to suggest (shipyard). */
+  /** Hangar cells to suggest (shipyard); with `turn` set they are the cells for the rotation still to be found. */
   cells: { x: number; y: number }[];
+  /** The part in hand needs another rotation first: `rot` it has, `want` the one that works (R turns it). */
+  turn: { kind: 'side' | 'reverse' | 'forward'; rot: Rotation; want: Rotation } | null;
 }
 
 /** A phase before its state is known: `done` comes from the simulation / UI checks. */
@@ -180,12 +182,16 @@ function installGuide(step: TrainingStepDef, ctx: TrainingContext, g: TrainingGu
     return { stage: 'pick', line: t().guide.pick(tx().parts[need.partId]) };
   }
   if (selected.tier !== 1) return { stage: 'pick', line: t().guide.tierOne };
-  if (need.rots && !need.rots.includes(yard.rot) && need.kind) {
-    g.highlight.push(byTestId('yard-ghost'));
-    return { stage: 'place', line: t().guide.rotate[need.kind] };
-  }
-  const cells = placementCells(yard.grid, yard.selected!, yard.rot, need.works).slice(0, need.rots ? 2 : 3);
+  const wrongRot = need.rots !== null && need.kind !== null && !need.rots.includes(yard.rot);
+  // the cells are shown even before the part is turned (they are the ones for the right rotation)
+  const rot = wrongRot ? need.rots![0]! : yard.rot;
+  const cells = placementCells(yard.grid, yard.selected!, rot, need.works).slice(0, need.rots ? 2 : 3);
   g.cells = cells.map((c) => ({ x: c.x, y: c.y }));
+  if (wrongRot) {
+    g.highlight.push(byTestId('yard-ghost'));
+    g.turn = { kind: need.kind!, rot: yard.rot, want: rot };
+    return { stage: 'place', line: t().guide.rotate[need.kind!] };
+  }
   return { stage: 'place', line: cells.length > 0 ? t().guide.placeOn : t().guide.placeAny };
 }
 
@@ -222,6 +228,7 @@ export function trainingGuide(state: SimState, ctx: TrainingContext): TrainingGu
     reward: rewardText(step, step.id === 'checklist' ? checklistChart(state) : null),
     highlight: [],
     cells: [],
+    turn: null,
   };
   const speed = length(player.body.vel);
   const raw: RawPhase[] = [];
