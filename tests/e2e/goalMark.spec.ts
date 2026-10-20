@@ -79,5 +79,19 @@ test('training: the goal marker names the buoy', async ({ page }, info) => {
   // the buoy is off screen or on it: either mark carries its name
   const mark = page.locator('[data-testid="goal-mark"], [data-testid="objective-arrow"]');
   await expect(mark.first()).toContainText('Bója Cechu', { timeout: 20_000 });
+  // the mark is drawn where the player can see it: clear of the bottom-centre training panel, or above it
+  // (the HUD is click-through, so elementFromPoint cannot tell; compare the stacking instead)
+  const label = mark.first().locator('.hud-goal-label, .hud-arrow-label');
+  await expect(label).toBeVisible();
+  const seen = await label.evaluate((el) => {
+    const b = el.getBoundingClientRect();
+    const panel = document.querySelector('[data-testid="training-panel"]')?.getBoundingClientRect();
+    const overlap = !!panel && b.left < panel.right && b.right > panel.left && b.top < panel.bottom && b.bottom > panel.top;
+    const z = (e: Element | null): number => Number(e ? getComputedStyle(e).zIndex : 0) || 0;
+    const markZ = z(el.closest('[data-testid="goal-mark"], [data-testid="objective-arrow"]'));
+    const layerZ = z(document.querySelector('[data-testid="training"]'));
+    return { overlap, above: markZ > layerZ };
+  });
+  expect(seen.overlap === false || seen.above).toBe(true);
   await page.screenshot({ path: info.outputPath('goal-training.png') });
 });

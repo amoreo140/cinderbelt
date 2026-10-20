@@ -223,6 +223,7 @@ export function flightHudRects(view: { width: number; height: number }, zones: H
   if (beside) rects.push({ x: 0, y: beside.y - LABEL_REACH.y, width: beside.width + LABEL_REACH.x, height: beside.height + 2 * LABEL_REACH.y });
   const top = zones.topCentre;
   if (top) rects.push({ x: top.x - TOP_CENTRE_PAD, y: 0, width: top.width + 2 * TOP_CENTRE_PAD, height: top.y + top.height + LABEL_REACH.y });
+  if (zones.training) rects.push(zones.training);
   const radio = zones.log;
   if (radio) {
     rects.push({ x: 0, y: radio.y - LABEL_REACH.y, width: radio.x + radio.width + LABEL_REACH.x, height: radio.height + 2 * LABEL_REACH.y });
@@ -313,6 +314,23 @@ function avoidTopCentre(a: EdgeArrow, view: { width: number }, zones: HudZones, 
   return { ...a, y: z.y + z.height + 24 };
 }
 
+/** An arrow plate reaches this far along the edge from its tip (the goal's label is ~180 px wide). */
+const TRAINING_PAD = 110;
+
+/**
+ * An arrow on the bottom edge under the training panel: slides along the edge to the side nearer to it
+ * (the console and radar rules then lift it off their corners).
+ */
+function avoidTraining(a: EdgeArrow, view: { width: number }, zones: HudZones): EdgeArrow {
+  const z = zones.training;
+  if (!z || a.y < z.y - ARROW_HALF) return a;
+  const left = z.x - TRAINING_PAD;
+  const right = z.x + z.width + TRAINING_PAD;
+  if (a.x < left || a.x > right) return a;
+  const candidates = [left, right].filter((x) => x > 0 && x < view.width).sort((p, q) => Math.abs(p - a.x) - Math.abs(q - a.x));
+  return candidates[0] === undefined ? { ...a, y: z.y - ARROW_HALF - 4 } : { ...a, x: candidates[0] };
+}
+
 /**
  * Moves the station or goal arrow (Hud) off the HUD panels: above the console, below the top-left
  * block (the navigation stack and the event chips – moving right would hit the toast in the centre),
@@ -322,7 +340,7 @@ function avoidTopCentre(a: EdgeArrow, view: { width: number }, zones: HudZones, 
 export function avoidHudPanels(arrow: EdgeArrow, view: { width: number; height: number }, helpOpen: boolean, zones: HudZones = currentHudZones()): EdgeArrow {
   const tl = topLeftZone(zones);
   const console = consoleZone(zones);
-  let a = arrow;
+  let a = avoidTraining(arrow, view, zones);
   let left = false;
   if (a.x < console.width && a.y > view.height - console.height) {
     a = { ...a, y: view.height - console.height };

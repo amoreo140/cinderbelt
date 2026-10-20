@@ -47,6 +47,12 @@ export const LEFT_COLUMN: { chipsBottom: number; chipsRight?: number; log: ZoneR
  */
 export const TOP_CENTRE: { zone: ZoneRect | null } = { zone: null };
 
+/**
+ * Bottom centre: the Guild Training step panel in flight (or its folded tab). TrainingLayer measures it;
+ * null = not shown. The goal arrow it asks the player to follow must not end up under it.
+ */
+export const TRAINING_PANEL: { zone: ZoneRect | null } = { zone: null };
+
 /** The measured HUD zones the edge arrows and the world callouts avoid. */
 export interface HudZones {
   nav: { width: number; height: number };
@@ -61,11 +67,13 @@ export interface HudZones {
   log?: ZoneRect | null;
   /** The threat band and the radio line at the top centre (null = none on screen). */
   topCentre?: ZoneRect | null;
+  /** The training step panel at the bottom centre (null = none on screen). */
+  training?: ZoneRect | null;
 }
 
 /** The zones as Hud measured them last. */
 export function currentHudZones(): HudZones {
-  return { nav: NAV_ZONE, topRight: TOP_RIGHT_ZONE, console: CONSOLE_ZONE, chipsBottom: LEFT_COLUMN.chipsBottom, chipsRight: LEFT_COLUMN.chipsRight, log: LEFT_COLUMN.log, topCentre: TOP_CENTRE.zone };
+  return { nav: NAV_ZONE, topRight: TOP_RIGHT_ZONE, console: CONSOLE_ZONE, chipsBottom: LEFT_COLUMN.chipsBottom, chipsRight: LEFT_COLUMN.chipsRight, log: LEFT_COLUMN.log, topCentre: TOP_CENTRE.zone, training: TRAINING_PANEL.zone };
 }
 
 /**

@@ -50,7 +50,7 @@ import {
   type ConsoleGaugesProps,
 } from './hudMemo';
 import { EdgeArrowLayer, type EdgeArrowMark } from './EdgeArrowLayer';
-import { CONSOLE_ZONE, CONSOLE_ZONE_DEFAULT, LEFT_COLUMN, NAV_ZONE, TOP_CENTRE, TOP_RIGHT_ZONE } from './hudZones';
+import { CONSOLE_ZONE, CONSOLE_ZONE_DEFAULT, LEFT_COLUMN, NAV_ZONE, TOP_CENTRE, TOP_RIGHT_ZONE, TRAINING_PANEL } from './hudZones';
 import { goalLabelFlips, goalText, sameGoalHud, type GoalHud } from './goalMark';
 import { LiveSlot, LiveText } from './liveText';
 import { flightHudRects, goalLabelOffset, placeHudArrows } from './edgeArrows';
@@ -488,7 +488,7 @@ const RadarRangePart = pure(function RadarRange({ range }: { range: number }) {
 });
 
 /** The measured panel zones as a string: the goal label's flip recomputes when they move. */
-const zonesKey = (): string => `${NAV_ZONE.width},${NAV_ZONE.height},${TOP_RIGHT_ZONE.width},${TOP_RIGHT_ZONE.height},${LEFT_COLUMN.chipsBottom},${LEFT_COLUMN.chipsRight ?? 0},${LEFT_COLUMN.log?.y ?? 0},${TOP_CENTRE.zone ? `${TOP_CENTRE.zone.x}:${TOP_CENTRE.zone.width}:${TOP_CENTRE.zone.height}` : 0}`;
+const zonesKey = (): string => `${NAV_ZONE.width},${NAV_ZONE.height},${TOP_RIGHT_ZONE.width},${TOP_RIGHT_ZONE.height},${LEFT_COLUMN.chipsBottom},${LEFT_COLUMN.chipsRight ?? 0},${LEFT_COLUMN.log?.y ?? 0},${TOP_CENTRE.zone ? `${TOP_CENTRE.zone.x}:${TOP_CENTRE.zone.width}:${TOP_CENTRE.zone.height}` : 0},${TRAINING_PANEL.zone ? `${TRAINING_PANEL.zone.x}:${TRAINING_PANEL.zone.width}:${TRAINING_PANEL.zone.y}` : 0}`;
 
 type HudArrowProps = { arrow: EdgeArrow & { label: string }; kind: 'station' | 'goal' };
 

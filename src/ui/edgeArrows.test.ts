@@ -215,6 +215,17 @@ describe('placeHudArrows', () => {
 describe('avoidHudPanels', () => {
   const arrow = (x: number, y: number) => ({ x, y, angle: Math.PI });
 
+  it('slides a bottom-edge arrow off the training panel along the edge', () => {
+    const panel = { x: 600, y: view.height - 300, width: 480, height: 285 };
+    const zones = { nav: column.nav, topRight: column.topRight, training: panel };
+    const a = avoidHudPanels(arrow(panel.x + 100, view.height - 40), view, false, zones);
+    expect(a.y).toBe(view.height - 40);
+    expect(a.x).toBeLessThan(panel.x);
+    // clear of the panel: left alone; the panel is also a zone the other arrows avoid
+    expect(avoidHudPanels(arrow(1300, view.height - 40), view, false, zones).x).toBe(1300);
+    expect(flightHudRects(view, zones)).toContainEqual(panel);
+  });
+
   it('moves an arrow under the stack below the event chips, not onto them', () => {
     const a = avoidHudPanels(arrow(40, 260), view, false, column);
     expect(a.y).toBeGreaterThan(298 + 8);

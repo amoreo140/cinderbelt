@@ -8,6 +8,7 @@ import type { TrainingCellBox, TrainingHandlers, TrainingUiData } from '../../ga
 import type { TrainingGuide } from '../../game/training/trainingView';
 import { formatInt } from '../format';
 import { KeyHint, Lamp, Modal, Panel } from '../theme';
+import { TRAINING_PANEL } from '../hudZones';
 import './training.css';
 
 const t = () => tx().training;
@@ -295,12 +296,39 @@ function cellStyle(c: TrainingCellBox): Record<string, string> {
   return { ...box, transformOrigin: '0 0', transform: `translate(${c.x.toFixed(1)}px, ${c.y.toFixed(1)}px) matrix(${m}, 0, 0) translate(-50%, -50%)` };
 }
 
+/**
+ * Publishes the in-flight panel's (or tab's) box to `TRAINING_PANEL` so the edge arrows step around it.
+ * Measured after each render and when the panel resizes.
+ */
+function usePanelZone(layer: { current: HTMLDivElement | null }, active: boolean): void {
+  useLayoutEffect(() => {
+    const root = layer.current;
+    const el = active && root ? root.querySelector<HTMLElement>('.tr-panel, .tr-tab') : null;
+    if (!el) {
+      TRAINING_PANEL.zone = null;
+      return;
+    }
+    const measure = (): void => {
+      const b = el.getBoundingClientRect();
+      TRAINING_PANEL.zone = b.width > 0 ? { x: Math.round(b.left), y: Math.round(b.top), width: Math.round(b.width), height: Math.round(b.height) } : null;
+    };
+    measure();
+    const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(measure) : null;
+    ro?.observe(el);
+    return () => {
+      ro?.disconnect();
+      TRAINING_PANEL.zone = null;
+    };
+  });
+}
+
 export function TrainingLayer({ d, on }: { d: TrainingUiData; on: TrainingHandlers }) {
   const g = d.guide;
   // combat dims the panel and folds it to one line (it stays on the screen)
   const collapsed = d.collapsed || !!g?.dimmed;
   const layer = useRef<HTMLDivElement>(null);
   useYardAnchor(layer, d.yard);
+  usePanelZone(layer, !!g && !d.docked && !d.yard);
   return (
     <div ref={layer} class={`tr-layer${d.docked ? ' is-docked' : ''}${d.yard ? ' is-yard' : ''}`} data-testid="training">
       {g && !collapsed && <StepPanel g={g} on={on} />}
