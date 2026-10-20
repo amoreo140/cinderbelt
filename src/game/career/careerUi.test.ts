@@ -61,8 +61,8 @@ describe('CareerUi data', () => {
     const { sim, ui } = setup();
     expect(ui.toast(sim.state, { type: 'contractCompleted', contractId: 1, reward: 900, rep: 20, part: 'engine:2' })?.text).toMatch(/900 kr.*Motor T2/);
     expect(ui.toast(sim.state, { type: 'repLevelUp', faction: 'guild', level: 2 })?.text).toMatch(/Cech: úroveň 2/);
-    expect(ui.toast(sim.state, { type: 'trainingStep', step: 'dockSell', index: 2, credits: 100, parts: { 'engine:1': 2 }, kit: false, stationId: 'home', done: false })?.text).toMatch(/100 kr.*2× Motor T1/);
-    expect(ui.toast(sim.state, { type: 'trainingStep', step: 'finishShip', index: 8, credits: 100, parts: {}, kit: false, stationId: 'home', done: true })?.text).toMatch(/pripravená/);
+    expect(ui.toast(sim.state, { type: 'trainingStep', step: 'dockSell', index: 2, credits: 100, parts: { 'engine:1': 2 }, kit: false, stationId: 'home', done: false })?.text).toBeUndefined();
+    expect(ui.toast(sim.state, { type: 'trainingStep', step: 'finishShip', index: 8, credits: 100, parts: {}, kit: false, stationId: 'home', done: true })?.text).toBeUndefined();
     expect(ui.toast(sim.state, { type: 'cargoFull' })).toBeNull();
   });
 });

@@ -332,6 +332,25 @@ async function shot(page: Page, name: string): Promise<void> {
   if (before && before.width !== FULL.width) await page.setViewportSize(before);
 }
 
+/** Screenshots at 1920×1080 and 1280×720; in flight the panel must not overlap the console or the radar. */
+async function layoutShot(page: Page, name: string, flying: boolean): Promise<void> {
+  const before = page.viewportSize();
+  for (const [w, h] of [[1920, 1080], [1280, 720]] as const) {
+    await page.setViewportSize({ width: w, height: h });
+    await waitTicks(page, 12);
+    await page.screenshot({ path: `${OUT}/m37-${name}-${w}.png` });
+    if (!flying) continue;
+    const panel = (await page.getByTestId('training-panel').boundingBox())!;
+    for (const sel of ['.hud-console', '.hud-radar']) {
+      const box = await page.locator(sel).first().boundingBox();
+      if (!box) continue;
+      const overlap = panel.x < box.x + box.width && panel.x + panel.width > box.x && panel.y < box.y + box.height && panel.y + panel.height > box.y;
+      expect(overlap, `${sel} overlaps the training panel at ${w}x${h}`).toBe(false);
+    }
+  }
+  if (before) await page.setViewportSize(before);
+}
+
 /**
  * Docked: do what the step panel says until the step changes – click the highlighted element, press
  * the key it shows (R rotates, G objectives), click the suggested hangar cell.
@@ -390,9 +409,12 @@ test('M3.7: the whole Guild Training through the real UI ends with the starter s
     ticksAt[id] = (await snap(page)).tick - startTick;
   };
   await expect(page.getByTestId('training-panel')).toContainText('Doleť k bóji Cechu');
-  // the Guild instructor speaks the step on the radio (comms part B); the panel keeps no prose
+  // the Guild instructor speaks the step on the radio (comms part B); the panel keeps its why text and checklist
   await expect(page.getByTestId('comm-speaker')).toHaveText('Majster Bartoš', { timeout: 20_000 });
-  await expect(page.getByTestId('training-panel').locator('.tr-note')).toHaveCount(0);
+  const phases = page.getByTestId('training-phase');
+  await expect(phases.first()).toHaveAttribute('data-state', /^(done|current|todo)$/);
+  expect(await phases.evaluateAll((els) => els.filter((e) => e.getAttribute('data-state') === 'current').length)).toBe(1);
+  await expect(page.locator('.tr-why')).not.toBeEmpty();
   // the training hull: a forward and a reverse engine (S brakes, the dampers work along the bow)
   expect(await page.evaluate(() => window.__cinder!.sim.state.player.props.thrust)).toEqual({ forward: 90, backward: 90, left: 0, right: 0 });
   await expect(page.getByTestId('training-highlight')).toHaveAttribute('data-target', '[data-testid="undock"]');
@@ -405,10 +427,18 @@ test('M3.7: the whole Guild Training through the real UI ends with the starter s
   await shot(page, '02-fly-buoy');
   await expect(page.getByTestId('training-panel')).toContainText('Doleť k bóji Cechu');
   await expect(page.getByTestId('training-panel').locator('.tr-lines li.is-now')).toContainText('Doleť k bóji Cechu');
+  // in flight the panel sits at the bottom centre, clear of the console and the radar
+  await expect(page.getByTestId('training-distance')).toHaveText(/^\d+ j$/);
+  await layoutShot(page, '02-fly-buoy', true);
   await small(page);
   const sites = start.sites!;
   await flyTo(page, () => sites.buoyA, { stop: false, cruise: 12, done: (s) => s.step !== 'flyBuoy' });
   await mark('flyBuoy');
+  // the finished step stays on the panel for a moment: all phases done and the Done badge
+  await expect(page.getByTestId('training-completed')).toBeVisible({ timeout: 10_000 });
+  expect(await page.getByTestId('training-phase').evaluateAll((els) => els.every((e) => e.getAttribute('data-state') === 'done'))).toBe(true);
+  await expect(page.getByTestId('training-completed')).toHaveCount(0, { timeout: 30_000 });
+  await expect(page.getByTestId('training-title')).toContainText('Vyťaž 20');
 
   // 2 – mine 20 iron at the training rock (stop in front of it, aim the mouse, hold the right button)
   await stepIs(page, 'mineIron');
@@ -452,6 +482,7 @@ test('M3.7: the whole Guild Training through the real UI ends with the starter s
   await shot(page, '05-go-dock');
   await dockHome(page);
   await shot(page, '06-docked-sell');
+  await layoutShot(page, '06-docked-sell', false);
   await followGuide(page, 'dockSell');
   await mark('dockSell');
 
@@ -527,6 +558,11 @@ test('M3.7: the whole Guild Training through the real UI ends with the starter s
   expect(end.storage).toEqual({ 'armor:1': 2, 'cannon:1': 1 });
   await expect(page.getByTestId('training-done')).toBeVisible();
   await shot(page, '23-done');
+  // the card no longer times out: still there well after the old 14 s
+  await waitTicks(page, 16 * 60);
+  await expect(page.getByTestId('training-done')).toBeVisible();
+  await page.getByTestId('training-done-close').click();
+  await expect(page.getByTestId('training-done')).toHaveCount(0);
   // the comm log (L) keeps the instructor's last words (the shipyard editor hides the radio: leave it first)
   await page.getByTestId('tab-overview').click();
   await page.keyboard.press('KeyL');

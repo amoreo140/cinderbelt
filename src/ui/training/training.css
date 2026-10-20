@@ -24,7 +24,7 @@
   padding: 0.55rem 0.8rem 0.6rem;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.5rem;
   pointer-events: auto;
   color: var(--af-text);
   animation: tr-drop var(--af-dur-hatch) var(--af-ease-clamp);
@@ -32,9 +32,84 @@
 .tr-layer.is-docked .tr-panel {
   top: var(--af-edge);
 }
+/* in flight: bottom centre, between the console (left) and the radar (right) */
+.tr-layer:not(.is-docked) .tr-panel {
+  top: auto;
+  bottom: var(--af-edge);
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: min(40rem, calc(100vw - 2rem));
+}
+/* narrower than ~1900 px the console (left) and the radar with the scanner (right) leave no room for a
+   centred panel, and a wide one would cover the middle of the view: it keeps the top-left corner under the
+   navigation band, as before */
+@media (max-width: 1899px) {
+  .tr-layer:not(.is-docked) .tr-panel {
+    top: calc(var(--hud-nav-bottom, var(--af-edge) + 5.2rem) + 0.4rem);
+    bottom: auto;
+    left: var(--af-edge);
+    right: auto;
+    margin: 0;
+    width: min(29rem, calc(100vw - 2rem));
+    gap: 0.4rem;
+  }
+  .tr-layer:not(.is-docked) button.tr-tab {
+    top: calc(var(--hud-nav-bottom, var(--af-edge) + 5.2rem) + 0.4rem);
+    bottom: auto;
+    left: var(--af-edge);
+    right: auto;
+    margin: 0;
+    max-width: 29rem;
+  }
+}
+.tr-panel.is-completed {
+  box-shadow: inset 0 0 0 1px var(--af-ok);
+}
 /* the shipyard editor fills the hub: the panel sits in the hangar view's corner (placed by script) */
 .tr-layer.is-yard .tr-panel {
   width: min(19.5rem, calc(100vw - 2 * var(--af-edge)));
+}
+
+/* the shipyard's narrow column: compact type, no track (the step count says it) */
+.tr-layer.is-yard .tr-panel {
+  gap: 0.3rem;
+  padding: 0.45rem 0.65rem 0.5rem;
+}
+.tr-layer.is-yard .tr-track {
+  display: none;
+}
+.tr-layer.is-yard .tr-head {
+  gap: 0.4rem;
+}
+.tr-layer.is-yard .tr-skip {
+  font-size: var(--af-fs-xs);
+}
+.tr-layer.is-yard .tr-head {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+.tr-layer.is-yard .tr-title {
+  font-size: 1.05rem;
+}
+.tr-layer.is-yard .tr-why,
+.tr-layer.is-yard .tr-note {
+  font-size: 0.78rem;
+}
+.tr-layer.is-yard .tr-lines li,
+.tr-layer.is-yard .tr-lines .af-keyhint,
+.tr-layer.is-yard .tr-lines li.is-todo,
+.tr-layer.is-yard .tr-lines li.is-todo .af-keyhint {
+  font-size: 0.8125rem;
+}
+.tr-layer.is-yard .tr-lines li {
+  padding: 0.1rem 0.35rem;
+}
+.tr-layer.is-yard .tr-badge {
+  font-size: var(--af-fs-xs);
+  padding: 0.05rem 0.4rem;
+}
+.tr-skip {
+  white-space: nowrap;
 }
 
 @keyframes tr-drop {
@@ -47,6 +122,7 @@
 .tr-head {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto auto;
+  min-height: 1.4rem;
   align-items: center;
   gap: 0.6rem;
 }
@@ -66,7 +142,7 @@
 .tr-track {
   display: flex;
   gap: 3px;
-  height: 0.55rem;
+  height: 0.6rem;
   min-width: 0;
   overflow: hidden;
   padding: 0 2px;
@@ -117,9 +193,39 @@
   font-family: var(--af-font-display);
   font-stretch: var(--af-stretch-control);
   font-weight: 750;
-  font-size: var(--af-fs-xl);
+  font-size: 1.5rem;
   line-height: var(--af-lh-tight);
   letter-spacing: 0.005em;
+}
+.tr-titlebar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.tr-badge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.1rem 0.55rem;
+  background: var(--af-ok);
+  color: #07210f;
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  font-weight: 750;
+  font-size: var(--af-fs-md);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+}
+.tr-badge .tr-check {
+  color: inherit;
+}
+.tr-check {
+  flex: none;
+  width: 0.85rem;
+  height: 0.85rem;
+  color: var(--af-ok);
 }
 
 .tr-lines {
@@ -128,34 +234,67 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.15rem;
 }
 .tr-lines li {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  font-size: var(--af-fs-md);
+  gap: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 1rem;
   line-height: var(--af-lh-tight);
 }
 .tr-lines .af-keyhint {
-  font-size: var(--af-fs-md);
+  font-size: 1rem;
 }
 .tr-lines li.is-done {
   color: var(--af-text-dim);
 }
-.tr-lines li.is-done span:last-child {
+.tr-lines li.is-done .tr-phase-text {
   text-decoration: line-through;
   text-decoration-color: rgba(147, 160, 179, 0.6);
+}
+.tr-lines li.is-now {
+  background: rgba(242, 122, 44, 0.14);
+  box-shadow: inset 3px 0 0 var(--af-trim);
+  font-weight: 650;
+}
+.tr-lines li.is-todo {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+.tr-lines li.is-todo .af-keyhint {
+  font-size: 0.9rem;
 }
 
 .tr-why {
   margin: 0;
-  font-size: var(--af-fs-sm);
+  font-size: 1rem;
   line-height: var(--af-lh);
   color: var(--af-text-dim);
 }
 .tr-lines li.is-todo {
   color: var(--af-text-dim);
+}
+.tr-hintrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.tr-heading {
+  flex: none;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--af-glow);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--af-fs-lg);
+}
+.tr-chevron {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .tr-note {
@@ -193,11 +332,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding-top: 0.4rem;
+  padding-top: 0.35rem;
   border-top: 1px solid var(--af-seam-dark);
 }
 .tr-reward {
-  font-size: var(--af-fs-sm);
+  font-size: var(--af-fs-md);
   color: var(--af-warn);
   min-width: 0;
 }
@@ -238,6 +377,25 @@
 }
 .tr-layer.is-docked .tr-tab {
   top: var(--af-edge);
+}
+.tr-layer:not(.is-docked) .tr-tab {
+  top: auto;
+  bottom: var(--af-edge);
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: fit-content;
+  max-width: calc(100vw - 2rem);
+}
+.tr-tab-title {
+  font-weight: 650;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tr-tab.is-dimmed {
+  opacity: 0.5;
 }
 
 /* ───────────── highlight: a trim clamp with a stencil tag ───────────── */
@@ -323,6 +481,7 @@
 
 /* a narrow screen: the panel takes the width */
 @media (max-width: 40rem) {
+  .tr-layer:not(.is-docked) .tr-panel,
   .tr-panel,
   .tr-layer.is-yard .tr-panel {
     left: var(--af-edge);

@@ -1000,7 +1000,7 @@ export class Game {
     const events = this.sim.step(cmd);
     if (cmd.actions.length > 0 || events.length > 0) this.simEpoch++;
     this.renderer.onSimEvents(events);
-    this.training.onEvents(events, this.clock);
+    this.training.onEvents(events);
     // the communicator speaks first: events it voiced lose their toast
     this.spoken = this.comms.onStep(this.sim.state, events, { toastOf: (e) => this.toastText(e), dockStation: () => this.clampStation() });
     const unspoken = this.spoken.size > 0 ? events.filter((e) => !this.spoken.has(e)) : events;
@@ -1400,7 +1400,8 @@ export class Game {
     const dock = this.sim.state.player.dock;
     const station = dock.mode === 'docked' ? this.sim.station(dock.stationId) : null;
     const state = this.sim.state;
-    const trainingCtx = this.trainingContext();
+    const hud = station ? null : this.hudData();
+    const trainingCtx = this.trainingContext(hud);
     this.training.update(state, { mapOpen: trainingCtx.mapOpen, objectivesOpen: this.career.panel === 'objectives' });
     if (!station) this.flightHudWarm = true;
     else if (!this.flightHudWarm) this.warmFlightHudLater();
@@ -1409,7 +1410,7 @@ export class Game {
     renderGameUi(
       this.uiElement,
       {
-        hud: station ? null : this.hudData(),
+        hud,
         hub: station ? this.hubData(station) : null,
         toast,
         career: this.career.uiData(state, this.clock, !station),
@@ -1500,7 +1501,7 @@ export class Game {
   }
 
   /** The UI situation the training guidance depends on (M3.7). */
-  private trainingContext(): TrainingContext {
+  private trainingContext(hud: HudData | null): TrainingContext {
     const state = this.sim.state;
     const docked = this.docked;
     const yard = this.yardOpen ? this.yard : null;
@@ -1510,7 +1511,8 @@ export class Game {
       yard: yard ? { selected: yard.selected, rot: yard.rot, grid: yard.draft.grid, dirty: yard.dirty } : null,
       mapOpen: this.mapOpen && !docked,
       inCombat: state.combat.enemies.some((e) => e.ai.mode === 'attack'),
-      radio: this.comms.allows('training'),
+      // in flight the goal is the training target: the panel shows its live distance and direction
+      target: hud?.goal ? { distance: hud.goal.distance, bearing: hud.goal.bearing } : null,
     };
   }
 

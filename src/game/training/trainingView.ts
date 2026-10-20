@@ -34,8 +34,6 @@ export interface TrainingContext {
   yard: { selected: PartKey | null; rot: Rotation; grid: ShipGrid; dirty: boolean } | null;
   mapOpen: boolean;
   inCombat: boolean;
-  /** Unused (the panel keeps its text regardless of the radio); set by Game.ts and will be removed. */
-  radio?: boolean;
   /** Live distance (u) and screen bearing (rad) to the step's target; filled by the Game (null until then). */
   target?: { distance: number; bearing: number } | null;
 }
@@ -62,6 +60,8 @@ export interface TrainingGuide {
   dimmed: boolean;
   /** Live distance (u) and screen bearing (rad) to the step's target, copied from the context. */
   target: { distance: number; bearing: number } | null;
+  /** The step just finished: the panel shows it all done for a moment ("Done"). Set by TrainingUi. */
+  completed?: boolean;
   progress: { value: number; max: number } | null;
   reward: string | null;
   /** CSS selectors of the UI elements to point at. */

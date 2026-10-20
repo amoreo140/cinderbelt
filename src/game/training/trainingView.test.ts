@@ -32,10 +32,10 @@ describe('training guide – flight and dock', () => {
 
   it('with the instructor on the radio the panel keeps the why text and the hints', () => {
     const sim = trainingSim(1337);
-    const docked = trainingGuide(sim.state, ctx({ radio: true }))!;
+    const docked = trainingGuide(sim.state, ctx())!;
     expect(docked.why).toMatch(/cvičný trup/);
     undock(sim);
-    const flying = trainingGuide(sim.state, ctx({ tab: null, radio: true }))!;
+    const flying = trainingGuide(sim.state, ctx({ tab: null }))!;
     expect(flying.phases.map((p) => p.state)).toEqual(['done', 'current']);
     expect(flying.why).toBe(docked.why);
     expect(flying.hint).toMatch(/Tlmiče/);
@@ -44,7 +44,7 @@ describe('training guide – flight and dock', () => {
     at(sim, 'brakeBuoy');
     teleport(sim, sim.state.career.training.sites!.buoyB);
     sim.state.player.body.vel = { x: 3, y: 0 };
-    expect(trainingGuide(sim.state, ctx({ tab: null, radio: true }))!.hint).toMatch(/zastav pod 1,5/);
+    expect(trainingGuide(sim.state, ctx({ tab: null }))!.hint).toMatch(/zastav pod 1,5/);
   });
 
   it('stays in combat, dimmed', () => {

@@ -6,6 +6,7 @@ import { useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import { tx } from '../../i18n';
 import type { TrainingCellBox, TrainingHandlers, TrainingUiData } from '../../game/training/trainingUi';
 import type { TrainingGuide } from '../../game/training/trainingView';
+import { formatInt } from '../format';
 import { KeyHint, Lamp, Modal, Panel } from '../theme';
 import './training.css';
 
@@ -22,40 +23,81 @@ function Track({ index, total, label }: { index: number; total: number; label: s
   );
 }
 
+/** A tick in a done row. */
+function Check() {
+  return (
+    <svg class="tr-check" viewBox="0 0 12 12" aria-hidden="true">
+      <path d="M2 6.5 5 9.5 10.5 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" />
+    </svg>
+  );
+}
+
+/** Live distance to the step's target and a chevron towards it (bearing in screen space, 0 = right). */
+function Heading({ target }: { target: NonNullable<TrainingGuide['target']> }) {
+  const deg = (target.bearing * 180) / Math.PI;
+  return (
+    <span class="tr-heading" data-testid="training-distance">
+      <b>
+        {formatInt(Math.round(target.distance))} {tx().hud.distanceUnit}
+      </b>
+      <svg class="tr-chevron" viewBox="0 0 16 16" aria-hidden="true" style={{ transform: `rotate(${deg.toFixed(1)}deg)` }}>
+        <path d="M2 8h10M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" />
+      </svg>
+    </span>
+  );
+}
+
 function StepPanel({ g, on }: { g: TrainingGuide; on: TrainingHandlers }) {
   return (
-    <Panel material="band" cut="md" trim="top" class="tr-panel" as="section" aria-label={t().title} testId="training-panel">
+    <Panel material="band" cut="md" trim="top" class={`tr-panel${g.completed ? ' is-completed' : ''}`} as="section" aria-label={t().title} testId="training-panel">
       <header class="tr-head">
-        <span class="af-label tr-kicker">{t().title}</span>
-        <Track index={g.index} total={g.total} label={g.stepLabel} />
-        <span class="tr-count" data-testid="training-step">
-          {g.stepLabel}
+        <span class="af-label tr-kicker">
+          {t().title} ·{' '}
+          <span class="tr-count" data-testid="training-step">
+            {g.stepLabel}
+          </span>
         </span>
-        <button type="button" class="tr-icon" onClick={on.toggle} aria-label={t().panel.hide} title={t().panel.hide}>
+        <Track index={g.completed ? g.index + 1 : g.index} total={g.total} label={g.stepLabel} />
+        <button type="button" class="tr-skip" onClick={on.skip} data-testid="training-skip">
+          {t().panel.skip}
+        </button>
+        <button type="button" class="tr-icon" onClick={on.toggle} aria-label={t().panel.hide} title={t().panel.hide} data-testid="training-hide">
           <span aria-hidden="true" />
         </button>
       </header>
-      <h2 class="tr-title" data-testid="training-title">
-        {g.title}
-      </h2>
+      <div class="tr-titlebar">
+        <h2 class="tr-title" data-testid="training-title">
+          {g.title}
+        </h2>
+        {g.completed && (
+          <span class="tr-badge" data-testid="training-completed">
+            <Check /> {t().panel.completed}
+          </span>
+        )}
+      </div>
       <p class="tr-why">{g.why}</p>
       {g.phases.length > 0 && (
         <ul class="tr-lines">
           {g.phases.map((p, i) => (
-            <li key={i} class={p.state === 'done' ? 'is-done' : p.state === 'current' ? 'is-now' : 'is-todo'}>
-              <Lamp state={p.state === 'done' ? 'ok' : p.state === 'current' ? 'warn' : 'off'} />
+            <li key={i} class={p.state === 'done' ? 'is-done' : p.state === 'current' ? 'is-now' : 'is-todo'} data-testid="training-phase" data-state={p.state}>
+              {p.state === 'done' ? <Check /> : <Lamp state={p.state === 'current' ? 'warn' : 'off'} />}
               {p.state !== 'done' && p.keys.length > 0 ? (
                 <KeyHint keys={p.keys} dark>
                   {p.text}
                 </KeyHint>
               ) : (
-                <span>{p.text}</span>
+                <span class="tr-phase-text">{p.text}</span>
               )}
             </li>
           ))}
         </ul>
       )}
-      {g.hint && <p class="tr-note">{g.hint}</p>}
+      {(g.hint || g.target) && (
+        <div class="tr-hintrow">
+          {g.hint && <p class="tr-note">{g.hint}</p>}
+          {g.target && <Heading target={g.target} />}
+        </div>
+      )}
       {g.progress && (
         <div class="tr-progress" role="meter" aria-label={t().panel.progress} aria-valuemin={0} aria-valuemax={g.progress.max} aria-valuenow={Math.floor(g.progress.value)}>
           <span class="tr-progress-bar">
@@ -66,12 +108,11 @@ function StepPanel({ g, on }: { g: TrainingGuide; on: TrainingHandlers }) {
           </b>
         </div>
       )}
-      <footer class="tr-foot">
-        {g.reward && <span class="tr-reward">{g.reward}</span>}
-        <button type="button" class="tr-skip" onClick={on.skip} data-testid="training-skip">
-          {t().panel.skip}
-        </button>
-      </footer>
+      {g.reward && (
+        <footer class="tr-foot">
+          <span class="tr-reward">{g.reward}</span>
+        </footer>
+      )}
     </Panel>
   );
 }
@@ -157,7 +198,7 @@ function DoneCard({ on }: { on: TrainingHandlers }) {
         <KeyHint keys={t().panel.next.keys} dark>
           {t().panel.next.text}
         </KeyHint>
-        <button type="button" class="tr-skip" onClick={on.closeDone}>
+        <button type="button" class="tr-skip" onClick={on.closeDone} data-testid="training-done-close">
           {t().panel.close}
         </button>
       </footer>
@@ -256,16 +297,18 @@ function cellStyle(c: TrainingCellBox): Record<string, string> {
 
 export function TrainingLayer({ d, on }: { d: TrainingUiData; on: TrainingHandlers }) {
   const g = d.guide;
+  // combat dims the panel and folds it to one line (it stays on the screen)
+  const collapsed = d.collapsed || !!g?.dimmed;
   const layer = useRef<HTMLDivElement>(null);
   useYardAnchor(layer, d.yard);
   return (
     <div ref={layer} class={`tr-layer${d.docked ? ' is-docked' : ''}${d.yard ? ' is-yard' : ''}`} data-testid="training">
-      {g && !d.collapsed && <StepPanel g={g} on={on} />}
-      {g && d.collapsed && (
-        <button type="button" class="tr-tab af-cut2" onClick={on.toggle} data-testid="training-show">
+      {g && !collapsed && <StepPanel g={g} on={on} />}
+      {g && collapsed && (
+        <button type="button" class={`tr-tab af-cut2${g.dimmed ? ' is-dimmed' : ''}`} onClick={on.toggle} data-testid="training-show" title={t().panel.show}>
           <Lamp state="warn" />
-          <span>{t().panel.show}</span>
-          <b>{g.stepLabel}</b>
+          <span class="tr-tab-title">{g.title}</span>
+          {g.target && <Heading target={g.target} />}
         </button>
       )}
       {!g && d.done && <DoneCard on={on} />}

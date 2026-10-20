@@ -70,9 +70,6 @@ export interface TrainingTexts {
     speed: (v: string) => string;
   };
   toast: {
-    step: (credits: string, parts: string) => string;
-    stepCredits: (credits: string) => string;
-    done: string;
     skippedFitted: string;
     skippedStored: (station: string) => string;
   };
@@ -87,6 +84,8 @@ export interface TrainingTexts {
     /** The tag on a highlighted UI element. */
     here: string;
     close: string;
+    /** The panel's state for a moment after a step is done. */
+    completed: string;
   };
   skip: {
     title: string;
@@ -176,9 +175,6 @@ export const skTraining: TrainingTexts = {
     speed: (v) => `${v} j/s`,
   },
   toast: {
-    step: (credits, parts) => `Výcvik: krok splnený · +${credits} · ${parts} v sklade`,
-    stepCredits: (credits) => `Výcvik: krok splnený · +${credits}`,
-    done: 'Výcvik hotový – loď je pripravená. Kontrakty nájdeš na Tabuli stanice.',
     skippedFitted: 'Výcvik preskočený – Cech ti namontoval celú loď.',
     skippedStored: (station) => `Výcvik preskočený – zvyšné diely čakajú v sklade stanice ${station}.`,
   },
@@ -192,6 +188,7 @@ export const skTraining: TrainingTexts = {
     progress: 'Postup',
     here: 'Sem',
     close: 'Zavrieť',
+    completed: 'Splnené',
   },
   skip: {
     title: 'Preskočiť výcvik?',

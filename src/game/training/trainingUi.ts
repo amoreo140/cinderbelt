@@ -7,15 +7,13 @@ import type { GameActionInput } from '../../sim/commands';
 import type { SimEvent, SimState } from '../../sim/Simulation';
 import { currentTrainingStep } from '../../sim/training/training';
 import type { ToastKind } from '../../ui/GameUi';
-import { formatCredits } from '../../ui/format';
 import { stationLabel } from '../board/names';
-import { formatParts } from '../shipyardView';
 import { trainingCallouts, trainingGuide, type TrainingCallout, type TrainingContext, type TrainingGuide } from './trainingView';
 
 const t = () => tx().training;
 
-/** How long the "ship is ready" card stays after the last step (s). */
-const DONE_CARD_SECONDS = 14;
+/** How long the finished step stays on the panel (all phases done, "Done") before the next step shows (game s). */
+const COMPLETED_HOLD_SECONDS = 2;
 
 export interface TrainingUiHost {
   state(): SimState;
@@ -62,7 +60,11 @@ export interface TrainingHandlers {
 export class TrainingUi {
   private confirmOpen = false;
   private collapsed = false;
-  private doneUntil = -Infinity;
+  /** The "ship is ready" card stays until the player closes it. */
+  private doneOpen = false;
+  /** The last live guide, and the finished step held for COMPLETED_HOLD_SECONDS after the step advanced. */
+  private lastGuide: TrainingGuide | null = null;
+  private held: { guide: TrainingGuide; until: number } | null = null;
   /** Step index and checklist bit already reported (no repeated actions while the sim catches up). */
   private sent = { step: -1, bits: 0 };
   readonly handlers: TrainingHandlers;
@@ -86,10 +88,7 @@ export class TrainingUi {
         this.collapsed = !this.collapsed;
         this.host.render();
       },
-      closeDone: () => {
-        this.doneUntil = -Infinity;
-        this.host.render();
-      },
+      closeDone: () => this.closeDoneCard(),
     };
   }
 
@@ -105,11 +104,28 @@ export class TrainingUi {
     return this.confirmOpen;
   }
 
-  /** Esc closes the confirmation; returns true when it took the key. */
+  /** Closes the "ship is ready" card. */
+  closeDoneCard(): void {
+    if (!this.doneOpen) return;
+    this.doneOpen = false;
+    this.host.render();
+  }
+
+  get doneCardOpen(): boolean {
+    return this.doneOpen;
+  }
+
+  /** Esc closes the confirmation first, then the done card; returns true when it took the key. */
   onKey(code: string): boolean {
-    if (!this.confirmOpen) return false;
-    if (code === 'Escape') this.handlers.cancelSkip();
-    return true;
+    if (this.confirmOpen) {
+      if (code === 'Escape') this.handlers.cancelSkip();
+      return true;
+    }
+    if (this.doneOpen && code === 'Escape') {
+      this.closeDoneCard();
+      return true;
+    }
+    return false;
   }
 
   /** Reports what the player looked at during the checklist step (once per item). */
@@ -127,11 +143,30 @@ export class TrainingUi {
     report(CHECK_OBJECTIVES, ctx.objectivesOpen, 'objectives');
   }
 
-  onEvents(events: readonly SimEvent[], clock: number): void {
+  onEvents(events: readonly SimEvent[]): void {
     for (const e of events) {
-      if (e.type === 'trainingStep' && e.done) this.doneUntil = clock + DONE_CARD_SECONDS;
-      if (e.type === 'trainingSkipped') this.confirmOpen = false;
+      if (e.type === 'trainingStep' && e.done) this.doneOpen = true;
+      if (e.type === 'trainingSkipped') {
+        this.confirmOpen = false;
+        this.doneOpen = false;
+      }
     }
+  }
+
+  /** The live guide, or – for COMPLETED_HOLD_SECONDS after the step advanced – the finished step with every phase done. */
+  private shownGuide(live: TrainingGuide | null, clock: number): TrainingGuide | null {
+    const prev = this.lastGuide;
+    this.lastGuide = live;
+    if (!live) {
+      this.held = null;
+      return null;
+    }
+    if (prev && live.index > prev.index) {
+      this.held = { guide: { ...prev, phases: prev.phases.map((p) => ({ ...p, state: 'done' as const })), completed: true }, until: clock + COMPLETED_HOLD_SECONDS };
+    }
+    if (this.held && clock < this.held.until) return this.held.guide;
+    this.held = null;
+    return live;
   }
 
   callouts(state: SimState): TrainingCallout[] {
@@ -139,12 +174,13 @@ export class TrainingUi {
   }
 
   uiData(state: SimState, ctx: TrainingContext, clock: number, cellToScreen: ((x: number, y: number) => TrainingCellBox) | null): TrainingUiData | null {
-    const guide = trainingGuide(state, ctx);
-    const done = !guide && clock < this.doneUntil && !ctx.inCombat;
+    const live = trainingGuide(state, ctx);
+    const guide = this.shownGuide(live, clock);
+    const done = !live && this.doneOpen && !ctx.inCombat;
     if (!guide && !done && !this.confirmOpen) return null;
     return {
       guide,
-      cells: guide && cellToScreen ? guide.cells.map((c) => cellToScreen(c.x, c.y)) : [],
+      cells: live && cellToScreen ? live.cells.map((c) => cellToScreen(c.x, c.y)) : [],
       confirmSkip: this.confirmOpen,
       collapsed: this.collapsed,
       done,
@@ -154,14 +190,8 @@ export class TrainingUi {
   }
 }
 
-/** Toast of a training event. */
+/** Toast of a training event: only the skip (the step panel and the done card cover the rest). */
 export function trainingToast(state: SimState, e: SimEvent): { text: string; kind: ToastKind; seconds: number } | null {
-  if (e.type === 'trainingStep') {
-    if (e.done) return { text: t().toast.done, kind: 'ok', seconds: 6 };
-    const parts = formatParts(e.parts);
-    const credits = formatCredits(e.credits);
-    return { text: parts ? t().toast.step(credits, parts) : t().toast.stepCredits(credits), kind: 'ok', seconds: parts ? 5 : 3 };
-  }
   if (e.type === 'trainingSkipped') {
     return { text: e.assembled ? t().toast.skippedFitted : t().toast.skippedStored(stationLabel(state.seed, e.stationId)), kind: 'info', seconds: 6 };
   }

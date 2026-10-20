@@ -73,9 +73,6 @@ export const enTraining: TrainingTexts = {
     speed: (v) => `${v} u/s`,
   },
   toast: {
-    step: (credits, parts) => `Training: step done · +${credits} · ${parts} in the storage`,
-    stepCredits: (credits) => `Training: step done · +${credits}`,
-    done: 'Training complete – your ship is ready. Contracts are on the station Board.',
     skippedFitted: 'Training skipped – the Guild fitted your whole ship.',
     skippedStored: (station) => `Training skipped – the remaining parts wait in the storage of ${station}.`,
   },
@@ -89,6 +86,7 @@ export const enTraining: TrainingTexts = {
     progress: 'Progress',
     here: 'Here',
     close: 'Close',
+    completed: 'Done',
   },
   skip: {
     title: 'Skip the training?',
