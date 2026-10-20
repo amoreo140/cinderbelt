@@ -18,14 +18,10 @@ export interface TrainingTexts {
   /** Instruction lines by situation. */
   guide: {
     undock: GuideLine;
-    fly: GuideLine;
-    turn: GuideLine;
     /** Flight note: the dampers brake along the bow, a sideways drift stays (no side engines yet). */
     inertia: string;
     mine: GuideLine;
     vein: string;
-    /** S – the reverse engine brakes. */
-    brake: GuideLine;
     tooFastToMine: string;
     /** Docking (taught as the manoeuvre at the dock clamp: slow, bow to the station, F). */
     goDock: readonly GuideLine[];
@@ -42,8 +38,6 @@ export interface TrainingTexts {
     commit: GuideLine;
     /** "Engine T1 is in the storage of Spring station" – the parts wait at another station. */
     partsAt: (station: string) => string;
-    /** Brake step: with the side engines on, the dampers stop the ship. */
-    dampers: GuideLine;
     stopHere: (speed: string) => string;
     /** Crafting. */
     openCrafting: GuideLine;
@@ -127,12 +121,9 @@ export const skTraining: TrainingTexts = {
   },
   guide: {
     undock: { keys: ['F'], text: 'Odleť zo stanice' },
-    fly: { keys: ['W'], text: 'plyn' },
-    turn: { keys: ['A', 'D'], text: 'otáčanie' },
     inertia: 'Tlmiče (Z) brzdia samy, keď pustíš plyn. Šmyk do strán zastavia len pomaly manévrovacie trysky kokpitu – bočné motory loď ešte nemá.',
     mine: { keys: ['Pravé tlačidlo'], text: 'drž kurzor na kameni – ťaží laser' },
     vein: 'Mier na svietiacu žilu: ťaží sa o polovicu rýchlejšie.',
-    brake: { keys: ['S'], text: 'brzdenie spätným motorom' },
     tooFastToMine: 'Laser dočiahne len kúsok – priblíž sa a spomaľ.',
     goDock: [
       { keys: [], text: 'Prileť pomaly k dokovacej svorke na konci ramena' },
@@ -153,7 +144,6 @@ export const skTraining: TrainingTexts = {
     placeAny: { keys: [], text: 'Klikni na voľné miesto vedľa trupu' },
     commit: { keys: ['Enter'], text: 'Potvrď zmeny' },
     partsAt: (station) => `Diely čakajú v sklade stanice ${station}.`,
-    dampers: { keys: ['Z'], text: 'tlmiče (zapnuté): pusti plyn a loď zastaví aj šmyk do strán' },
     stopHere: (speed) => `Rýchlosť ${speed} – zastav pod 1,5 j/s`,
     openCrafting: { keys: ['3'], text: 'Otvor Výrobu' },
     pickRecipe: (part) => ({ keys: [], text: `Vyber ${part}` }),

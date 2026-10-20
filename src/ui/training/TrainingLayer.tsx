@@ -41,8 +41,8 @@ function StepPanel({ g, on }: { g: TrainingGuide; on: TrainingHandlers }) {
       <p class="tr-why">{g.why}</p>
       {g.phases.length > 0 && (
         <ul class="tr-lines">
-          {g.phases.map((p) => (
-            <li key={p.text} class={p.state === 'done' ? 'is-done' : p.state === 'current' ? 'is-now' : 'is-todo'}>
+          {g.phases.map((p, i) => (
+            <li key={i} class={p.state === 'done' ? 'is-done' : p.state === 'current' ? 'is-now' : 'is-todo'}>
               <Lamp state={p.state === 'done' ? 'ok' : p.state === 'current' ? 'warn' : 'off'} />
               {p.state !== 'done' && p.keys.length > 0 ? (
                 <KeyHint keys={p.keys} dark>

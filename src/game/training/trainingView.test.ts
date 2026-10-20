@@ -193,6 +193,15 @@ describe('training guide – the shipyard, step by step', () => {
     expect(trainingGuide(sim.state, ctx({ tab: 'crafting', craftKey: 'cargo:1' }))!.highlight).toEqual(['[data-testid="tab-shipyard"]']);
   });
 
+  it('the crafted cargo hold keeps the craft phases done after undocking', () => {
+    const sim = trainingSim(1337);
+    at(sim, 'craftCargo');
+    sim.state.stations.get(HOME_STATION_ID)!.parts['cargo:1'] = 1;
+    undock(sim);
+    const g = trainingGuide(sim.state, ctx({ tab: null }))!;
+    expect(g.phases.map((p) => p.state)).toEqual(['current', 'done', 'done', 'done', 'todo', 'todo', 'todo']);
+  });
+
   it('the last step lists what is missing and picks it one by one', () => {
     const sim = trainingSim(1337);
     at(sim, 'finishShip');

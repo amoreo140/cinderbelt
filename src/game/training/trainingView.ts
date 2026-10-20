@@ -10,7 +10,7 @@ import { length, type Vec2 } from '../../sim/math/vec2';
 import type { SimState } from '../../sim/Simulation';
 import { computeProperties, type ShipProperties } from '../../sim/ship/properties';
 import type { Rotation, ShipGrid } from '../../sim/ship/types';
-import { dockPoint } from '../../sim/station/dock';
+import { DOCK_APPROACH_RANGE, dockPoint } from '../../sim/station/dock';
 import { availableResources, stationStorage } from '../../sim/station/storage';
 import { currentTrainingStep, finishChecks, placementCells, reverseEngines, trainingProgress } from '../../sim/training/training';
 import { HOME_STATION_ID, homeStation, stationById } from '../../sim/world/stations';
@@ -34,7 +34,7 @@ export interface TrainingContext {
   yard: { selected: PartKey | null; rot: Rotation; grid: ShipGrid; dirty: boolean } | null;
   mapOpen: boolean;
   inCombat: boolean;
-  /** The Guild instructor speaks on the radio (comms part B); the panel keeps its text regardless. */
+  /** Unused (the panel keeps its text regardless of the radio); set by Game.ts and will be removed. */
   radio?: boolean;
   /** Live distance (u) and screen bearing (rad) to the step's target; filled by the Game (null until then). */
   target?: { distance: number; bearing: number } | null;
@@ -85,7 +85,7 @@ function finishPhases(raw: readonly RawPhase[]): TrainingPhase[] {
       state = currentSet ? 'todo' : 'current';
       currentSet = true;
     }
-    return { text: r.line.text, keys: [...r.line.keys], state };
+    return { text: r.line.text, keys: r.line.keys as string[], state };
   });
 }
 
@@ -273,7 +273,9 @@ export function trainingGuide(state: SimState, ctx: TrainingContext): TrainingGu
       break;
     }
     case 'dockSell':
-      raw.push({ line: t().guide.goDock[0]!, done: docked });
+      const home = homeStation();
+      const nearClamp = !docked && Math.hypot(player.body.pos.x - dockPoint(home, player.props.boundingRadius).x, player.body.pos.y - dockPoint(home, player.props.boundingRadius).y) <= DOCK_APPROACH_RANGE;
+      raw.push({ line: t().guide.goDock[0]!, done: docked || nearClamp });
       raw.push({ line: t().guide.goDock[1]!, done: docked });
       raw.push({ line: t().guide.openOverview, done: docked && ctx.tab === 'overview' });
       raw.push({ line: t().guide.sellAll, done: false });
@@ -300,10 +302,10 @@ export function trainingGuide(state: SimState, ctx: TrainingContext): TrainingGu
     case 'craftCargo': {
       raw.push({ line: t().phases.dock, done: docked });
       const recipeName = `${tx().parts.cargo} T1`;
-      const stored = dockId !== null && Object.entries(stationStorage(state, dockId).parts).some(([k, n]) => (n ?? 0) > 0 && parsePartKey(k as PartKey).partId === 'cargo');
+      const stored = Object.entries(stationStorage(state, dockId ?? training.rewardAt).parts).some(([k, n]) => (n ?? 0) > 0 && parsePartKey(k as PartKey).partId === 'cargo');
       const draftHas = ctx.yard ? cargoCount(ctx.yard.grid) >= 2 : false;
       // crafted already (or past it: the shipyard is open) → the install phases
-      const crafted = docked && (stored || draftHas || ctx.tab === 'shipyard');
+      const crafted = stored || draftHas || (docked && ctx.tab === 'shipyard');
       const tabOk = docked && ctx.tab === 'crafting';
       const recipeOk = tabOk && ctx.craftKey === 'cargo:1';
       raw.push({ line: t().guide.openCrafting, done: crafted || tabOk });

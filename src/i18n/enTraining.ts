@@ -18,12 +18,9 @@ export const enTraining: TrainingTexts = {
   },
   guide: {
     undock: { keys: ['F'], text: 'Undock' },
-    fly: { keys: ['W'], text: 'thrust' },
-    turn: { keys: ['A', 'D'], text: 'turn' },
     inertia: 'The dampers (Z) brake on their own when you release the thrust. A sideways drift is stopped only slowly by the manoeuvring thrusters of the cockpit – the ship has no side engines yet.',
     mine: { keys: ['Right button'], text: 'hold the cursor on the rock – the laser mines' },
     vein: 'Aim at the glowing vein: it mines half as fast again.',
-    brake: { keys: ['S'], text: 'brake with the reverse engine' },
     tooFastToMine: 'The laser reaches only a short way – get close and slow down.',
     goDock: [
       { keys: [], text: 'Fly slowly to the dock clamp at the end of the arm' },
@@ -44,7 +41,6 @@ export const enTraining: TrainingTexts = {
     placeAny: { keys: [], text: 'Click a free cell next to the hull' },
     commit: { keys: ['Enter'], text: 'Confirm the changes' },
     partsAt: (station) => `The parts wait in the storage of ${station}.`,
-    dampers: { keys: ['Z'], text: 'the dampers (on): release the thrust and the ship stops, a sideways drift too' },
     stopHere: (speed) => `Speed ${speed} – stop below 1.5 u/s`,
     openCrafting: { keys: ['3'], text: 'Open Crafting' },
     pickRecipe: (part) => ({ keys: [], text: `Pick the ${part}` }),
