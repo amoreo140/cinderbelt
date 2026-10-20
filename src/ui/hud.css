@@ -493,3 +493,71 @@
 .hud--goal [data-testid^="nav-pin-"] {
   opacity: 0.75;
 }
+
+/* Progressive reveal: a freshly unlocked part is outlined and tagged for a few seconds (Game.freshParts,
+   game/onboarding/newBadges.ts). The outline is an inset overlay, not a border: the panels have cut corners. */
+.hud[data-new~="radar"] .hud-radar,
+.hud[data-new~="radarLegend"] .hud-radar,
+.hud[data-new~="energy"] .af-gauge--energy,
+.hud[data-new~="cargo"] .hud-cargo-wrap,
+.hud[data-new~="credits"] [data-testid="hud-credits"],
+.hud[data-new~="speed"] .hud-console-flight > :first-child,
+.hud[data-new~="dampers"] .hud-dampers,
+.hud[data-new~="scanner"] .ds-scan,
+.hud[data-new~="location"] .hud-nav,
+.hud[data-new~="helpChip"] .hud-help {
+  position: relative;
+}
+.hud[data-new~="radar"] .hud-radar::before,
+.hud[data-new~="radarLegend"] .hud-radar::before,
+.hud[data-new~="energy"] .af-gauge--energy::before,
+.hud[data-new~="cargo"] .hud-cargo-wrap::before,
+.hud[data-new~="credits"] [data-testid="hud-credits"]::before,
+.hud[data-new~="speed"] .hud-console-flight > :first-child::before,
+.hud[data-new~="dampers"] .hud-dampers::before,
+.hud[data-new~="scanner"] .ds-scan::before,
+.hud[data-new~="location"] .hud-nav::before,
+.hud[data-new~="helpChip"] .hud-help::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--af-trim);
+  pointer-events: none;
+  animation: hud-new-pulse 1.2s ease-in-out infinite;
+}
+.hud[data-new~="radar"] .hud-radar::after,
+.hud[data-new~="energy"] .af-gauge--energy::after,
+.hud[data-new~="cargo"] .hud-cargo-wrap::after,
+.hud[data-new~="credits"] [data-testid="hud-credits"]::after,
+.hud[data-new~="speed"] .hud-console-flight > :first-child::after,
+.hud[data-new~="dampers"] .hud-dampers::after,
+.hud[data-new~="scanner"] .ds-scan::after,
+.hud[data-new~="location"] .hud-nav::after,
+.hud[data-new~="helpChip"] .hud-help::after {
+  content: var(--hud-new-tag, 'NEW');
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  padding: 0 0.35rem;
+  line-height: 1.2;
+  font-size: var(--af-fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--af-bg, #05080d);
+  background: var(--af-trim);
+  pointer-events: none;
+}
+@keyframes hud-new-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud[data-new] *::before {
+    animation: none !important;
+  }
+}

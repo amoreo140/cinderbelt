@@ -33,6 +33,7 @@ import { buildStationContacts, dockPrompt, DockReadoutGate, dockRejectedText, ed
 import {
   STATION_TABS,
   tabEnabled,
+  tabLockReason,
   type StationHubData,
   type StationHubHandlers,
   type StationTab,
@@ -57,6 +58,8 @@ import { TrainingUi } from './training/trainingUi';
 import type { TrainingContext } from './training/trainingView';
 import type { TrainingHandlers } from './training/trainingUi';
 import { trainingActive } from '../sim/training/training';
+import { gateKey, revealedFeatures, type UiFeature } from './onboarding/reveal';
+import { NewBadges } from './onboarding/newBadges';
 import { ExploreUi, type CalloutData } from './discovery/exploreUi';
 import type { CalloutItem } from '../ui/theme';
 import { asteroidFields } from './discovery/fields';
@@ -139,6 +142,10 @@ const PAUSED_REDRAW = 0.5;
 const MAP_SCENE_INTERVAL = 0.1;
 /** The controls help collapses by itself after this many seconds of flight (unless the player toggles it with K). */
 const HELP_AUTO_COLLAPSE = 25;
+/** Keys the shipyard editor uses that the training would otherwise gate (T, M, Tab). */
+const YARD_KEYS: ReadonlySet<string> = new Set(['KeyT', 'key:t', 'KeyM', 'key:m', 'Tab']);
+/** HUD parts that get a "new" highlight when they unlock (hud.css `data-new`). */
+const BADGED: readonly UiFeature[] = ['radar', 'energy', 'cargo', 'credits', 'speed', 'dampers', 'scanner', 'location', 'helpChip', 'radarLegend'];
 /** How long the full "Pirates!" band stays lit after an alert (s). */
 const ALERT_TIME = 3.5;
 /** A planned route ending this close to the station of the station arrow (u) merges into that arrow (M4d). */
@@ -255,6 +262,8 @@ export class Game {
   private frame: number | null = null;
   /** New presses waiting for the next simulation step. */
   private pending = new Set<string>();
+  /** "New" highlights of freshly unlocked HUD parts (memory only). */
+  private readonly newBadges = new NewBadges();
   /** The player abandoned the ship (pause) – scuttle command in the next step. */
   private scuttlePending = false;
   /** Station actions waiting for the next step. */
@@ -754,6 +763,8 @@ export class Game {
     const station = this.dockedStation();
     // also keeps tab 8 (Development, M4c) closed away from the home station
     if (station && !tabEnabled(tab, station)) return;
+    // a tab the Guild Training has not unlocked yet stays shut (the rail shows the lock)
+    if (tabLockReason(tab, revealedFeatures(this.sim.state.career.training)) !== null) return;
     // the dock camera leaves a home module ("Show") with the Development tab
     if (tab !== 'development') this.home.leave();
     this.stationUi.tab = tab;
@@ -987,6 +998,12 @@ export class Game {
     if (tollAnswer && !inStation && this.sim.state.pirates.toll) cmd.toll ??= tollAnswer;
     // scanner only in flight and with neither the journal nor the map open
     if (inStation || this.explore.journalOpen || this.mapOpen) cmd.scan = false;
+    // ship commands of parts the training has not unlocked yet are dropped here (the sim stays untouched)
+    const revealed = revealedFeatures(this.sim.state.career.training);
+    if (!revealed.has('scanner')) cmd.scan = false;
+    else if (cmd.scan) this.newBadges.used('scanner');
+    if (!revealed.has('tractor')) cmd.tractor = false;
+    if (!revealed.has('tow')) cmd.emergency = false;
     cmd.actions = this.actions;
     this.actions = [];
     // a note saved or deleted on the open map shows (and can be clicked) at once, not at the next 10 Hz redraw
@@ -1275,6 +1292,8 @@ export class Game {
         }
         continue;
       }
+      // keys of parts the training has not unlocked yet do nothing (no toast); the yard editor keeps its own T, M and Tab
+      if (!gateKey(code, revealedFeatures(this.sim.state.career.training)) && !(this.docked && this.yardOpen && YARD_KEYS.has(code))) continue;
       if (code === letterKey('n')) {
         const muted = this.audio.toggleMute();
         this.show(() => (muted ? tx().messages.muted : tx().messages.unmuted), 'info', 2);
@@ -1303,7 +1322,10 @@ export class Game {
           else this.setTab('overview');
         }
       } else {
-        if (code === letterKey('m')) this.mapOpen = !this.mapOpen;
+        if (code === letterKey('m')) {
+          this.mapOpen = !this.mapOpen;
+          this.newBadges.used('map');
+        }
         if (code === letterKey('k')) {
           this.helpOpen = !this.helpOpen;
           this.helpTouched = true;
@@ -1635,6 +1657,7 @@ export class Game {
       prices: this.hubPrices.get([station.ring, station.priceJitter], () => priceList(station)),
       emergency: emergencyFuelAvailable(this.sim.state, station),
       ui: { ...this.stationUi },
+      reveal: revealedFeatures(this.sim.state.career.training),
       partsMarket: this.hubMarket.get([...key, this.stationUi.partTier], () => partsMarketRows(station, storage.parts, credits, this.stationUi.partTier, (k) => lockReason(this.sim.state, k))),
       crafting: this.stationUi.tab === 'crafting' ? this.hubCrafting.get([...key, this.stationUi.craftTier], () => craftingRows(this.sim.state, station, this.stationUi.craftTier)) : [],
       repair: repair?.view ?? NO_REPAIRS,
@@ -1826,6 +1849,10 @@ export class Game {
       sources.push({ pos: a.pos, radius: world.radiusOf(a), resource: a.resource, rich: this.mining.radarRich(state, a) });
     }
     const flying = player.dock.mode === 'flying';
+    // progressive reveal during the Guild Training: the unlocked parts and the ones still marked as new
+    const reveal = revealedFeatures(state.career.training);
+    this.newBadges.update(reveal, this.clock);
+    const fresh = this.freshParts();
     let hint: string | null = null;
     let hintTone: HudData['messageTone'] = 'bad';
     if (player.dock.mode === 'docking') {
@@ -1844,7 +1871,7 @@ export class Game {
     // no F prompts, no arrows to fly by
     const berthed = this.sites.berthed(state) || this.guild.linked(state);
     // a trader's trade port first (the sim tries the convoy link first on F), then a derelict clamp, a station
-    const dock = flying ? (this.guild.prompt(state) ?? this.sites.prompt(state) ?? (check.station && this.dockReadout ? dockPrompt(check, formatStationName(check.station)) : null)) : null;
+    const dock = flying ? (this.guild.prompt(state) ?? this.sites.prompt(state) ?? (check.station && this.dockReadout && reveal.has('dockPrompt') ? dockPrompt(check, formatStationName(check.station)) : null)) : null;
     // F at a survey point / stranded ship (M3.5a), a cache or a ship in distress (M3.5b) takes precedence
     // over a distant station
     const prompt = berthed ? null : ((flying && dock?.kind !== 'ok' ? (this.career.prompt(state) ?? this.explore.prompt(state) ?? this.pirates.prompt(state)) : null) ?? dock);
@@ -1877,7 +1904,7 @@ export class Game {
     const goalHud = this.goalHud(goal, rect, pos);
     const objectiveArrow = goalHud ? goalEdgeArrow(goalHud) : null;
     const marks =
-      flying && !this.mapOpen && !berthed
+      flying && !this.mapOpen && !berthed && reveal.has('worldMarks')
         ? this.navArrowMarks(state, rect, routeAtStation ? null : route, stationArrow, objectiveArrow)
         : null;
     // the world labels (callouts) keep clear of the edge arrows and their labels and of the top HUD panels
@@ -1923,7 +1950,7 @@ export class Game {
       objectiveArrow,
       goal: goalHud,
       scan: flying || player.destroyed ? this.explore.scanHud(state, this.clock) : null,
-      discovery: { radar: this.explore.radar(state, radarRange), callouts: this.calloutItems(state, rect) },
+      discovery: { radar: this.explore.radar(state, radarRange), callouts: this.calloutItems(state, rect, reveal.has('worldMarks')) },
       onToggleLayer: this.toggleMapLayer,
       // the comm panel answers the toll when the radio is on
       pirates: flying ? { ...this.pirates.hud(state), ...(this.comms.showsToll ? { toll: null } : {}) } : null,
@@ -1939,7 +1966,16 @@ export class Game {
       radarGuild: this.guild.radar(state, radarRange),
       navArrows: marks,
       mapPlan: this.mapPlan.handlers,
+      reveal,
+      ...(fresh ? { fresh } : {}),
     };
+  }
+
+  /** The freshly unlocked HUD parts as the HUD's `data-new` value (space separated), or undefined when none. */
+  private freshParts(): string | undefined {
+    let out = '';
+    for (const f of BADGED) if (this.newBadges.isNew(f, this.clock)) out += out ? ` ${f}` : f;
+    return out || undefined;
   }
 
   /**
@@ -1976,7 +2012,7 @@ export class Game {
   }
 
   /** Callout labels with screen positions (the 2 nearest objects, the object under analysis). */
-  private calloutItems(state: Simulation['state'], rect: DOMRect): CalloutItem[] {
+  private calloutItems(state: Simulation['state'], rect: DOMRect, worldMarks: boolean): CalloutItem[] {
     // pirate callouts (hulks, fortress, beacon) take precedence; at most two labels
     // (the label of an object under analysis keeps its progress bar)
     const explore = this.explore.callouts(state);
@@ -1985,7 +2021,8 @@ export class Game {
     const mine = [...this.pirates.callouts(state).sort((a, b) => a.dist - b.dist), ...this.mining.callouts(state)].filter((c) => !analysing.some((a) => a.id === c.id));
     const ids = new Set(mine.map((c) => c.id));
     // the training's buoy or rock first (M3.7)
-    const all = [...this.training.callouts(state), ...analysing, ...mine.map(({ dist: _d, ...c }) => c), ...explore.filter((c) => !ids.has(c.id) && c.progress === undefined)];
+    // before the world marks unlock only the training's own labels show
+    const all = !worldMarks ? this.training.callouts(state) : [...this.training.callouts(state), ...analysing, ...mine.map(({ dist: _d, ...c }) => c), ...explore.filter((c) => !ids.has(c.id) && c.progress === undefined)];
     // at most two labels and never two on top of each other (anchors too close on screen)
     const picked: { c: CalloutData; x: number; y: number }[] = [];
     for (const c of all) {

@@ -27,6 +27,8 @@ import { BuffStrip, ScanWidget, StormBanner } from './discovery/ScanHud';
 import { drawRadarGuild, drawRadarRock, drawRadarShip, drawRadarSites, drawRadarStation, drawRadarWreck } from './radarDraw';
 import type { GuildContact, SiteContact } from './radar';
 import { RadarLegend } from './RadarLegend';
+import { hudParts } from './hudParts';
+import type { UiFeature } from '../game/onboarding/reveal';
 import { deepEqual, pure, sameDeep } from './pure';
 import {
   RADAR_SIZE,
@@ -136,6 +138,10 @@ export interface HudData {
   radarGuild?: GuildContact[];
   /** M4d: edge arrows and pins of the planned route, map notes, convoys and Guild relays (`navArrows`). */
   navArrows?: EdgeArrowMark[] | null;
+  /** Unlocked UI features (progressive reveal during the Guild Training); absent = everything shows. */
+  reveal?: ReadonlySet<UiFeature>;
+  /** Features still highlighted as new, space separated (`data-new`, hud.css); absent = none. */
+  fresh?: string;
 }
 
 
@@ -415,23 +421,26 @@ const ConsoleGaugesPart = pure(function ConsoleGauges(p: ConsoleGaugesProps) {
       {p.shield && <Gauge {...p.shield} />}
       {p.hull && <Gauge {...p.hull} />}
       <Gauge {...p.fuel} />
-      {p.mining ? (
-        // energy and laser heat on one row – a console with lasers keeps its height while mining
-        <div class="hud-gauge-pair">
+      {p.energy &&
+        (p.mining ? (
+          // energy and laser heat on one row – a console with lasers keeps its height while mining
+          <div class="hud-gauge-pair">
+            <Gauge {...p.energy} />
+            <MiningHeatPart m={p.mining} />
+          </div>
+        ) : (
           <Gauge {...p.energy} />
-          <MiningHeatPart m={p.mining} />
-        </div>
-      ) : (
-        <Gauge {...p.energy} />
-      )}
-      <div class="hud-cargo-wrap">
-        <Gauge {...p.cargo} />
-        {p.pops.map((pop) => (
-          <span key={pop.seq} class="hud-pop" data-testid="hud-pop" role="status">
-            {pop.text}
-          </span>
         ))}
-      </div>
+      {p.cargo && (
+        <div class="hud-cargo-wrap">
+          <Gauge {...p.cargo} />
+          {p.pops.map((pop) => (
+            <span key={pop.seq} class="hud-pop" data-testid="hud-pop" role="status">
+              {pop.text}
+            </span>
+          ))}
+        </div>
+      )}
       {p.tags && <CargoTags cargo={p.tags} flight={false} />}
     </div>
   );
@@ -445,7 +454,10 @@ const NavPart = pure(function NavBand({
   station,
   distance,
   attention,
+  full,
 }: {
+  /** False = the location rows are not unlocked yet: only the attention row (an attack) shows. */
+  full: boolean;
   sector: SectorBadgeData | null;
   ring: number;
   /** The position as shown ("x, y" in whole units) – live texts. */
@@ -457,8 +469,8 @@ const NavPart = pure(function NavBand({
 }) {
   return (
     <Panel material="band" translucent cut="md" class="hud-nav" as="section" aria-label={tx().hud.zone}>
-      {sector ? <SectorBadgePart d={sector} /> : <RingBadge ring={ring} name={tx().rings[ring - 1]} />}
-      <dl class="hud-nav-grid">
+      {full && (sector ? <SectorBadgePart d={sector} /> : <RingBadge ring={ring} name={tx().rings[ring - 1]} />)}
+      {full && <dl class="hud-nav-grid">
         <dt>{tx().hud.position}</dt>
         <LiveSlot tag="dd" live={position} />
         {station !== null && (
@@ -470,7 +482,7 @@ const NavPart = pure(function NavBand({
             </dd>
           </>
         )}
-      </dl>
+      </dl>}
       {attention && <AttentionRowPart a={attention} />}
     </Panel>
   );
@@ -554,9 +566,12 @@ const HudArrowPart = pure(function HudArrow({ arrow, kind }: HudArrowProps) {
 interface ConsoleProps {
   /** The combat view (ship status, cannons, hold), null outside combat. */
   status: CombatHudView | null;
-  speed: LiveText;
-  cargo: Cargo;
-  dampers: boolean;
+  /** Null = not unlocked yet. */
+  speed: LiveText | null;
+  /** The cargo tags in the combat console; null = the cargo is not unlocked yet. */
+  cargo: Cargo | null;
+  /** Null = the dampers row is not unlocked yet. */
+  dampers: boolean | null;
   tractor: TractorHud | null;
   gauges: ConsoleGaugesProps;
 }
@@ -568,7 +583,7 @@ const sameConsole = (a: ConsoleProps, b: ConsoleProps): boolean =>
   a.dampers === b.dampers &&
   sameStatus(a, b) &&
   deepEqual(a.tractor, b.tractor) &&
-  sameCargoTags(a, b) &&
+  (a.cargo && b.cargo ? sameCargoTags({ cargo: a.cargo }, { cargo: b.cargo }) : a.cargo === b.cargo) &&
   sameConsoleGauges(a.gauges, b.gauges);
 
 /**
@@ -584,9 +599,9 @@ const ConsolePart = pure(
       <Panel material="band" translucent cut="md" trim="top" class={`hud-console${status ? ' has-status' : ''}`} as="section" aria-label={tx().station.ship}>
         {status && <ShipStatusPart view={status} />}
         <div class="hud-console-flight">
-          <SpeedPart live={speed} />
-          {status && <CargoTagsPart cargo={cargo} flight />}
-          <DampersPart on={dampers} />
+          {speed && <SpeedPart live={speed} />}
+          {status && cargo && <CargoTagsPart cargo={cargo} flight />}
+          {dampers !== null && <DampersPart on={dampers} />}
           {tractor && <TractorLinePart t={tractor} />}
         </div>
         <ConsoleGaugesPart {...gauges} />
@@ -603,7 +618,8 @@ const ConsolePart = pure(
  * every member still skips unless it is the one that changed (each is memoised on its own).
  */
 interface QuietPartsProps {
-  legend: 'help' | 'hover';
+  /** Null = the radar legend is not unlocked yet. */
+  legend: 'help' | 'hover' | null;
   /** null = no callouts (the map is open, or no discovery data). */
   callouts: readonly CalloutItem[] | null;
   fortress: FortressHud | null;
@@ -611,7 +627,10 @@ interface QuietPartsProps {
   reticle: ReticleData | null;
   scan: ScanHudData | null;
   notice: EntryNoticeData | null;
-  credits: number;
+  /** Null = the credits are not unlocked yet. */
+  credits: number | null;
+  /** Whether the help chip (K) shows. */
+  help: boolean;
   helpOpen: boolean;
   collision: CollisionHud | null;
 }
@@ -622,6 +641,7 @@ function sameQuietParts(a: QuietPartsProps, b: QuietPartsProps): boolean {
   return (
     a.legend === b.legend &&
     a.credits === b.credits &&
+    a.help === b.help &&
     a.helpOpen === b.helpOpen &&
     orNone(a.callouts, b.callouts, (p, q) => sameCallouts({ items: p }, { items: q })) &&
     orNone(a.scan, b.scan, (p, q) => p.storm === q.storm && sameScanWidget({ d: p }, { d: q }) && deepEqual(p.buffs, q.buffs)) &&
@@ -637,7 +657,7 @@ const QuietPartsPart = pure(function QuietParts(p: QuietPartsProps) {
   return (
     <>
       {/* above the radar: pinned while the controls help (K) is open, else on hover */}
-      <RadarLegend variant={p.legend} />
+      {p.legend && <RadarLegend variant={p.legend} />}
 
       {p.callouts && <CalloutLayerPart items={p.callouts} />}
       {p.fortress && <FortressBandPart f={p.fortress} />}
@@ -648,7 +668,7 @@ const QuietPartsPart = pure(function QuietParts(p: QuietPartsProps) {
       {p.scan && <StormBannerPart on={p.scan.storm} />}
       {p.notice && <EntryNoticePart d={p.notice} />}
 
-      <TopRightPart credits={p.credits} helpOpen={p.helpOpen} />
+      <TopRightPart credits={p.credits} help={p.help} helpOpen={p.helpOpen} />
 
       {p.collision && <CollisionBandPart c={p.collision} />}
     </>
@@ -807,11 +827,11 @@ function TopRight({ children }: { children: ComponentChildren }) {
 }
 
 /** The top-right corner's content: it changes only with the credits and the help toggle (K). */
-const TopRightPart = pure(function TopRightView({ credits, helpOpen }: { credits: number; helpOpen: boolean }) {
+const TopRightPart = pure(function TopRightView({ credits, help, helpOpen }: { credits: number | null; help: boolean; helpOpen: boolean }) {
   return (
     <TopRight>
-      <Odometer value={credits} testId="hud-credits" />
-      <Help open={helpOpen} />
+      {credits !== null && <Odometer value={credits} testId="hud-credits" />}
+      {help && <Help open={helpOpen} />}
     </TopRight>
   );
 });
@@ -829,8 +849,8 @@ function NavStack({ children }: { children: ComponentChildren }) {
     const stack = ref.current;
     const root = stack?.parentElement?.parentElement;
     if (!stack || !root || typeof ResizeObserver !== 'function') return;
-    const nav = stack.querySelector('.hud-nav');
     const measure = (): void => {
+      const nav = stack.querySelector('.hud-nav');
       const top = root.getBoundingClientRect().top;
       const box = stack.getBoundingClientRect();
       const navBottom = nav?.isConnected ? nav.getBoundingClientRect().bottom : box.bottom;
@@ -842,6 +862,7 @@ function NavStack({ children }: { children: ComponentChildren }) {
     };
     const observer = new ResizeObserver(measure);
     observer.observe(stack);
+    const nav = stack.querySelector('.hud-nav');
     if (nav) observer.observe(nav);
     return () => {
       observer.disconnect();
@@ -1089,6 +1110,7 @@ export function Hud(d: HudData) {
   const view = { width: window.innerWidth, height: window.innerHeight };
   // off the HUD panels, the goal arrow off the station arrow
   const { station: arrow, goal } = placeHudArrows(d.arrow, d.objectiveArrow, view, d.helpOpen ?? true);
+  const parts = hudParts(d.reveal);
   const combat = d.combat ?? null;
   const mapOpen = d.map.open;
   // a goal marker or arrow on screen: the other navigation arrows step back (opacity, not size)
@@ -1111,47 +1133,49 @@ export function Hud(d: HudData) {
     guild: d.radarGuild ?? EMPTY,
   });
   return (
-    <div ref={ref} class={`hud${showGoal ? ' hud--goal' : ''}`} data-ring={d.ring}>
+    <div ref={ref} class={`hud${showGoal ? ' hud--goal' : ''}`} data-ring={d.ring} data-new={d.fresh} style={d.fresh ? { '--hud-new-tag': JSON.stringify(tx().hud.newTag) } : undefined}>
       <NavStack>
-        <NavPart
+        {(parts.location || d.pirates?.attention) && <NavPart
+          full={parts.location}
           sector={d.sector ?? null}
           ring={d.ring}
           position={live.position}
           station={d.nearest?.name ?? null}
           distance={live.distance}
           attention={d.pirates?.attention ?? null}
-        />
+        />}
         {d.objectives && <ObjectiveBandPart items={d.objectives} />}
       </NavStack>
 
       <ConsolePart
         status={combat ? combat.view : null}
-        speed={live.speed}
-        cargo={d.cargo}
-        dampers={d.dampers}
+        speed={parts.speed ? live.speed : null}
+        cargo={parts.cargo ? d.cargo : null}
+        dampers={parts.dampers ? d.dampers : null}
         tractor={d.pirates?.tractor ?? null}
         gauges={{
           shield: shield ? { kind: 'shield', label: tx().combat.shield, value: shield.current, max: shield.max, warnAt: 0.3, critAt: 0.001, compact: true, segments: 24, testId: 'gauge-shield' } : null,
           hull: combat ? { kind: 'hull', label: tx().combat.hull, value: combat.view.hull.current, max: combat.view.hull.max, warnAt: 0.6, critAt: 0.3, compact: true, segments: 24, testId: 'gauge-hull' } : null,
           fuel: { kind: 'fuel', label: tx().hud.fuel, value: d.fuel, max: d.fuelMax, compact: true, segments: 24 },
-          energy: { kind: 'energy', label: tx().hud.energy, value: d.energy, max: d.energyMax, compact: true, segments: d.mining ? 12 : 24 },
-          cargo: { kind: 'cargo', label: tx().hud.cargo, value: cargoUsed(d.cargo), max: d.cargoMax, decimals: 1, invert: true, compact: true, segments: 24 },
-          mining: d.mining ?? null,
+          energy: parts.energy ? { kind: 'energy', label: tx().hud.energy, value: d.energy, max: d.energyMax, compact: true, segments: d.mining && parts.heat ? 12 : 24 } : null,
+          cargo: parts.cargo ? { kind: 'cargo', label: tx().hud.cargo, value: cargoUsed(d.cargo), max: d.cargoMax, decimals: 1, invert: true, compact: true, segments: 24 } : null,
+          mining: parts.heat && parts.energy ? (d.mining ?? null) : null,
           pops: d.miningPops ?? EMPTY,
-          tags: combat ? null : d.cargo,
+          tags: combat || !parts.cargo ? null : d.cargo,
         }}
       />
 
-      <RadarSectionPart scope={scope} pulse={d.scan?.pulse ?? null} range={Math.round(d.radar.range)} />
+      {parts.radar && <RadarSectionPart scope={scope} pulse={d.scan?.pulse ?? null} range={Math.round(d.radar.range)} />}
       <QuietPartsPart
-        legend={(d.helpOpen ?? true) ? 'help' : 'hover'}
+        legend={parts.radarLegend ? ((d.helpOpen ?? true) ? 'help' : 'hover') : null}
         callouts={d.discovery && !mapOpen ? d.discovery.callouts : null}
         fortress={!mapOpen ? (d.pirates?.fortress ?? null) : null}
         toll={d.pirates?.toll ?? null}
         reticle={!mapOpen ? (d.reticle ?? null) : null}
-        scan={d.scan ?? null}
-        notice={d.sectorNotice && !mapOpen && !d.pirates?.toll ? d.sectorNotice : null}
-        credits={d.credits}
+        scan={parts.scanner ? (d.scan ?? null) : null}
+        notice={parts.location && d.sectorNotice && !mapOpen && !d.pirates?.toll ? d.sectorNotice : null}
+        credits={parts.credits ? d.credits : null}
+        help={parts.helpChip}
         helpOpen={d.helpOpen ?? true}
         collision={!mapOpen ? (d.collision ?? null) : null}
       />
@@ -1162,9 +1186,9 @@ export function Hud(d: HudData) {
         salvage={!!combat?.view.salvage && d.prompt?.kind !== 'ok'}
       />
       {d.enemyArrows && !mapOpen && <EdgeArrowLayerPart arrows={d.enemyArrows} />}
-      {arrow && !mapOpen && <HudArrowPart arrow={arrow} kind="station" />}
-      {d.scanArrows && !mapOpen && <EdgeArrowLayerPart arrows={d.scanArrows} />}
-      {d.navArrows && !mapOpen && <EdgeArrowLayerPart arrows={d.navArrows} />}
+      {arrow && !mapOpen && (parts.location || !d.goal) && <HudArrowPart arrow={arrow} kind="station" />}
+      {d.scanArrows && !mapOpen && parts.scanner && <EdgeArrowLayerPart arrows={d.scanArrows} />}
+      {d.navArrows && !mapOpen && parts.worldMarks && <EdgeArrowLayerPart arrows={d.navArrows} />}
       {goal && !mapOpen && <HudArrowPart arrow={goal} kind="goal" />}
       {d.goal && d.goal.mark.kind === 'onScreen' && !mapOpen && <GoalMarkPart goal={d.goal as GoalMarkProps['goal']} view={view} zones={zonesKey()} />}
       {d.message && <div class={`hud-hint hud-hint--${d.messageTone ?? 'bad'}`} role="alert">{d.message}</div>}

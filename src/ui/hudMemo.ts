@@ -161,8 +161,9 @@ export interface ConsoleGaugesProps {
   shield: GaugeProps | null;
   hull: GaugeProps | null;
   fuel: GaugeProps;
-  energy: GaugeProps;
-  cargo: GaugeProps;
+  /** Null = not unlocked yet (progressive reveal, game/onboarding/reveal.ts). */
+  energy: GaugeProps | null;
+  cargo: GaugeProps | null;
   mining: MiningHudData | null;
   pops: readonly MiningPop[];
   /** The cargo tags under the gauges (outside combat), null = none here. */
@@ -177,8 +178,8 @@ export function sameConsoleGauges(a: ConsoleGaugesProps, b: ConsoleGaugesProps):
     sameGaugeOrNone(a.shield, b.shield) &&
     sameGaugeOrNone(a.hull, b.hull) &&
     sameGaugeProps(a.fuel, b.fuel) &&
-    sameGaugeProps(a.energy, b.energy) &&
-    sameGaugeProps(a.cargo, b.cargo) &&
+    sameGaugeOrNone(a.energy, b.energy) &&
+    sameGaugeOrNone(a.cargo, b.cargo) &&
     deepEqual(a.mining, b.mining) &&
     deepEqual(a.pops, b.pops) &&
     (a.tags && b.tags ? sameCargoTags({ cargo: a.tags }, { cargo: b.tags }) : a.tags === b.tags)
