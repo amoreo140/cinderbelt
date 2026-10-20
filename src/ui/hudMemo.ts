@@ -11,8 +11,6 @@
 import type { CombatHudView } from '../game/combatView';
 import type { ScanHudData } from '../game/discovery/exploreUi';
 import type { EventChipItem } from '../game/sites/types';
-import type { Cargo } from '../data/resources';
-import { RESOURCE_IDS } from '../data/resources';
 import type { MiningPop } from '../game/mining/miningUi';
 import type { MiningHudData } from '../game/miningView';
 import type { CombatHudData } from './Combat';
@@ -141,22 +139,7 @@ export function sameCollision(a: { c: CollisionHud }, b: { c: CollisionHud }): b
 // ---------------------------------------------------------------------------
 // the flight console
 
-/** Cargo tags: the resources shown (from 0.05 up) with their amounts as written. */
-export function sameCargoTags(a: { cargo: Cargo }, b: { cargo: Cargo }): boolean {
-  const p = a.cargo;
-  const q = b.cargo;
-  if (p === q) return true;
-  for (const id of RESOURCE_IDS) {
-    const u = p[id];
-    const v = q[id];
-    if (u === v) continue;
-    if (u >= 0.05 !== v >= 0.05) return false;
-    if (u >= 0.05 && formatAmount(u) !== formatAmount(v)) return false;
-  }
-  return true;
-}
-
-/** The console's gauge column (Hud.tsx `ConsoleGauges`). */
+/** The console's gauge column (Hud.tsx `ConsoleGauges`): the shield, cargo and heat rows are null while the situation does not ask for them (consoleRules.ts). */
 export interface ConsoleGaugesProps {
   shield: GaugeProps | null;
   hull: GaugeProps | null;
@@ -166,8 +149,6 @@ export interface ConsoleGaugesProps {
   cargo: GaugeProps | null;
   mining: MiningHudData | null;
   pops: readonly MiningPop[];
-  /** The cargo tags under the gauges (outside combat), null = none here. */
-  tags: Cargo | null;
 }
 
 const sameGaugeOrNone = (a: GaugeProps | null, b: GaugeProps | null): boolean => (a && b ? sameGaugeProps(a, b) : a === b);
@@ -181,8 +162,7 @@ export function sameConsoleGauges(a: ConsoleGaugesProps, b: ConsoleGaugesProps):
     sameGaugeOrNone(a.energy, b.energy) &&
     sameGaugeOrNone(a.cargo, b.cargo) &&
     deepEqual(a.mining, b.mining) &&
-    deepEqual(a.pops, b.pops) &&
-    (a.tags && b.tags ? sameCargoTags({ cargo: a.tags }, { cargo: b.tags }) : a.tags === b.tags)
+    deepEqual(a.pops, b.pops)
   );
 }
 

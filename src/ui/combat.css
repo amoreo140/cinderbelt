@@ -2,7 +2,7 @@
 
 /* ───── console: the ship state column on the left ───── */
 .hud-console.has-status {
-  grid-template-columns: auto auto 15.5rem;
+  grid-template-columns: auto 18rem;
 }
 .cb-status {
   display: flex;
@@ -112,12 +112,6 @@
   color: var(--af-text-dim);
 }
 
-/* cargo below the speed (combat console); hud.css is loaded only after this file */
-.hud-cargo.hud-cargo--flight {
-  max-width: 8.25rem;
-  gap: 3px;
-  margin-top: 0;
-}
 /* prompts in the centre above the taller combat console */
 .hud .hud-prompt {
   bottom: max(28%, 16rem);
@@ -292,7 +286,7 @@
 /* narrow windows */
 @media (max-width: 760px), (max-height: 520px) {
   .hud-console.has-status {
-    grid-template-columns: auto auto 11rem;
+    grid-template-columns: auto 14rem;
   }
   .cb-sil-screen {
     width: 6.5rem;

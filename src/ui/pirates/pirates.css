@@ -7,7 +7,7 @@
   align-items: center;
   gap: 0.3rem 0.5rem;
   margin-top: 0.45rem;
-  padding: 0.35rem 0 0 calc(1.3rem + 0.5rem);
+  padding: 0.35rem 0 0 0.75rem;
   border-top: 1px solid rgba(232, 237, 244, 0.1);
   font-size: var(--af-fs-sm);
   color: var(--af-text-dim);

@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { RESOURCE_IDS, type Cargo } from '../data/resources';
 import type { CombatHudView } from '../game/combatView';
 import type { ScanHudData } from '../game/discovery/exploreUi';
 import type { EventChipItem } from '../game/sites/types';
@@ -8,7 +7,6 @@ import type { CombatHudData } from './Combat';
 import type { EdgeArrowMark } from './EdgeArrowLayer';
 import {
   sameCallouts,
-  sameCargoTags,
   sameCollision,
   sameDial,
   sameConsoleGauges,
@@ -240,22 +238,12 @@ describe('the radar at its pixel resolution', () => {
 });
 
 describe('the flight console', () => {
-  const cargo = (over: Partial<Cargo> = {}): Cargo => ({ ...Object.fromEntries(RESOURCE_IDS.map((id) => [id, 0])), ...over }) as Cargo;
   const gauge = (value: number): GaugeProps => ({ kind: 'fuel', label: 'Fuel', value, max: 100, compact: true, segments: 24 });
-  const gauges = (over: Partial<ConsoleGaugesProps> = {}): ConsoleGaugesProps => ({ shield: null, hull: null, fuel: gauge(50.21), energy: gauge(80), cargo: gauge(3), mining: null, pops: [], tags: cargo(), ...over });
-  const [a, b] = RESOURCE_IDS;
-
-  it('cargo tags: the resources shown and their amounts as written', () => {
-    expect(sameCargoTags({ cargo: cargo({ [a!]: 2.01 }) }, { cargo: cargo({ [a!]: 2.03, [b!]: 0.01 }) })).toBe(true);
-    expect(sameCargoTags({ cargo: cargo({ [a!]: 2 }) }, { cargo: cargo({ [a!]: 2.4 }) })).toBe(false);
-    expect(sameCargoTags({ cargo: cargo() }, { cargo: cargo({ [b!]: 0.06 }) })).toBe(false);
-  });
-
+  const gauges = (over: Partial<ConsoleGaugesProps> = {}): ConsoleGaugesProps => ({ shield: null, hull: null, fuel: gauge(50.21), energy: gauge(80), cargo: gauge(3), mining: null, pops: [], ...over });
   it('the gauges as they show', () => {
     expect(sameConsoleGauges(gauges(), gauges({ fuel: gauge(50.24) }))).toBe(true);
     expect(sameConsoleGauges(gauges(), gauges({ fuel: gauge(51.1) }))).toBe(false);
     expect(sameConsoleGauges(gauges(), gauges({ hull: gauge(20) }))).toBe(false);
     expect(sameConsoleGauges(gauges(), gauges({ pops: [{ seq: 1, text: '+1' } as never] }))).toBe(false);
-    expect(sameConsoleGauges(gauges(), gauges({ tags: null }))).toBe(false);
   });
 });
