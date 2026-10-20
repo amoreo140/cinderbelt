@@ -51,6 +51,8 @@ export interface UserSettings {
    * resolution while the GPU cannot keep up (render/dynamicResolution.ts).
    */
   dynamicResolution: boolean;
+  /** UI size multiplier (Settings → Display "Interface size"), 0.9–1.5; drives --af-ui-scale. */
+  uiScale: number;
 }
 
 export const USER_SETTINGS_KEY = 'cinderbelt.settings';
@@ -59,15 +61,17 @@ export const LEGACY_MUTE_KEY = 'cinderbelt.muted';
 
 export const ZOOM_SENSITIVITY_MIN = 0.25;
 export const ZOOM_SENSITIVITY_MAX = 2;
+export const UI_SCALE_MIN = 0.9;
+export const UI_SCALE_MAX = 1.5;
 
 export const DEFAULT_USER_SETTINGS: UserSettings = {
   masterVolume: 0.9,
   sfxVolume: 0.9,
   ambientVolume: 0.5,
-  musicVolume: 0.6,
+  musicVolume: 0,
   muted: false,
   zoomSensitivity: 1,
-  showControlsHelp: true,
+  showControlsHelp: false,
   reducedMotion: 'system',
   language: 'en',
   flightMarker: true,
@@ -79,6 +83,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   hullShell: true,
   notesInFlight: true,
   dynamicResolution: true,
+  uiScale: 1,
 };
 
 const REDUCED_MOTION: readonly ReducedMotion[] = ['system', 'on', 'off'];
@@ -113,6 +118,7 @@ export function sanitizeUserSettings(raw: unknown, base: UserSettings = DEFAULT_
     hullShell: bool(r.hullShell, base.hullShell),
     notesInFlight: bool(r.notesInFlight, base.notesInFlight),
     dynamicResolution: bool(r.dynamicResolution, base.dynamicResolution),
+    uiScale: num(r.uiScale, base.uiScale, UI_SCALE_MIN, UI_SCALE_MAX),
   };
 }
 

@@ -9,6 +9,8 @@ import {
   prefersReducedMotion,
   sanitizeUserSettings,
   saveUserSettings,
+  UI_SCALE_MAX,
+  UI_SCALE_MIN,
   USER_SETTINGS_KEY,
   zoomFactor,
 } from './userSettings';
@@ -145,7 +147,7 @@ describe('user settings', () => {
   });
 
   it('keeps a music volume of its own – an old file without it gets the default', () => {
-    expect(DEFAULT_USER_SETTINGS.musicVolume).toBeGreaterThan(0);
+    expect(DEFAULT_USER_SETTINGS.musicVolume).toBe(0);
     expect(sanitizeUserSettings({ masterVolume: 0.5 }).musicVolume).toBe(DEFAULT_USER_SETTINGS.musicVolume);
     expect(sanitizeUserSettings({ musicVolume: 0.25 }).musicVolume).toBe(0.25);
     expect(sanitizeUserSettings({ musicVolume: 3 }).musicVolume).toBe(1);
@@ -227,5 +229,24 @@ describe('user settings', () => {
     } finally {
       delete g.__CINDER_FIRST_LANGUAGE__;
     }
+  });
+});
+
+describe('first-15-minutes defaults', () => {
+  it('starts with music off and the controls help closed', () => {
+    expect(DEFAULT_USER_SETTINGS.musicVolume).toBe(0);
+    expect(DEFAULT_USER_SETTINGS.showControlsHelp).toBe(false);
+    expect(DEFAULT_USER_SETTINGS.uiScale).toBe(1);
+  });
+  it('keeps a stored music volume and help choice', () => {
+    const s = sanitizeUserSettings({ musicVolume: 0.6, showControlsHelp: true });
+    expect(s.musicVolume).toBe(0.6);
+    expect(s.showControlsHelp).toBe(true);
+  });
+  it('clamps uiScale to 0.9–1.5 and falls back to 1', () => {
+    expect(sanitizeUserSettings({ uiScale: 3 }).uiScale).toBe(UI_SCALE_MAX);
+    expect(sanitizeUserSettings({ uiScale: 0.2 }).uiScale).toBe(UI_SCALE_MIN);
+    expect(sanitizeUserSettings({ uiScale: 'x' }).uiScale).toBe(1);
+    expect(sanitizeUserSettings({}).uiScale).toBe(1);
   });
 });
