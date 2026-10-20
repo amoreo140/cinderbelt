@@ -96,6 +96,10 @@
 .tr-layer.is-yard .tr-skip {
   font-size: var(--af-fs-xs);
 }
+/* the narrow column has no room for "Guild training · step 4/9" next to the skip link: the step count is enough */
+.tr-layer.is-yard .tr-kicker-title {
+  display: none;
+}
 .tr-layer.is-yard .tr-head {
   grid-template-columns: minmax(0, 1fr) auto auto;
 }

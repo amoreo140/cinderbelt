@@ -53,7 +53,7 @@ function StepPanel({ g, on }: { g: TrainingGuide; on: TrainingHandlers }) {
     <Panel material="band" cut="md" trim="top" class={`tr-panel${g.completed ? ' is-completed' : ''}`} as="section" aria-label={t().title} testId="training-panel">
       <header class="tr-head">
         <span class="af-label tr-kicker">
-          {t().title} ·{' '}
+          <span class="tr-kicker-title">{t().title} · </span>
           <span class="tr-count" data-testid="training-step">
             {g.stepLabel}
           </span>
