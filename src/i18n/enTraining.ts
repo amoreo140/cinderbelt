@@ -56,6 +56,13 @@ export const enTraining: TrainingTexts = {
     objectives: { keys: ['G'], text: 'Open the objectives' },
     finishItem: { reactor: 'Reactor', radar: 'Radar', gyro: 'Gyroscope', engines: 'A second forward engine' },
   },
+  phases: {
+    flyBuoy: { keys: ['W', 'S', 'A', 'D'], text: 'Fly to the Guild buoy' },
+    flyRock: { keys: [], text: 'Fly to the training rock' },
+    flyBuoyB: { keys: [], text: 'Fly to the second buoy' },
+    stop: { keys: ['S', 'Z'], text: 'Stop at the buoy – brake with the reverse engine and the dampers' },
+    dock: { keys: ['F'], text: 'Dock at the station' },
+  },
   reward: (what) => `Reward: ${what}`,
   kit: 'material and fee for a cargo hold',
   world: {

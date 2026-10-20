@@ -34,16 +34,17 @@ export interface TrainingContext {
   yard: { selected: PartKey | null; rot: Rotation; grid: ShipGrid; dirty: boolean } | null;
   mapOpen: boolean;
   inCombat: boolean;
-  /**
-   * The Guild instructor speaks on the radio (comms part B): the step's prose (why it matters, the
-   * dampers, the vein, the slow approach) is said there, the panel keeps only the situational notes.
-   */
+  /** The Guild instructor speaks on the radio (comms part B); the panel keeps its text regardless. */
   radio?: boolean;
+  /** Live distance (u) and screen bearing (rad) to the step's target; filled by the Game (null until then). */
+  target?: { distance: number; bearing: number } | null;
 }
 
-export interface TrainingLine extends GuideLine {
-  /** Checklist item already done. */
-  done?: boolean;
+export type PhaseState = 'done' | 'current' | 'todo';
+export interface TrainingPhase {
+  text: string;
+  keys: string[];
+  state: PhaseState;
 }
 
 export interface TrainingGuide {
@@ -51,16 +52,41 @@ export interface TrainingGuide {
   total: number;
   stepLabel: string;
   title: string;
+  /** Why the step matters – ALWAYS present (no longer dropped when the radio is on). */
   why: string;
-  lines: TrainingLine[];
-  /** One quieter sentence (inertia, the vein, where the parts are). */
-  note: string | null;
+  /** The step's fixed phases in order; exactly one is 'current' unless all are done. */
+  phases: TrainingPhase[];
+  /** One situational hint (too fast to mine, slow down for the clamp, parts are at X, inertia) or null. */
+  hint: string | null;
+  /** Combat: the panel stays but is dimmed and collapsed. */
+  dimmed: boolean;
+  /** Live distance (u) and screen bearing (rad) to the step's target, copied from the context. */
+  target: { distance: number; bearing: number } | null;
   progress: { value: number; max: number } | null;
   reward: string | null;
   /** CSS selectors of the UI elements to point at. */
   highlight: string[];
   /** Hangar cells to suggest (shipyard). */
   cells: { x: number; y: number }[];
+}
+
+/** A phase before its state is known: `done` comes from the simulation / UI checks. */
+interface RawPhase {
+  line: GuideLine;
+  done: boolean;
+}
+
+/** Done phases are done, the first remaining one is current, the rest are to do. */
+function finishPhases(raw: readonly RawPhase[]): TrainingPhase[] {
+  let currentSet = false;
+  return raw.map((r) => {
+    let state: PhaseState = 'done';
+    if (!r.done) {
+      state = currentSet ? 'todo' : 'current';
+      currentSet = true;
+    }
+    return { text: r.line.text, keys: [...r.line.keys], state };
+  });
 }
 
 const byTestId = (id: string): string => `[data-testid="${id}"]`;
@@ -124,41 +150,41 @@ export function installNeeds(stepId: TrainingStepDef['id'], grid: ShipGrid): Ins
   }
 }
 
-/** Shipyard instructions for an install step. */
-function installGuide(state: SimState, step: TrainingStepDef, ctx: TrainingContext, g: TrainingGuide): void {
+type InstallStage = 'shipyard' | 'pick' | 'place' | 'confirm' | 'done';
+const STAGE_ORDER: Record<InstallStage, number> = { shipyard: 0, pick: 1, place: 2, confirm: 3, done: 4 };
+
+/**
+ * Shipyard instructions for an install task: the stage the player is at and the instruction for it
+ * (null when there is nothing to say); fills the highlights and the suggested cells.
+ */
+function installGuide(step: TrainingStepDef, ctx: TrainingContext, g: TrainingGuide): { stage: InstallStage; line: GuideLine | null } {
   if (ctx.tab !== 'shipyard' || !ctx.yard) {
-    g.lines.push(t().guide.openShipyard);
     g.highlight.push(byTestId('tab-shipyard'));
-    return;
+    return { stage: 'shipyard', line: t().guide.openShipyard };
   }
   const yard = ctx.yard;
   const needs = installNeeds(step.id, yard.grid);
   if (needs.length === 0) {
     if (yard.dirty) {
-      g.lines.push(t().guide.commit);
       g.highlight.push(byTestId('yard-commit'));
+      return { stage: 'confirm', line: t().guide.commit };
     }
-    return;
+    return { stage: 'done', line: null };
   }
   const need = needs[0]!;
   const selected = yard.selected ? parsePartKey(yard.selected) : null;
   if (!selected || selected.partId !== need.partId) {
-    g.lines.push(t().guide.pick(tx().parts[need.partId]));
     g.highlight.push(byTestId(`palette-${need.partId}`));
-    return;
+    return { stage: 'pick', line: t().guide.pick(tx().parts[need.partId]) };
   }
-  if (selected.tier !== 1) {
-    g.lines.push(t().guide.tierOne);
-    return;
-  }
+  if (selected.tier !== 1) return { stage: 'pick', line: t().guide.tierOne };
   if (need.rots && !need.rots.includes(yard.rot) && need.kind) {
-    g.lines.push(t().guide.rotate[need.kind]);
     g.highlight.push(byTestId('yard-ghost'));
-    return;
+    return { stage: 'place', line: t().guide.rotate[need.kind] };
   }
   const cells = placementCells(yard.grid, yard.selected!, yard.rot, need.works).slice(0, need.rots ? 2 : 3);
-  g.lines.push(cells.length > 0 ? t().guide.placeOn : t().guide.placeAny);
   g.cells = cells.map((c) => ({ x: c.x, y: c.y }));
+  return { stage: 'place', line: cells.length > 0 ? t().guide.placeOn : t().guide.placeAny };
 }
 
 /** The reward parts wait at another station than the one the ship is at. */
@@ -171,11 +197,11 @@ function partsElsewhere(state: SimState): string | null {
 
 // ---------------------------------------------------------------------------
 
-/** The step panel right now (null = no training, or hidden in combat). */
+/** The step panel right now (null = no training). In combat it stays, dimmed. */
 export function trainingGuide(state: SimState, ctx: TrainingContext): TrainingGuide | null {
   const training = state.career.training;
   const step = currentTrainingStep(training);
-  if (!step || !training.sites || ctx.inCombat) return null;
+  if (!step || !training.sites) return null;
   const { player } = state;
   const dockId = player.dock.mode === 'docked' ? player.dock.stationId : null;
   const docked = dockId !== null;
@@ -186,124 +212,137 @@ export function trainingGuide(state: SimState, ctx: TrainingContext): TrainingGu
     stepLabel: t().stepOf(training.step + 1, TRAINING_STEP_COUNT),
     title: t().steps[step.id].title,
     why: t().steps[step.id].why,
-    lines: [],
-    note: null,
+    phases: [],
+    hint: null,
+    dimmed: ctx.inCombat,
+    target: ctx.target ?? null,
     progress: step.amount > 1 ? { value, max: step.amount } : null,
     reward: rewardText(step, step.id === 'checklist' ? checklistChart(state) : null),
     highlight: [],
     cells: [],
   };
   const speed = length(player.body.vel);
-  // the prose the instructor says on the radio (null keeps the panel compact)
-  const prose = (text: string): string | null => (ctx.radio ? null : text);
+  const raw: RawPhase[] = [];
   const undock = () => {
-    g.lines.push(t().guide.undock);
-    g.highlight.push(byTestId('undock'));
+    raw.push({ line: t().guide.undock, done: !docked });
+    if (docked) g.highlight.push(byTestId('undock'));
+  };
+  /**
+   * The shipyard phases of an install task: open the shipyard, pick + place (`merged`: one phase;
+   * `finish`: one per missing item of the last step), confirm. Needs the ship to be docked.
+   */
+  const install = (mode: 'plain' | 'merged' | 'finish'): void => {
+    const sy = docked ? installGuide(step, ctx, g) : { stage: 'shipyard' as InstallStage, line: null };
+    const at = docked ? STAGE_ORDER[sy.stage] : 0;
+    const grid = ctx.yard?.grid ?? player.grid;
+    const part = installNeeds(step.id, grid)[0]?.partId ?? 'engine';
+    const now = (stage: InstallStage, fallback: GuideLine): GuideLine => (sy.stage === stage && sy.line ? sy.line : fallback);
+    raw.push({ line: t().guide.openShipyard, done: docked && at > 0 });
+    if (mode === 'finish') {
+      const c = finishChecks(grid);
+      let first = true;
+      for (const k of ['reactor', 'radar', 'gyro', 'engines'] as const) {
+        const text = t().guide.finishItem[k];
+        // the first missing item carries the keys of the current instruction (R, T …)
+        const keys = first && !c[k] && (sy.stage === 'pick' || sy.stage === 'place') && sy.line ? sy.line.keys : [];
+        if (!c[k]) first = false;
+        raw.push({ line: { keys, text }, done: c[k] });
+      }
+      if ((sy.stage === 'pick' || sy.stage === 'place') && sy.line) g.hint = sy.line.text;
+    } else if (mode === 'merged') {
+      raw.push({ line: at === 1 || at === 2 ? sy.line! : t().guide.placeAny, done: at > 2 });
+    } else {
+      raw.push({ line: now('pick', t().guide.pick(tx().parts[part])), done: at > 1 });
+      raw.push({ line: now('place', t().guide.placeOn), done: at > 2 });
+    }
+    raw.push({ line: t().guide.commit, done: at > 3 });
   };
   switch (step.id) {
     case 'flyBuoy':
-      if (docked) undock();
-      else {
-        g.lines.push(t().guide.fly, t().guide.brake, t().guide.turn);
-        g.note = prose(t().guide.inertia);
-      }
+      undock();
+      raw.push({ line: t().phases.flyBuoy, done: false });
+      if (!docked) g.hint = t().guide.inertia;
       break;
     case 'mineIron': {
-      if (docked) {
-        undock();
-        break;
-      }
       const sites = training.sites;
-      const near = Math.hypot(player.body.pos.x - sites.rockPos.x, player.body.pos.y - sites.rockPos.y) < 40;
-      g.lines.push(t().guide.mine);
-      if (near && speed > 4) g.lines.push(t().guide.brake);
-      g.note = near && speed > 4 ? t().guide.tooFastToMine : prose(t().guide.vein);
+      const near = !docked && Math.hypot(player.body.pos.x - sites.rockPos.x, player.body.pos.y - sites.rockPos.y) < 40;
+      undock();
+      raw.push({ line: t().phases.flyRock, done: near });
+      raw.push({ line: t().guide.mine, done: false });
+      if (!docked) g.hint = near && speed > 4 ? t().guide.tooFastToMine : t().guide.vein;
       break;
     }
     case 'dockSell':
-      if (!docked) {
-        g.lines.push(...t().guide.goDock);
-        g.note = prose(t().guide.slowForDock);
-      } else if (ctx.tab !== 'overview') {
-        g.lines.push(t().guide.openOverview);
-        g.highlight.push(byTestId('tab-overview'));
-      } else {
-        g.lines.push(t().guide.sellAll);
-        g.highlight.push(byTestId('sell-all'));
-      }
+      raw.push({ line: t().guide.goDock[0]!, done: docked });
+      raw.push({ line: t().guide.goDock[1]!, done: docked });
+      raw.push({ line: t().guide.openOverview, done: docked && ctx.tab === 'overview' });
+      raw.push({ line: t().guide.sellAll, done: false });
+      if (!docked) g.hint = t().guide.slowForDock;
+      else if (ctx.tab !== 'overview') g.highlight.push(byTestId('tab-overview'));
+      else g.highlight.push(byTestId('sell-all'));
       break;
-    case 'brakeBuoy':
-      if (docked) undock();
-      else {
-        const b = training.sites.buoyB;
-        const close = Math.hypot(player.body.pos.x - b.x, player.body.pos.y - b.y) < BRAKE_REACH * 4;
-        g.lines.push(t().guide.brake, t().guide.dampers);
-        if (close) g.note = t().guide.stopHere(t().world.speed(formatAmount(speed)));
-      }
+    case 'brakeBuoy': {
+      const b = training.sites.buoyB;
+      const close = !docked && Math.hypot(player.body.pos.x - b.x, player.body.pos.y - b.y) < BRAKE_REACH * 4;
+      undock();
+      raw.push({ line: t().phases.flyBuoyB, done: close });
+      raw.push({ line: t().phases.stop, done: false });
+      if (close) g.hint = t().guide.stopHere(t().world.speed(formatAmount(speed)));
       break;
+    }
     case 'installSide':
     case 'installReverse':
     case 'finishShip':
-      if (!docked) {
-        g.lines.push(...t().guide.goDock);
-        g.note = partsElsewhere(state);
-      } else {
-        g.note = partsElsewhere(state);
-        if (step.id === 'finishShip') {
-          const c = finishChecks(ctx.yard?.grid ?? player.grid);
-          for (const k of ['reactor', 'radar', 'gyro', 'engines'] as const) g.lines.push({ keys: [], text: t().guide.finishItem[k], done: c[k] });
-        }
-        installGuide(state, step, ctx, g);
-      }
+      raw.push({ line: t().phases.dock, done: docked });
+      install(step.id === 'finishShip' ? 'finish' : 'plain');
+      g.hint = partsElsewhere(state) ?? g.hint;
       break;
     case 'craftCargo': {
-      if (dockId === null) {
-        g.lines.push(...t().guide.goDock);
-        break;
-      }
-      const stored = Object.entries(stationStorage(state, dockId).parts).some(([k, n]) => (n ?? 0) > 0 && parsePartKey(k as PartKey).partId === 'cargo');
+      raw.push({ line: t().phases.dock, done: docked });
+      const recipeName = `${tx().parts.cargo} T1`;
+      const stored = dockId !== null && Object.entries(stationStorage(state, dockId).parts).some(([k, n]) => (n ?? 0) > 0 && parsePartKey(k as PartKey).partId === 'cargo');
       const draftHas = ctx.yard ? cargoCount(ctx.yard.grid) >= 2 : false;
-      if (stored || draftHas || ctx.tab === 'shipyard') {
-        installGuide(state, step, ctx, g);
-        break;
+      // crafted already (or past it: the shipyard is open) → the install phases
+      const crafted = docked && (stored || draftHas || ctx.tab === 'shipyard');
+      const tabOk = docked && ctx.tab === 'crafting';
+      const recipeOk = tabOk && ctx.craftKey === 'cargo:1';
+      raw.push({ line: t().guide.openCrafting, done: crafted || tabOk });
+      raw.push({ line: t().guide.pickRecipe(recipeName), done: crafted || recipeOk });
+      raw.push({ line: t().guide.craft, done: crafted });
+      if (crafted) install('merged');
+      else {
+        raw.push({ line: t().guide.openShipyard, done: false }, { line: t().guide.placeAny, done: false }, { line: t().guide.commit, done: false });
+        if (docked) {
+          g.highlight.push(byTestId(!tabOk ? 'tab-crafting' : !recipeOk ? 'recipe-cargo:1' : 'craft'));
+          const have = availableResources(state, dockId!);
+          const recipe = RECIPES['cargo:1'];
+          if (recipe.resources.iron! > have.iron + 1e-9 || state.credits < recipe.credits) g.hint = t().guide.partsAt(stationLabel(state.seed, training.rewardAt));
+        }
       }
-      // craft first
-      if (ctx.tab !== 'crafting') {
-        g.lines.push(t().guide.openCrafting);
-        g.highlight.push(byTestId('tab-crafting'));
-      } else if (ctx.craftKey !== 'cargo:1') {
-        g.lines.push(t().guide.pickRecipe(`${tx().parts.cargo} T1`));
-        g.highlight.push(byTestId('recipe-cargo:1'));
-      } else {
-        g.lines.push(t().guide.craft);
-        g.highlight.push(byTestId('craft'));
-      }
-      const have = availableResources(state, dockId);
-      const recipe = RECIPES['cargo:1'];
-      if (recipe.resources.iron! > have.iron + 1e-9 || state.credits < recipe.credits) g.note = t().guide.partsAt(stationLabel(state.seed, training.rewardAt));
       break;
     }
     case 'checklist': {
       const f = training.flags;
-      const refuelLine: TrainingLine = { ...t().guide.refuel, done: (f & CHECK_REFUEL) !== 0 };
-      const mapLine: TrainingLine = { ...t().guide.map, done: (f & CHECK_MAP) !== 0 };
-      const objLine: TrainingLine = { ...t().guide.objectives, done: (f & CHECK_OBJECTIVES) !== 0 };
-      g.lines.push(refuelLine, mapLine, objLine);
-      if (!refuelLine.done && docked) {
+      const refuelDone = (f & CHECK_REFUEL) !== 0;
+      const mapDone = (f & CHECK_MAP) !== 0;
+      let refuel: GuideLine = t().guide.refuel;
+      if (!refuelDone && docked) {
         if (ctx.tab !== 'service') {
-          g.lines.splice(0, 1, { ...t().guide.openService, text: `${t().guide.refuel.text} – ${t().guide.openService.text.toLowerCase()}`, done: false });
+          refuel = { keys: t().guide.openService.keys, text: `${t().guide.refuel.text} – ${t().guide.openService.text.toLowerCase()}` };
           g.highlight.push(byTestId('tab-service'));
         } else g.highlight.push(byTestId('refuel-full'));
       }
-      if (!mapLine.done && docked && refuelLine.done) {
-        g.note = t().guide.mapInFlight;
+      raw.push({ line: refuel, done: refuelDone });
+      raw.push({ line: t().guide.map, done: mapDone });
+      raw.push({ line: t().guide.objectives, done: (f & CHECK_OBJECTIVES) !== 0 });
+      if (!mapDone && docked && refuelDone) {
+        g.hint = t().guide.mapInFlight;
         g.highlight.push(byTestId('undock'));
       }
       break;
     }
   }
-  // nothing more specific to say: one sentence why the step matters (said on the radio when it is on)
-  g.note ??= prose(g.why);
+  g.phases = finishPhases(raw);
   return g;
 }
 

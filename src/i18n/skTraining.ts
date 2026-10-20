@@ -58,6 +58,8 @@ export interface TrainingTexts {
     /** Last step: what is still missing. */
     finishItem: Record<'reactor' | 'radar' | 'gyro' | 'engines', string>;
   };
+  /** Phases of the step checklist that the situational guide lines do not cover. */
+  phases: Record<'flyBuoy' | 'flyRock' | 'flyBuoyB' | 'stop' | 'dock', GuideLine>;
   /** What the step pays. */
   reward: (what: string) => string;
   kit: string;
@@ -162,6 +164,13 @@ export const skTraining: TrainingTexts = {
     mapInFlight: 'Mapa sa otvára v lete – odleť a stlač M.',
     objectives: { keys: ['G'], text: 'Otvor ciele' },
     finishItem: { reactor: 'Reaktor', radar: 'Radar', gyro: 'Gyroskop', engines: 'Druhý motor dopredu' },
+  },
+  phases: {
+    flyBuoy: { keys: ['W', 'S', 'A', 'D'], text: 'Doleť k bóji Cechu' },
+    flyRock: { keys: [], text: 'Prileť k cvičnému kameňu' },
+    flyBuoyB: { keys: [], text: 'Prileť k druhej bóji' },
+    stop: { keys: ['S', 'Z'], text: 'Zastav pri bóji – brzdi spätným motorom a tlmičmi' },
+    dock: { keys: ['F'], text: 'Pristaň v stanici' },
   },
   reward: (what) => `Odmena: ${what}`,
   kit: 'materiál a poplatok na nákladný priestor',

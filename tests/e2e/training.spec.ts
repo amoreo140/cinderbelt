@@ -403,7 +403,7 @@ test('M3.7: the whole Guild Training through the real UI ends with the starter s
   await page.waitForFunction(() => window.__cinder!.sim.state.player.dock.mode === 'flying');
   await page.keyboard.press('KeyK'); // the controls help collapsed – the panel and the labels stay clear
   await shot(page, '02-fly-buoy');
-  await expect(page.getByTestId('training-panel')).toContainText('brzdenie spätným motorom');
+  await expect(page.getByTestId('training-panel')).toContainText('Doleť k bóji Cechu');
   await small(page);
   const sites = start.sites!;
   await flyTo(page, () => sites.buoyA, { stop: false, cruise: 12, done: (s) => s.step !== 'flyBuoy' });

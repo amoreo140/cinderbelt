@@ -38,23 +38,24 @@ function StepPanel({ g, on }: { g: TrainingGuide; on: TrainingHandlers }) {
       <h2 class="tr-title" data-testid="training-title">
         {g.title}
       </h2>
-      {g.lines.length > 0 && (
+      <p class="tr-why">{g.why}</p>
+      {g.phases.length > 0 && (
         <ul class="tr-lines">
-          {g.lines.map((l) => (
-            <li key={l.text} class={l.done ? 'is-done' : l.done === false ? 'is-todo' : ''}>
-              {l.done !== undefined && <Lamp state={l.done ? 'ok' : 'off'} />}
-              {l.keys.length > 0 ? (
-                <KeyHint keys={l.keys} dark>
-                  {l.text}
+          {g.phases.map((p) => (
+            <li key={p.text} class={p.state === 'done' ? 'is-done' : p.state === 'current' ? 'is-now' : 'is-todo'}>
+              <Lamp state={p.state === 'done' ? 'ok' : p.state === 'current' ? 'warn' : 'off'} />
+              {p.state !== 'done' && p.keys.length > 0 ? (
+                <KeyHint keys={p.keys} dark>
+                  {p.text}
                 </KeyHint>
               ) : (
-                <span>{l.text}</span>
+                <span>{p.text}</span>
               )}
             </li>
           ))}
         </ul>
       )}
-      {g.note && <p class="tr-note">{g.note}</p>}
+      {g.hint && <p class="tr-note">{g.hint}</p>}
       {g.progress && (
         <div class="tr-progress" role="meter" aria-label={t().panel.progress} aria-valuemin={0} aria-valuemax={g.progress.max} aria-valuenow={Math.floor(g.progress.value)}>
           <span class="tr-progress-bar">

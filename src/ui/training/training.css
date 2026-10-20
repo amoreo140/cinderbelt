@@ -148,6 +148,16 @@
   text-decoration-color: rgba(147, 160, 179, 0.6);
 }
 
+.tr-why {
+  margin: 0;
+  font-size: var(--af-fs-sm);
+  line-height: var(--af-lh);
+  color: var(--af-text-dim);
+}
+.tr-lines li.is-todo {
+  color: var(--af-text-dim);
+}
+
 .tr-note {
   margin: 0;
   font-size: var(--af-fs-sm);
