@@ -211,13 +211,3 @@
   font-size: var(--af-fs-sm);
 }
 
-/* hub with 7 tabs (Archive): narrower tabs so they fit the plate width */
-.hub .af-tabs {
-  gap: 2px;
-  padding: 0 var(--af-s2);
-}
-.hub .af-tab {
-  gap: 0.35rem;
-  padding: 0 0.55rem 0 0.45rem;
-  font-size: var(--af-fs-md);
-}

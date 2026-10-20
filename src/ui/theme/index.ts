@@ -17,7 +17,7 @@ export { Modal, type ModalProps } from './Modal';
 export { Odometer, type OdometerProps } from './Odometer';
 export { Heading, Panel, Seam, type PanelMaterial, type PanelProps } from './Panel';
 export { ShipSilhouette, type ShipSilhouetteProps } from './ShipSilhouette';
-export { TabRail, type TabDef } from './Tabs';
+export { TabRail, type TabBadge, type TabDef } from './Tabs';
 export { ToastView, type ToastTone } from './Toast';
 export { Term, Tooltip, TooltipLayer, useTip } from './Tooltip';
 export { FONTS, PALETTE, RING_ACCENTS, ringAccent, STATION_COLORS } from './tokens';

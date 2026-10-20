@@ -66,6 +66,7 @@ import { asteroidFields } from './discovery/fields';
 import { courierOffer } from './board/storagesView';
 import { PiratesUi } from './pirates/piratesUi';
 import { coveredNozzles, designGap, type DesignGap } from './designGap';
+import { hubBadges, turnInReady, type HubBadges, type TurnInReady } from './stationBadges';
 import { CommsUi, type CommsHandlers } from './comms/commsUi';
 import type { RadioSetting } from './comms/types';
 import { predictCollision, type CollisionWarning } from './flightAssist';
@@ -337,6 +338,8 @@ export class Game {
   private readonly hubRepair = new ViewMemo<{ view: RepairView; rowOk: Record<number, boolean> }>();
   private readonly hubGap = new ViewMemo<DesignGap | null>();
   private readonly hubNozzles = new ViewMemo<number>();
+  private readonly hubTurnIn = new ViewMemo<TurnInReady>();
+  private readonly hubBadgeMemo = new ViewMemo<HubBadges>();
   /** Success texts for sent actions (reqId → toast). */
   private readonly pendingOk = new Map<number, () => string>();
   /** Last vein bonus for the HUD (the label does not flicker when briefly leaving the vein). */
@@ -1644,6 +1647,7 @@ export class Game {
     const autoBuy = this.stationUi.repairAutoBuy;
     const repair = this.stationUi.tab === 'overview' ? this.hubRepair.get([...key, autoBuy], () => ({ view: repairView(this.sim.state, station, autoBuy), rowOk: this.repairRowOk(station) })) : null;
     const storage = stationStorage(this.sim.state, station.id);
+    const turnIn = this.hubTurnIn.get(key, () => turnInReady(this.sim.state, station));
     return {
       station,
       name: formatStationName(station),
@@ -1663,6 +1667,8 @@ export class Game {
       emergency: emergencyFuelAvailable(this.sim.state, station),
       ui: { ...this.stationUi },
       reveal: this.reveal,
+      turnIn,
+      badges: this.hubBadgeMemo.get([...key, turnIn], () => hubBadges(this.sim.state, station, turnIn)),
       partsMarket: this.hubMarket.get([...key, this.stationUi.partTier], () => partsMarketRows(station, storage.parts, credits, this.stationUi.partTier, (k) => lockReason(this.sim.state, k))),
       crafting: this.stationUi.tab === 'market' && this.stationUi.marketKind === 'craft' ? this.hubCrafting.get([...key, this.stationUi.craftTier], () => craftingRows(this.sim.state, station, this.stationUi.craftTier)) : [],
       repair: repair?.view ?? NO_REPAIRS,

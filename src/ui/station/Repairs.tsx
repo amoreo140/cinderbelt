@@ -3,8 +3,8 @@ import { parsePartKey } from '../../data/parts';
 import type { RepairView } from '../../game/stationView';
 import { tx } from '../../i18n';
 import type { GameActionInput } from '../../sim/commands';
-import { formatCredits, formatPercent } from '../format';
-import { Gauge, Heading, Lamp, Panel, PartChip } from '../theme';
+import { formatCredits } from '../format';
+import { Gauge, Lamp, Panel, PartChip } from '../theme';
 import { Act, type ClickSound } from './Act';
 
 export interface RepairsProps {
@@ -18,11 +18,9 @@ export interface RepairsProps {
 
 export function Repairs(p: RepairsProps) {
   const { on, view } = p;
-  const pct = Math.round(view.hull.fraction * 100);
   if (!view.damaged) {
     return (
       <section>
-        <Heading>{tx().service.repairs}</Heading>
         <Panel material="screen" cut="sm" class="hub-status" testId="repairs-ok">
           <Lamp state="ok" />
           <span>{tx().service.repairsOk}</span>
@@ -35,7 +33,6 @@ export function Repairs(p: RepairsProps) {
   }
   return (
     <section data-testid="repairs">
-      <Heading aside={formatPercent(pct)}>{tx().service.repairs}</Heading>
       <Panel material="screen" cut="md" class="hub-gauges">
         <Gauge kind="hull" label={tx().service.hull} value={view.hull.current} max={view.hull.max} segments={30} warnAt={0.6} critAt={0.3} />
       </Panel>

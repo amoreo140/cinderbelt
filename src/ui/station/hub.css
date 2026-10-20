@@ -1,11 +1,27 @@
 /* Station hub – a light hull plate set in a dark structural frame (like the station modules). */
 
+/* Larger type for the station screens (readability pass, like the HUD in hud.css): body 16 px, buttons and
+   table text 15 px, descriptions 14 px, labels and keycaps 13 px. The shipyard editor (.hub--yard) keeps the
+   global scale – its dense layout would overflow. */
+.hub {
+  --af-fs-xs: 0.8125rem;
+  --af-fs-sm: 0.875rem;
+  --af-fs-md: 0.9375rem;
+  --af-fs-lg: 1rem;
+}
+.hub--yard {
+  --af-fs-xs: 0.6875rem;
+  --af-fs-sm: 0.75rem;
+  --af-fs-md: 0.8125rem;
+  --af-fs-lg: 0.9375rem;
+}
+
 .hub {
   position: absolute;
   top: var(--af-edge);
   right: var(--af-edge);
   bottom: var(--af-edge);
-  width: min(40rem, calc(100vw - 2 * var(--af-edge)));
+  width: min(44rem, calc(100vw - 2 * var(--af-edge)));
   pointer-events: auto;
   filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.55));
   animation: hub-in var(--af-dur-hatch) var(--af-ease-clamp) both;
@@ -115,6 +131,22 @@
 .hub-welcome p {
   margin: 0;
 }
+/* arrival card: the actions that make sense right after docking, as big buttons */
+.hub-body .hub-arrival {
+  margin-bottom: 1.1rem;
+}
+.hub-arrival-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 8px;
+}
+.hub-arrival .af-btn {
+  min-height: 3rem;
+}
+.hub-arrival-none {
+  margin: 0.2rem 0 0;
+  font-size: var(--af-fs-lg);
+}
 .hub-columns {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
@@ -215,7 +247,7 @@
 }
 .hub-table tbody th,
 .hub-table td {
-  padding: 7px 6px 6px;
+  padding: 10px 6px 9px;
   text-align: left;
   font-weight: 400;
   white-space: nowrap;
@@ -778,14 +810,22 @@
   flex-shrink: 0;
   white-space: nowrap;
 }
-/* eight tabs (home): a tighter rail */
-.hub-frame > .af-tabs:has(> .af-tab:nth-child(8)) {
-  gap: 2px;
-  padding: 0 0.55rem;
+/* the editor spans the whole width and needs its height: the tabs go back to one row (icon, label, badge) */
+.hub--yard .af-tab--icon {
+  flex: 0 0 auto;
+  flex-direction: row;
+  height: 2.4rem;
+  padding: 0 0.8rem 0 0.6rem;
+  gap: 0.45rem;
 }
-.hub-frame > .af-tabs:has(> .af-tab:nth-child(8)) .af-tab {
-  gap: 0.3rem;
-  padding: 0 0.5rem 0 0.4rem;
+.hub--yard .af-tab--icon .af-tab-icon,
+.hub--yard .af-tab--icon .af-tab-icon svg {
+  width: 18px;
+  height: 18px;
+}
+.hub--yard .af-tab--icon .af-tab-lock,
+.hub--yard .af-tab-badge {
+  position: static;
 }
 /* even the short labels too wide (a window narrower than the hub): narrower letters */
 @media (max-width: 680px) {

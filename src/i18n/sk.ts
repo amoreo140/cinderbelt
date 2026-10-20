@@ -122,6 +122,20 @@ export interface CoreTexts {
       noYard: string;
     };
     welcome: string;
+    /** Tooltips of the attention marks on the tabs. */
+    tabBadge: { jobs: (n: number) => string; market: string; shipyard: string };
+    /** The arrival card at the top of the Overview ("After docking"): only the actions that make sense now. */
+    arrival: {
+      title: string;
+      sell: string;
+      refuel: string;
+      /** Aside of the refuel button: units of fuel and the price. */
+      refuelAside: (units: string, cost: string) => string;
+      repair: (parts: number) => string;
+      turnIn: (n: number) => string;
+      nothing: string;
+      nothingNoJobs: string;
+    };
     ship: string;
     quickActions: string;
     serviceSection: string;
@@ -894,7 +908,22 @@ export const sk = {
       action: 'Upraviť v lodenici',
       noYard: 'Táto stanica nemá lodenicu',
     },
-    welcome: 'Vitaj na Základni Počiatok. Leť ťažiť suroviny do okolitých sektorov, predaj ich tu na trhu a natankuj. Z bohatšieho nákladu vyrobíš nové diely a v Lodenici si s nimi loď prestavíš.',
+    welcome: 'Vitaj na Základni Počiatok. Ťaž v okolitých sektoroch, predaj tu a natankuj. Z bohatšieho nákladu vyrobíš diely a prestavíš loď.',
+    tabBadge: {
+      jobs: (n: number): string => `${n} ${plural(n, 'zákazka', 'zákazky', 'zákaziek')} na odovzdanie`,
+      market: 'V lodi máš náklad na predaj',
+      shipyard: 'V sklade sú diely, ktoré môžeš namontovať',
+    },
+    arrival: {
+      title: 'Po prílete',
+      sell: 'Predať náklad',
+      refuel: 'Natankovať do plna',
+      refuelAside: (units: string, cost: string): string => `${units} j · ${cost}`,
+      repair: (parts: number): string => `Opraviť ${parts} ${plural(parts, 'diel', 'diely', 'dielov')}`,
+      turnIn: (n: number): string => `Odovzdať ${n} ${plural(n, 'zákazku', 'zákazky', 'zákaziek')}`,
+      nothing: 'Tu nie je čo robiť – pozri Zákazky, kde je práca.',
+      nothingNoJobs: 'Tu nie je čo robiť.',
+    },
     ship: 'Loď',
     quickActions: 'Rýchle akcie',
     serviceSection: 'Servis',

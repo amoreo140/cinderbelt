@@ -156,7 +156,8 @@ function Highlight({ selectors }: { selectors: readonly string[] }) {
           if (!last || Number.isNaN(last[0])) box.style.visibility = '';
           if (!last || last[0] !== b[0] || last[1] !== b[1]) {
             box.style.transform = `translate(${b[0]}px, ${b[1]}px)`;
-            box.classList.toggle('is-low', b[1]! < 28);
+            // a tab: the tag goes below it (above it the tag covers the station name)
+            box.classList.toggle('is-low', b[1]! < 28 || targets[i]?.getAttribute('role') === 'tab');
           }
           if (!last || last[2] !== b[2] || last[3] !== b[3]) {
             box.style.width = `${b[2]}px`;

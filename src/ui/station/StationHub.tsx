@@ -31,11 +31,14 @@ import {
   ShipSilhouette,
   TabRail,
   Term,
+  type TabBadge,
   type TabDef,
 } from '../theme';
 import type { DesignGap } from '../../game/designGap';
 import { formatParts } from '../../game/shipyardView';
 import { Act } from './Act';
+import { TAB_ICONS } from './tabIcons';
+import type { HubBadges, TurnInReady } from '../../game/stationBadges';
 import { Archive } from './Archive';
 import type { ArchiveData } from '../../game/discovery/archiveView';
 import type { ExploreHandlers } from '../../game/discovery/exploreUi';
@@ -144,6 +147,10 @@ export interface StationHubData {
   development?: DevelopmentData | null;
   /** Unlocked UI features (Guild Training); absent = every tab is open. */
   reveal?: ReadonlySet<UiFeature>;
+  /** Contracts that can be handed in here right now (the arrival card, the Jobs badge). */
+  turnIn?: TurnInReady;
+  /** Attention marks on the tabs. */
+  badges?: HubBadges;
 }
 
 export interface StationHubHandlers {
@@ -200,6 +207,16 @@ export function craftLockReason(reveal: ReadonlySet<UiFeature> = ALL_FEATURES): 
   return step === null ? tx().station.tabLockedAfter : tx().station.tabLockedStep(step);
 }
 
+/** The attention mark of a tab (a count for the contracts to hand in, a dot for the rest), or undefined. */
+export function tabBadge(tab: StationTab, badges: HubBadges | undefined): TabBadge | undefined {
+  if (!badges) return undefined;
+  const t = tx().station.tabBadge;
+  if (tab === 'board') return badges.jobs > 0 ? { count: badges.jobs, label: t.jobs(badges.jobs) } : undefined;
+  if (tab === 'market') return badges.market ? { label: t.market } : undefined;
+  if (tab === 'shipyard') return badges.shipyard ? { label: t.shipyard } : undefined;
+  return undefined;
+}
+
 export const tabListed = (tab: StationTab, station: StationDef): boolean => tab !== 'development' || station.id === HOME_STATION_ID;
 
 function tabEnabled(tab: StationTab, station: StationDef): boolean {
@@ -248,12 +265,6 @@ function ListRow({ label, children, empty }: { label: string; children: Componen
 function Overview(p: Props) {
   const { on } = p;
   const used = cargoUsed(p.cargo);
-  const sellValue = sellAllValue(p.cargo, p.prices.resources, p.refined, p.demand);
-  const sellAll = () => {
-    for (const id of RESOURCE_IDS) {
-      if (p.cargo[id] > 1e-9) on.action({ type: 'sellResource', resource: id, qty: 'all', from: 'ship' });
-    }
-  };
   const unloadAll = () => {
     for (const id of RESOURCE_IDS) {
       if (p.cargo[id] > 1e-9) on.action({ type: 'transfer', resource: id, qty: 'all', to: 'storage' });
@@ -267,6 +278,7 @@ function Overview(p: Props) {
   const storageParts = Object.values(p.storage.parts).some((n) => (n ?? 0) > 0);
   return (
     <div class="hub-overview">
+      <ArrivalCard {...p} />
       {p.ui.welcome && (
         <Panel material="screen" cut="sm" class="hub-welcome">
           <Lamp state="info" />
@@ -285,18 +297,6 @@ function Overview(p: Props) {
         </section>
         <section class="hub-quick">
           <Heading>{tx().station.quickActions}</Heading>
-          <Act
-            on={on}
-            block
-            variant={emptyCargo ? 'secondary' : 'primary'}
-            testId="sell-all"
-            disabled={!p.station.services.market || emptyCargo}
-            reason={!p.station.services.market ? tx().market.unavailable : tx().market.nothingToSell}
-            onClick={sellAll}
-            aside={`+${formatCredits(sellValue)}`}
-          >
-            {tx().station.sellAll}
-          </Act>
           <Act
             on={on}
             block
@@ -340,6 +340,90 @@ function Overview(p: Props) {
         </ListRow>
       </div>
     </div>
+  );
+}
+
+/**
+ * "After docking" – the actions that make sense right now, each with its value, as big buttons: sell the
+ * cargo, refuel, repair everything, hand in the ready contracts. Nothing to do = one quiet line.
+ */
+function ArrivalCard(p: Props) {
+  const { on } = p;
+  const t = tx().station.arrival;
+  const svc = p.station.services;
+  const sellValue = sellAllValue(p.cargo, p.prices.resources, p.refined, p.demand);
+  const canSell = svc.market && cargoUsed(p.cargo) >= 0.05;
+  const ice = p.storage.resources.ice + p.cargo.ice;
+  const q = refuelQuote({ fuel: p.fuel, capacity: p.fuelMax, ice, credits: p.credits, ring: p.station.ring, ...(p.fuelPrice !== undefined ? { unitPrice: p.fuelPrice } : {}) });
+  const canRefuel = svc.refuel && q.missing >= 1;
+  const canRepair = svc.repair && p.repair.damaged;
+  const turnIn = p.turnIn?.ids ?? [];
+  const anything = canSell || canRefuel || canRepair || turnIn.length > 0;
+  const sellAll = () => {
+    for (const id of RESOURCE_IDS) {
+      if (p.cargo[id] > 1e-9) on.action({ type: 'sellResource', resource: id, qty: 'all', from: 'ship' });
+    }
+  };
+  return (
+    <section class="hub-arrival" data-testid="arrival-card">
+      <Heading>{t.title}</Heading>
+      {anything ? (
+        <div class="hub-arrival-actions">
+          {canSell && (
+            <Act on={on} block size="lg" variant="primary" testId="sell-all" onClick={sellAll} aside={`+${formatCredits(sellValue)}`}>
+              {t.sell}
+            </Act>
+          )}
+          {turnIn.length > 0 && (
+            <Act
+              on={on}
+              block
+              size="lg"
+              variant="primary"
+              testId="arrival-turnin"
+              onClick={() => {
+                for (const id of turnIn) on.action({ type: 'turnInContract', contractId: id });
+              }}
+              aside={`+${formatCredits(p.turnIn?.reward ?? 0)}`}
+            >
+              {t.turnIn(turnIn.length)}
+            </Act>
+          )}
+          {canRepair && (
+            <Act
+              on={on}
+              block
+              size="lg"
+              testId="arrival-repair"
+              disabled={!p.repair.all.ok}
+              reason={tx().service.cannotRepair}
+              onClick={() => on.action({ type: 'repair', partIds: 'all', autoBuy: p.ui.repairAutoBuy })}
+              aside={p.repair.all.text}
+            >
+              {t.repair(p.repair.rows.length)}
+            </Act>
+          )}
+          {canRefuel && (
+            <Act
+              on={on}
+              block
+              size="lg"
+              testId="arrival-refuel"
+              disabled={!q.affordableFull}
+              reason={tx().service.notEnoughCredits}
+              onClick={() => on.action({ type: 'refuel', source: 'credits', amount: 'full' })}
+              aside={t.refuelAside(formatAmount(q.missing), formatCredits(q.fullCost))}
+            >
+              {t.refuel}
+            </Act>
+          )}
+        </div>
+      ) : (
+        <p class="hub-dim hub-arrival-none" data-testid="arrival-none">
+          {tabLockReason('board', p.reveal) === null ? t.nothing : t.nothingNoJobs}
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -663,7 +747,6 @@ function Service(p: Props) {
       )}
       {p.station.services.refuel && (
       <section>
-        <Heading>{tx().service.refuel}</Heading>
         <Panel material="screen" cut="md" class="hub-gauges">
           <Gauge kind="fuel" label={tx().hud.fuel} value={p.fuel} max={p.fuelMax} segments={30} />
         </Panel>
@@ -805,6 +888,8 @@ export function StationHub(p: Props) {
     const enabled = lock === null && tabEnabled(tab, station);
     const label = labels[i];
     return {
+      icon: TAB_ICONS[tab],
+      badge: lock === null && enabled ? tabBadge(tab, p.badges) : undefined,
       id: tab,
       label: tab === 'shipyard' && p.yardDirty ? <span class="hub-tab-dirty">{label}</span> : label,
       // in the editor the keys 1–9 pick parts from the palette

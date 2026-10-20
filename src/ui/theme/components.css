@@ -457,6 +457,88 @@
   opacity: 0.8;
 }
 
+/* tab with an icon: icon over the label, the keycap, the badge and the lock in the corners (the hub rail) */
+.af-tab--icon {
+  flex: 1 0 auto;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.2rem;
+  height: 3.6rem;
+  padding: 0.3rem 0.7rem 0;
+  font-size: 1rem;
+  color: #b7c2d2;
+}
+.af-tab--icon .af-tab-icon {
+  display: flex;
+  height: 22px;
+}
+.af-tab--icon .af-tab-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.af-tab--icon .af-tab-label {
+  line-height: 1.1;
+}
+.af-tab--icon .af-key {
+  position: absolute;
+  top: 5px;
+  left: 6px;
+  min-width: 1.2rem;
+  height: 1.2rem;
+  font-size: 0.75rem;
+}
+.af-tab--icon[aria-selected='true'] .af-tab-icon {
+  color: var(--af-trim-ink);
+}
+.af-tab--icon:hover:not([aria-disabled='true']):not([aria-selected='true']) {
+  color: #fff;
+}
+.af-tab--icon[aria-disabled='true'] {
+  color: #7f8c9f;
+}
+.af-tab--icon .af-tab-lock {
+  position: absolute;
+  top: 6px;
+  right: 7px;
+}
+/* badge: a count pill or a dot in the trim orange – draws attention where there is something to do */
+.af-tab-badge {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.2rem;
+  height: 1.2rem;
+  padding: 0 0.3rem;
+  border-radius: 0.6rem;
+  background: var(--af-trim);
+  color: var(--af-ink);
+  font-family: var(--af-font-display);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 0 0 2px var(--af-band-hi);
+}
+.af-tab-badge[data-kind='dot'] {
+  min-width: 0;
+  width: 0.7rem;
+  height: 0.7rem;
+  padding: 0;
+  border-radius: 50%;
+  top: 6px;
+  right: 8px;
+}
+.af-tab[aria-selected='true'] .af-tab-badge {
+  box-shadow: 0 0 0 2px var(--af-hull-hi);
+}
+
 /* ───────────── segmented gauge ───────────── */
 .af-gauge {
   --seg: var(--af-glow);

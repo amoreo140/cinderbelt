@@ -12,6 +12,15 @@ export interface TabDef<T extends string> {
   reason?: string;
   /** Locked by progression (not by the station): marked with data-locked. */
   locked?: boolean;
+  /** A stroke icon (~20 px, currentColor); with it the tab is drawn stacked: icon over the label. */
+  icon?: ComponentChildren;
+  /** A call for attention: a count pill (`count`) or a dot (no count); `label` is its tooltip and accessible name. */
+  badge?: TabBadge;
+}
+
+export interface TabBadge {
+  count?: number;
+  label: string;
 }
 
 function LockGlyph() {
@@ -24,12 +33,13 @@ function LockGlyph() {
 }
 
 function Tab<T extends string>({ tab, active, onSelect, testIdPrefix }: { tab: TabDef<T>; active: boolean; onSelect: (id: T) => void; testIdPrefix?: string }) {
-  const handlers = useTip(tab.disabled ? tab.reason : undefined, 'reason', 'below');
+  const badge = tab.disabled ? undefined : tab.badge;
+  const handlers = useTip(tab.disabled ? tab.reason : badge?.label, tab.disabled ? 'reason' : 'info', 'below');
   return (
     <button
       type="button"
       role="tab"
-      class="af-tab af-focusable"
+      class={`af-tab af-focusable${tab.icon ? ' af-tab--icon' : ''}`}
       aria-selected={active}
       aria-disabled={tab.disabled ? 'true' : undefined}
       data-locked={tab.locked ? 'true' : undefined}
@@ -40,9 +50,19 @@ function Tab<T extends string>({ tab, active, onSelect, testIdPrefix }: { tab: T
       }}
       {...handlers}
     >
+      {tab.icon && (
+        <span class="af-tab-icon" aria-hidden="true">
+          {tab.icon}
+        </span>
+      )}
       {tab.keyHint && <Key dark={!active}>{tab.keyHint}</Key>}
-      <span>{tab.label}</span>
+      <span class="af-tab-label">{tab.label}</span>
       {tab.disabled && <LockGlyph />}
+      {badge && (
+        <span class="af-tab-badge" data-kind={badge.count !== undefined ? 'count' : 'dot'} role="img" aria-label={badge.label}>
+          {badge.count !== undefined ? badge.count : ''}
+        </span>
+      )}
     </button>
   );
 }
