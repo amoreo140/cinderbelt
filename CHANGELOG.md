@@ -16,6 +16,16 @@ All notable changes to this project are documented here. The format follows [Kee
 - Larger HUD text.
 - Edge arrows keep clear of the pirate threat band and the radio line.
 
+### Station
+- Six station tabs: servicing (refuel, repair) moved into the Overview, crafting into the Market, and the Board is now called Jobs.
+- Tab icons and badges: the Jobs tab counts contracts ready to hand in, Market and Shipyard show a dot when there is something to do.
+- Larger station text.
+- Arrival card on the Overview: the useful actions after docking (sell cargo, refuel, repair, hand in contracts) as big buttons with their values.
+- Jobs board: a recommended contract with the reason, compact rows for the other offers, and a compact local-conditions strip.
+- Local conditions show only when something is going on in the sector.
+- The welcome text appears only at the home station; "Unload cargo to storage" sits under the cargo gauge.
+- Training: the suggested cells are shown before the engine is turned, with an R prompt; the compact panel in the shipyard no longer overlaps its skip link.
+
 ## [0.3.0] – first public release
 
 ### Flight & mining
