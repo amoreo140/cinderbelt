@@ -1,10 +1,11 @@
-// Both languages have every key: the English modules mirror the Slovak ones key by key (the types already
+// Every language has every key: the English and German modules mirror the Slovak ones key by key (the types already
 // require it; this also catches empty strings, empty variant lists and functions with the wrong arity).
 // Modules still waiting for a translation fall back to Slovak (see the en*.ts TODOs) and pass trivially.
 import { describe, expect, it } from 'vitest';
 import { textsFor, type Texts } from './index';
 import { skComms } from './skComms';
 import { enComms } from './enComms';
+import { deComms } from './deComms';
 import { skTraining } from './skTraining';
 
 type Shape = string | number | boolean | null | undefined | ((...args: never[]) => unknown) | readonly Shape[] | { [k: string]: Shape };
@@ -56,29 +57,33 @@ function emptyTexts(node: Shape, path = ''): string[] {
 
 const SK = textsFor('sk') as unknown as Shape;
 const EN = textsFor('en') as unknown as Shape;
+const DE = textsFor('de') as unknown as Shape;
 const MODULES = Object.keys(textsFor('sk')) as (keyof Texts)[];
 
-describe('i18n parity (Slovak ↔ English)', () => {
-  it('both languages have the same modules', () => {
+describe('i18n parity (Slovak ↔ English ↔ German)', () => {
+  it('every language has the same modules', () => {
     expect(Object.keys(textsFor('en')).sort()).toEqual([...MODULES].sort());
+    expect(Object.keys(textsFor('de')).sort()).toEqual([...MODULES].sort());
   });
 
   for (const name of MODULES) {
-    it(`${name}: the same keys, list shapes and function arities in both languages`, () => {
+    it(`${name}: the same keys, list shapes and function arities in every language`, () => {
       expect(shapeDiff((SK as Record<string, Shape>)[name], (EN as Record<string, Shape>)[name], name)).toEqual([]);
+      expect(shapeDiff((SK as Record<string, Shape>)[name], (DE as Record<string, Shape>)[name], name)).toEqual([]);
     });
   }
 
-  it('no empty text in either language', () => {
+  it('no empty text in any language', () => {
     expect(emptyTexts(SK)).toEqual([]);
     expect(emptyTexts(EN)).toEqual([]);
+    expect(emptyTexts(DE)).toEqual([]);
   });
 
   it('comms: no empty text in either language, every variant list has a line', () => {
     expect(emptyTexts(skComms as unknown as Shape)).toEqual([]);
     expect(emptyTexts(enComms as unknown as Shape)).toEqual([]);
     const lists = (t: typeof skComms): (readonly unknown[])[] => Object.values(t.lines).flatMap((group) => Object.values(group) as unknown as (readonly unknown[])[]);
-    for (const list of [...lists(skComms), ...lists(enComms)]) expect(list.length).toBeGreaterThan(0);
+    for (const list of [...lists(skComms), ...lists(enComms), ...lists(deComms)]) expect(list.length).toBeGreaterThan(0);
   });
 
   it('comms: the instructor has an intro and a nudge for every training step, every first contact has a line', () => {
@@ -91,7 +96,7 @@ describe('i18n parity (Slovak ↔ English)', () => {
       t.instructor.nudgeDock,
       ...Object.values(t.firstContact),
     ];
-    for (const t of [skComms, enComms]) {
+    for (const t of [skComms, enComms, deComms]) {
       expect(Object.keys(t.instructor.intro).sort()).toEqual(Object.keys(skTraining.steps).sort());
       expect(Object.keys(t.instructor.nudge).sort()).toEqual(Object.keys(skTraining.steps).sort());
       for (const list of lists(t)) expect(list.length).toBeGreaterThan(0);

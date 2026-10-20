@@ -1,5 +1,5 @@
 // Random seed for sharing (M2): a word pair + a number, e.g. `tichy-prach-73` (Slovak UI) or
-// `quiet-dust-73` (English UI). Without diacritics so it is easy to retype and send; the Slovak
+// `quiet-dust-73` (English UI) or `stiller-staub-73` (German UI). Without diacritics so it is easy to retype and send; the Slovak
 // adjectives are masculine and agree with all the nouns. A seed is just a string: only the
 // proposal follows the UI language, any seed typed or shared keeps producing the same universe.
 import { getLocale, type Locale } from '../../i18n/locale';
@@ -112,6 +112,62 @@ export const SEED_NOUNS_EN = [
   'compass',
 ] as const;
 
+/** German: strong masculine adjectives (umlauts spelled out) that agree with every noun below. */
+export const SEED_ADJECTIVES_DE = [
+  'stiller',
+  'funkelnder',
+  'goldener',
+  'kalter',
+  'dunkler',
+  'blauer',
+  'gruener',
+  'ferner',
+  'eisiger',
+  'eiserner',
+  'kupferner',
+  'harter',
+  'schneller',
+  'alter',
+  'heller',
+  'polarer',
+  'tiefer',
+  'matter',
+  'gluehender',
+  'einsamer',
+  'purpurner',
+  'silberner',
+  'wilder',
+  'ruhiger',
+] as const;
+
+/** German masculine nouns, so every adjective above agrees. */
+export const SEED_NOUNS_DE = [
+  'staub',
+  'meteor',
+  'pulsar',
+  'quasar',
+  'mond',
+  'ring',
+  'nebel',
+  'wind',
+  'kristall',
+  'leuchtturm',
+  'kessel',
+  'hafen',
+  'schmied',
+  'motor',
+  'zenit',
+  'horizont',
+  'vektor',
+  'anker',
+  'rumpf',
+  'rand',
+  'schatten',
+  'orbit',
+  'norden',
+  'kompass',
+] as const;
+
 /** A uniformly random number 0 ≤ x < 1. */
 export type RandomSource = () => number;
 
@@ -119,9 +175,8 @@ const pick = <T>(list: readonly T[], rand: RandomSource): T => list[Math.min(lis
 
 /** A random seed text with words in the given language (default: the active UI language). */
 export function randomSeedText(rand: RandomSource = Math.random, locale: Locale = getLocale()): string {
-  const english = locale === 'en';
-  const adjective = pick(english ? SEED_ADJECTIVES_EN : SEED_ADJECTIVES, rand);
-  const noun = pick(english ? SEED_NOUNS_EN : SEED_NOUNS, rand);
+  const adjective = pick(locale === 'en' ? SEED_ADJECTIVES_EN : locale === 'de' ? SEED_ADJECTIVES_DE : SEED_ADJECTIVES, rand);
+  const noun = pick(locale === 'en' ? SEED_NOUNS_EN : locale === 'de' ? SEED_NOUNS_DE : SEED_NOUNS, rand);
   const number = 10 + Math.min(89, Math.floor(rand() * 90));
   return `${adjective}-${noun}-${number}`;
 }

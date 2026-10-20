@@ -47,7 +47,7 @@ src/
   game/          glue: App/boot, Game (loop), input, settings, view-models, save service
   data/          content tables: parts, stations, contracts, economy, factions, ...
   audio/         procedural SFX, ambient and the music player/director
-  i18n/          Slovak + English texts and the tx() accessor
+  i18n/          Slovak + English + German texts and the tx() accessor
   testing/       small helpers shared by tests (GLB and fs access in Node)
 art/             Blender scripts that generate every model/texture, optimizer, art handbook
 public/assets/   shipped, optimized assets (models, textures, music, skybox, planets)
@@ -152,14 +152,14 @@ station and derelict layouts). They hold numbers and ids, not text. The simulati
 `public/assets/music/manifest.json`; `musicDirector.ts` chooses tracks and stem intensity from the
 game situation. `src/game/GameAudio.ts` and `audioMapping.ts` connect simulation events to sounds.
 
-## `src/i18n` - two languages
+## `src/i18n` - three languages
 
-The game is bilingual (Slovak and English). Player-facing text is only read through `tx()`
+The game is multilingual (Slovak, English and German). Player-facing text is only read through `tx()`
 (`src/i18n/index.ts`), never hard-coded in components or the simulation. Each language is a
-bundle (`textsSk.ts`, `textsEn.ts`) assembled from per-area modules (`skPirates.ts` and
-`enPirates.ts`, ...), and **only the active language is loaded at runtime**; `setLocale()`
+bundle (`textsSk.ts`, `textsEn.ts`, `textsDe.ts`) assembled from per-area modules (`skPirates.ts`,
+`enPirates.ts`, `dePirates.ts`, ...), and **only the active language is loaded at runtime**; `setLocale()`
 (`locale.ts`) is async the first time a language is switched to. Tests and the UI kit register
-both via `allTexts.ts`. `parity.test.ts` checks that both languages have the same keys and shapes.
+every language via `allTexts.ts`. `parity.test.ts` checks that all languages have the same keys and shapes.
 `GLOSSARY.md` fixes the vocabulary.
 
 ## Saves

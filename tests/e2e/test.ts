@@ -4,7 +4,7 @@ import { test as base, expect } from '@playwright/test';
 // language keep it (language.spec switches and reloads). A describe block that needs an English first
 // launch sets `test.use({ firstLaunchLanguage: 'en' })`; a spec that needs the real first launch (no
 // preset at all) imports from '@playwright/test' directly.
-export const test = base.extend<{ firstLaunchLanguage: 'sk' | 'en' }>({
+export const test = base.extend<{ firstLaunchLanguage: 'sk' | 'en' | 'de' }>({
   firstLaunchLanguage: ['sk', { option: true }],
   context: async ({ context, firstLaunchLanguage }, use) => {
     await context.addInitScript((language) => {

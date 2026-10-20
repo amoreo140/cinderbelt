@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { seedFromText } from '../../sim/settings';
-import { mulberry32Like, randomSeedText, SEED_ADJECTIVES, SEED_ADJECTIVES_EN, SEED_NOUNS, SEED_NOUNS_EN } from './seedWords';
+import { mulberry32Like, randomSeedText, SEED_ADJECTIVES, SEED_ADJECTIVES_DE, SEED_ADJECTIVES_EN, SEED_NOUNS, SEED_NOUNS_DE, SEED_NOUNS_EN } from './seedWords';
 
 describe('random seed text', () => {
   it('is an adjective-noun-number triple without diacritics', () => {
@@ -31,7 +31,7 @@ describe('random seed text', () => {
   });
 
   it('word lists are clean, unique and produce distinct world seeds', () => {
-    for (const list of [SEED_ADJECTIVES, SEED_NOUNS, SEED_ADJECTIVES_EN, SEED_NOUNS_EN]) {
+    for (const list of [SEED_ADJECTIVES, SEED_NOUNS, SEED_ADJECTIVES_EN, SEED_NOUNS_EN, SEED_ADJECTIVES_DE, SEED_NOUNS_DE]) {
       expect(new Set(list).size).toBe(list.length);
       for (const w of list) expect(w).toMatch(/^[a-z]{3,10}$/);
     }
@@ -49,6 +49,18 @@ describe('random seed text', () => {
     expect(randomSeedText(() => 0, 'sk')).toBe('tichy-prach-10');
     expect(SEED_ADJECTIVES_EN.length).toBe(SEED_ADJECTIVES.length);
     expect(SEED_NOUNS_EN.length).toBe(SEED_NOUNS.length);
+  });
+
+  it('German words follow the German locale', () => {
+    const rand = mulberry32Like(13);
+    for (let i = 0; i < 100; i++) {
+      const [adj, noun] = randomSeedText(rand, 'de').split('-');
+      expect(SEED_ADJECTIVES_DE).toContain(adj);
+      expect(SEED_NOUNS_DE).toContain(noun);
+    }
+    expect(randomSeedText(() => 0, 'de')).toBe('stiller-staub-10');
+    expect(SEED_ADJECTIVES_DE.length).toBe(SEED_ADJECTIVES.length);
+    expect(SEED_NOUNS_DE.length).toBe(SEED_NOUNS.length);
   });
 
   it('defaults to the active UI language', async () => {

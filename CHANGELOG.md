@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+- German as a third language: every text module translated (`de*.ts`), a German glossary (`src/i18n/GLOSSARY-DE.md`), German sector names with gender agreement, German seed words, and German number and percent formatting.
+
 ## [0.3.0] – first public release
 
 ### Flight & mining

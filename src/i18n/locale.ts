@@ -1,19 +1,19 @@
-// The current UI language: Slovak or English. The game and the UI read texts through `tx()` (index.ts),
+// The current UI language: Slovak, English or German. The game and the UI read texts through `tx()` (index.ts),
 // which follows this setting; the simulation never sees it (it emits ids and events, text is chosen
 // in game/ui). Switching is live: listeners re-render what does not redraw on its own. Only the active
 // language's texts are loaded – a switch to the other one waits for its download (index.ts).
 
-export type Locale = 'sk' | 'en';
+export type Locale = 'sk' | 'en' | 'de';
 
-export const LOCALES: readonly Locale[] = ['sk', 'en'];
+export const LOCALES: readonly Locale[] = ['sk', 'en', 'de'];
 
 /** Language names in their own language (a language picker never translates them). */
-export const LOCALE_NAMES: Record<Locale, string> = { sk: 'Slovenčina', en: 'English' };
+export const LOCALE_NAMES: Record<Locale, string> = { sk: 'Slovenčina', en: 'English', de: 'Deutsch' };
 
 /** BCP 47 tags for Intl (numbers, plurals). */
-export const INTL_TAGS: Record<Locale, string> = { sk: 'sk-SK', en: 'en-GB' };
+export const INTL_TAGS: Record<Locale, string> = { sk: 'sk-SK', en: 'en-GB', de: 'de-DE' };
 
-export const isLocale = (value: unknown): value is Locale => value === 'sk' || value === 'en';
+export const isLocale = (value: unknown): value is Locale => value === 'sk' || value === 'en' || value === 'de';
 
 let current: Locale = 'sk';
 /** The language of the last setLocale call (a slower earlier download must not switch back to its language). */

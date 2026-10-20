@@ -19,8 +19,8 @@ export const formatPrice = formatAmount;
 /** Whole credits with the unit: "1 240 kr" / "1,240 cr". */
 export const formatCredits = (value: number): string => `${formatNumber(value, 0)} ${tx().units.credits}`;
 
-/** Between a number and "%": a non-breaking space in Slovak ("45 %"), nothing in English ("45%"). */
-const PERCENT_GAP: Record<Locale, string> = { sk: ' ', en: '' };
+/** Between a number and "%": a non-breaking space in Slovak and German ("45 %"), nothing in English ("45%"). */
+const PERCENT_GAP: Record<Locale, string> = { sk: ' ', en: '', de: ' ' };
 
 /**
  * A percentage already multiplied by 100: "45 %" / "45%" (up to `decimals` places, trailing zeros
