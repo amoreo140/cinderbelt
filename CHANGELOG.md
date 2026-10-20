@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### First 15 minutes
+- Music is off by default for new players, and the controls help starts closed.
+- New interface size setting (Settings) scales the whole HUD.
+- Guild Training panel: a checklist of the phases that stays until a step is done, a Done state, and a final card that stays on screen; bottom centre in flight.
+- Goal marker on screen and a bolder goal arrow, with concrete target names.
+- HUD parts, keys and station tabs unlock step by step during the training; skipping or finishing it shows everything. Saves are unaffected, but a save made mid-training shows only the parts unlocked so far.
+- Compact ship console: cargo, speed, shield and dampers appear only when they matter.
+- One-line location readout; the radar legend shows while `?` is held.
+- Radio shows as one line at the top centre with a longer reading time and up to three lines of text.
+- Larger HUD text.
+- Edge arrows keep clear of the pirate threat band and the radio line.
+
 ## [0.3.0] – first public release
 
 ### Flight & mining
