@@ -270,6 +270,8 @@ test('M3.5a: “where I left off” card after loading a saved game', async ({ p
   await page.getByTestId('menu-new').click();
   await page.getByTestId('preset-standard').click();
   await page.getByTestId('seed-input').fill('kde-som-skoncil-1');
+  // the training would keep the Board tab locked
+  await page.getByTestId('ng-training').getByRole('button', { name: 'Preskočiť výcvik' }).click();
   await page.getByTestId('new-game-start').click();
   await page.waitForFunction(() => (window.__cinder?.sim.state.tick ?? 0) > 5, null, { timeout: 30_000 });
   await expect(page.getByTestId('station-hub')).toBeVisible();

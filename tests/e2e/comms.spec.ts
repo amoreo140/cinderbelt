@@ -348,6 +348,10 @@ test('radio part B: the Guild instructor talks the training through – intro, n
   await shotBoth(page, 'b-step5-brake');
 
   // the log keeps what the instructor said
+  // the log key is unlocked by the training's checklist step (progressive reveal)
+  await page.evaluate(() => {
+    window.__cinder!.sim.state.career.training.step = 7;
+  });
   await page.keyboard.press('KeyL');
   await expect(page.getByTestId('comm-log')).toContainText('Majster Bartoš');
   await page.keyboard.press('KeyL');
