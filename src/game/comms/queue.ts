@@ -29,11 +29,12 @@ export const READ_CHARS_PER_SECOND = 30;
 
 /**
  * How long a message stays on the radio (s) – the ONE place of the display-time rule:
- * max(sourceTtl, min(12, 5 + chars / 30)). `ttl: 0` (and a pinned message) stays until it is handled.
+ * max(sourceTtl, min(12, 5 + chars / 30)). Only a pinned message stays
+ * until it is handled; `ttl: 0` is the reading-time minimum.
  * The text is shown at once (no typewriter): reading time matters more than the effect.
  */
 export const messageDuration = (m: Pick<CommsMessage, 'lines' | 'ttl' | 'pinned'>): number =>
-  m.pinned || m.ttl === 0 ? Infinity : Math.max(m.ttl, Math.min(READ_MAX, READ_MIN + messageChars(m) / READ_CHARS_PER_SECOND));
+  m.pinned ? Infinity : Math.max(m.ttl, Math.min(READ_MAX, READ_MIN + messageChars(m) / READ_CHARS_PER_SECOND));
 
 export const messagePriority = (m: Pick<CommsMessage, 'channel' | 'reply' | 'boost'>): number => CHANNEL_PRIORITY[m.channel] + (m.reply ? 10 : 0) + (m.boost ?? 0);
 

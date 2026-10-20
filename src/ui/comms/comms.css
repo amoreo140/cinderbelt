@@ -409,9 +409,15 @@
   .cm-log {
     animation: none;
   }
+  .cm-timebar {
+    display: none;
+  }
 }
 :root[data-reduced-motion] .cm-line,
 :root[data-reduced-motion] .cm-timebar,
 :root[data-reduced-motion] .cm-log {
   animation: none;
+}
+:root[data-reduced-motion] .cm-timebar {
+  display: none;
 }

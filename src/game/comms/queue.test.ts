@@ -24,7 +24,7 @@ describe('CommsQueue', () => {
     expect(q.showing?.shownAt).toBe(messageDuration(a));
   });
 
-  it('display time rule: max(ttl, min(12, 5 + chars / 30)); ttl 0 and pinned stay until handled', () => {
+  it('display time rule: max(ttl, min(12, 5 + chars / 30)); only pinned stays until handled; ttl 0 is the reading minimum', () => {
     const short = msg('s', 'station', { lines: ['Hi'], ttl: 2 });
     expect(messageDuration(short)).toBeCloseTo(READ_MIN + 2 / 30);
     const long = msg('l', 'station', { lines: ['x'.repeat(90)], ttl: 2 });
@@ -33,10 +33,10 @@ describe('CommsQueue', () => {
     expect(messageDuration(huge)).toBe(READ_MAX);
     // a source asking for more than the rule gets it
     expect(messageDuration(msg('t', 'station', { lines: ['Hi'], ttl: 20 }))).toBe(20);
-    expect(messageDuration(msg('z', 'station', { ttl: 0 }))).toBe(Infinity);
+    expect(messageDuration(msg('z', 'station', { lines: ['Hi'], ttl: 0 }))).toBeCloseTo(READ_MIN + 2 / 30);
     expect(messageDuration(msg('p', 'danger', { pinned: true, ttl: 3 }))).toBe(Infinity);
     const q = new CommsQueue();
-    q.push(msg('persist', 'station', { ttl: 0 }), 0);
+    q.push(msg('persist', 'station', { ttl: 0, pinned: true }), 0);
     expect(q.update(1000)).toBeNull();
     expect(q.showing?.msg.key).toBe('persist');
   });

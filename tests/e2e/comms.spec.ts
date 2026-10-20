@@ -253,8 +253,8 @@ async function noOverlap(page: Page): Promise<void> {
 
 /** Screenshot at 1280×720 and at 1920×1080, both checked for overlap (the window size is restored). */
 async function shotBoth(page: Page, name: string): Promise<void> {
-  // the message typed out (its full height is reserved from the start)
-  await page.waitForFunction(() => [...document.querySelectorAll('.cm-rest')].every((e) => !e.textContent), null, { timeout: 15_000 });
+  // the message is shown at once (no typewriter)
+  await expect(page.getByTestId('comm-panel')).toBeVisible();
   await page.waitForTimeout(300);
   await noOverlap(page);
   await page.screenshot({ path: `${OUT}/${name}.png` });
