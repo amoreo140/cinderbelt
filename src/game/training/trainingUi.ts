@@ -62,6 +62,8 @@ export class TrainingUi {
   private collapsed = false;
   /** The "ship is ready" card stays until the player closes it. */
   private doneOpen = false;
+  /** The card was on the screen at the last redraw (hidden in combat). */
+  private doneShown = false;
   /** The last live guide, and the finished step held for COMPLETED_HOLD_SECONDS after the step advanced. */
   private lastGuide: TrainingGuide | null = null;
   private held: { guide: TrainingGuide; until: number } | null = null;
@@ -121,7 +123,7 @@ export class TrainingUi {
       if (code === 'Escape') this.handlers.cancelSkip();
       return true;
     }
-    if (this.doneOpen && code === 'Escape') {
+    if (this.doneOpen && this.doneShown && code === 'Escape') {
       this.closeDoneCard();
       return true;
     }
@@ -162,7 +164,7 @@ export class TrainingUi {
       return null;
     }
     if (prev && live.index > prev.index) {
-      this.held = { guide: { ...prev, phases: prev.phases.map((p) => ({ ...p, state: 'done' as const })), completed: true }, until: clock + COMPLETED_HOLD_SECONDS };
+      this.held = { guide: { ...prev, phases: prev.phases.map((p) => ({ ...p, state: 'done' as const })), target: null, completed: true }, until: clock + COMPLETED_HOLD_SECONDS };
     }
     if (this.held && clock < this.held.until) return this.held.guide;
     this.held = null;
@@ -177,6 +179,7 @@ export class TrainingUi {
     const live = trainingGuide(state, ctx);
     const guide = this.shownGuide(live, clock);
     const done = !live && this.doneOpen && !ctx.inCombat;
+    this.doneShown = done;
     if (!guide && !done && !this.confirmOpen) return null;
     return {
       guide,

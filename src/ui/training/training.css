@@ -39,12 +39,21 @@
   left: 0;
   right: 0;
   margin: 0 auto;
-  width: min(40rem, calc(100vw - 2rem));
+  width: min(32rem, calc(100vw - 2rem));
 }
-/* narrower than ~1900 px the console (left) and the radar with the scanner (right) leave no room for a
-   centred panel, and a wide one would cover the middle of the view: it keeps the top-left corner under the
+/* the docking prompt and the hint of the flight HUD sit above the bottom-centre panel */
+@media (min-width: 1760px) {
+  body:has(.tr-layer:not(.is-docked) .tr-panel) .hud-prompt {
+    bottom: calc(var(--af-edge) + 20rem);
+  }
+  body:has(.tr-layer:not(.is-docked) .tr-panel) .hud-hint {
+    bottom: calc(var(--af-edge) + 24rem);
+  }
+}
+/* narrower than ~1760 px the console (left, to x≈600 px) leaves no room for a
+   centred 32rem panel (it needs the console's edge + 2 × 16 px clear on both sides), and a wide one would cover the middle of the view: it keeps the top-left corner under the
    navigation band, as before */
-@media (max-width: 1899px) {
+@media (max-width: 1759px) {
   .tr-layer:not(.is-docked) .tr-panel {
     top: calc(var(--hud-nav-bottom, var(--af-edge) + 5.2rem) + 0.4rem);
     bottom: auto;
@@ -52,7 +61,7 @@
     right: auto;
     margin: 0;
     width: min(29rem, calc(100vw - 2rem));
-    gap: 0.4rem;
+    gap: 0.3rem;
   }
   .tr-layer:not(.is-docked) button.tr-tab {
     top: calc(var(--hud-nav-bottom, var(--af-edge) + 5.2rem) + 0.4rem);

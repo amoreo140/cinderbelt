@@ -312,7 +312,7 @@ export function TrainingLayer({ d, on }: { d: TrainingUiData; on: TrainingHandle
         </button>
       )}
       {!g && d.done && <DoneCard on={on} />}
-      {g && <Highlight selectors={g.highlight} />}
+      {g && <Highlight selectors={g.completed ? [] : g.highlight} />}
       {d.cells.map((c, i) => (
         <span
           key={`${i}:${c.x}:${c.y}`}

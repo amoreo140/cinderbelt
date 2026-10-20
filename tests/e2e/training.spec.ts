@@ -335,13 +335,14 @@ async function shot(page: Page, name: string): Promise<void> {
 /** Screenshots at 1920×1080 and 1280×720; in flight the panel must not overlap the console or the radar. */
 async function layoutShot(page: Page, name: string, flying: boolean): Promise<void> {
   const before = page.viewportSize();
-  for (const [w, h] of [[1920, 1080], [1280, 720]] as const) {
+  for (const [w, h] of [[1920, 1080], [1760, 990], [1600, 900], [1536, 864], [1280, 720]] as const) {
     await page.setViewportSize({ width: w, height: h });
     await waitTicks(page, 12);
     await page.screenshot({ path: `${OUT}/m37-${name}-${w}.png` });
     if (!flying) continue;
     const panel = (await page.getByTestId('training-panel').boundingBox())!;
-    for (const sel of ['.hud-console', '.hud-radar']) {
+    for (const sel of ['.hud-console', '.hud-radar', '.hud-prompt', '.hud-hint']) {
+      if ((await page.locator(sel).count()) === 0) continue;
       const box = await page.locator(sel).first().boundingBox();
       if (!box) continue;
       const overlap = panel.x < box.x + box.width && panel.x + panel.width > box.x && panel.y < box.y + box.height && panel.y + panel.height > box.y;
@@ -480,6 +481,7 @@ test('M3.7: the whole Guild Training through the real UI ends with the starter s
 
   // 3 – dock and sell
   await shot(page, '05-go-dock');
+  await layoutShot(page, '05-go-dock', true);
   await dockHome(page);
   await shot(page, '06-docked-sell');
   await layoutShot(page, '06-docked-sell', false);

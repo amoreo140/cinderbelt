@@ -297,14 +297,14 @@ test('radio part B: the Guild instructor talks the training through – intro, n
   await expect(page.getByTestId('comm-text')).toContainText('bóji');
   await expect(step).toContainText('Doleť k bóji Cechu');
   await expect(step).toContainText('Odmena');
-  await expect(step.locator('.tr-note')).toHaveCount(0);
+  await expect(step).toContainText('Cech ti požičal cvičný trup');
   await shotBoth(page, 'b-step1-docked');
 
-  // in flight the panel is compact: W / S / A-D, no prose (the instructor says it)
+  // in flight the panel keeps its why text and the hint next to the radio
   await page.getByTestId('undock').click();
   await expect(page.getByTestId('station-hub')).toBeHidden();
-  await expect(step).toContainText('brzdenie spätným motorom');
-  await expect(step).not.toContainText('Tlmiče (Z) brzdia samy');
+  await expect(step).toContainText('Cech ti požičal cvičný trup');
+  await expect(step).toContainText('Tlmiče (Z) brzdia samy');
   await waitTicks(page, 30);
   // a minute without progress: a nudge
   await quietRadio(page);
