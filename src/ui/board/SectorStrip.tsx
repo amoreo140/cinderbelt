@@ -7,10 +7,11 @@ import './board.css';
 const t = () => tx().goals.board;
 
 /** `hideWhenCalm`: render nothing when the sector has no modifier (the strip is only news when something is going on). */
-export function SectorStrip({ sector, testId, hideWhenCalm }: { sector: SectorView; testId?: string; hideWhenCalm?: boolean }) {
+/** `compact`: one line per modifier (name + effect), without the kind label – for the Jobs tab where the offers matter more. */
+export function SectorStrip({ sector, testId, hideWhenCalm, compact }: { sector: SectorView; testId?: string; hideWhenCalm?: boolean; compact?: boolean }) {
   if (hideWhenCalm && sector.modifiers.length === 0) return null;
   return (
-    <Panel material="screen" cut="sm" class="bd-sector" testId={testId}>
+    <Panel material="screen" cut="sm" class={compact ? 'bd-sector bd-sector--compact' : 'bd-sector'} testId={testId}>
       <span class="af-label bd-sector-title">{t().sector}</span>
       {sector.modifiers.length === 0 ? (
         <span class="bd-sector-calm">
@@ -22,7 +23,7 @@ export function SectorStrip({ sector, testId, hideWhenCalm }: { sector: SectorVi
             <li key={m.id} class={`bd-mod bd-mod--${m.kind}`}>
               <Lamp state={m.kind === 'warning' ? 'warn' : 'info'} />
               <span class="bd-mod-name">{m.name}</span>
-              <span class="af-label bd-mod-kind">{m.kindName}</span>
+              {!compact && <span class="af-label bd-mod-kind">{m.kindName}</span>}
               {m.bonus > 0 && <span class="bd-mod-bonus">{tx().goals.sector.bonus(m.bonus)}</span>}
               <span class="bd-mod-effect">{m.effect}</span>
             </li>

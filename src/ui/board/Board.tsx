@@ -47,7 +47,7 @@ function Contracts({ d, on, from }: { d: BoardData; on: BoardHandlers; from: { x
   );
   return (
     <div class="bd-contracts">
-      <SectorStrip sector={d.sector} testId="board-sector" hideWhenCalm />
+      <SectorStrip sector={d.sector} testId="board-sector" hideWhenCalm compact />
       <section class="bd-section">
         <Heading aside={`${d.active.length} / 3`}>{t().active}</Heading>
         {d.active.length === 0 ? (

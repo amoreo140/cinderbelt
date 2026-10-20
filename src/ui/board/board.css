@@ -6,6 +6,13 @@
 .bd-section > .af-heading {
   margin-bottom: 0.5rem;
 }
+/* the hub resets section margins (.hub-body section) – the Jobs sections keep their own rhythm */
+.bd-contracts > .bd-section {
+  margin-top: 1.15rem;
+}
+.bd-contracts > .bd-sector + .bd-section {
+  margin-top: 0.9rem;
+}
 .bd-empty {
   margin: 0.2rem 0 0.4rem;
   font-size: var(--af-fs-sm);
@@ -82,6 +89,32 @@
 .bd-mod-effect {
   grid-column: 2 / -1;
   color: var(--af-text-dim);
+}
+
+/* compact strip (Jobs): one line per modifier – name and short effect, no kind label */
+.bd-sector--compact {
+  padding: 0.4rem 0.8rem;
+  gap: 0.15rem 0.8rem;
+}
+.bd-sector--compact .bd-sector-list {
+  gap: 0.1rem;
+}
+.bd-sector--compact .bd-mod {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+.bd-sector--compact .bd-mod-name {
+  flex: none;
+}
+.bd-sector--compact .bd-mod-effect {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* factions */
