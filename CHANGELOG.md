@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.3.1] – a clearer start
+
+Based on the feedback on the first public release: a calmer first 15 minutes, a simpler station and a third language.
+
 ### First 15 minutes
 - Music is off by default for new players, and the controls help starts closed.
 - New interface size setting (Settings) scales the whole HUD.
@@ -12,7 +16,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - HUD parts, keys and station tabs unlock step by step during the training; skipping or finishing it shows everything. Saves are unaffected, but a save made mid-training shows only the parts unlocked so far.
 - Compact ship console: cargo, speed, shield and dampers appear only when they matter.
 - One-line location readout; the radar legend shows while `?` is held.
-- Radio shows as one line at the top centre with a longer reading time and up to three lines of text.
+- Radio shows as one line at the top centre with a longer reading time and up to four lines of text.
 - Larger HUD text.
 - Edge arrows keep clear of the pirate threat band and the radio line.
 
@@ -25,6 +29,10 @@ All notable changes to this project are documented here. The format follows [Kee
 - Local conditions show only when something is going on in the sector.
 - The welcome text appears only at the home station; "Unload cargo to storage" sits under the cargo gauge.
 - Training: the suggested cells are shown before the engine is turned, with an R prompt; the compact panel in the shipyard no longer overlaps its skip link.
+
+### Shipyard
+- Top view (Home) is a toggle: pressed again it returns to the 3/4 view.
+- The footer shows that Alt + drag (or the middle button) turns and tilts the camera.
 
 ### Languages
 - German as a third language, contributed by @brummilab (#1): every text module translated (`de*.ts`), a German glossary (`src/i18n/GLOSSARY-DE.md`), German sector names with gender agreement, German seed words, and German number and percent formatting.
