@@ -5,6 +5,7 @@ import type { TrainingTexts } from './skTraining';
 export const enTraining: TrainingTexts = {
   title: 'Guild Training',
   stepOf: (n, total) => `Step ${n}/${total}`,
+  goalNames: { flyBuoy: 'Guild buoy', mineIron: 'Training rock', brakeBuoy: 'Second buoy' },
   steps: {
     flyBuoy: { title: 'Fly to the Guild buoy', why: 'The Guild lent you a training hull – learn to fly it first.' },
     mineIron: { title: 'Mine 20 iron from the training rock', why: 'Iron is your first income and the material for parts.' },

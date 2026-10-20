@@ -416,8 +416,7 @@
   transform-origin: 22px 19px;
 }
 .hud-arrow--goal .hud-arrow-label {
-  font-size: var(--af-fs-md, 1rem);
-  font-size: max(1rem, var(--af-fs-md, 1rem));
+  font-size: 1rem;
   padding: 4px 12px;
 }
 

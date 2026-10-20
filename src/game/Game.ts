@@ -85,7 +85,7 @@ import type { GuildDevHooks } from './guild/types';
 import { GuildUi } from './guild/guildUi';
 import { MapPlanUi } from './map/mapPlanUi';
 import { goalEdgeArrow, goalMark, type GoalHud } from '../ui/goalMark';
-import { flightHudRects, hudArrowFootprint, hudArrowRect, navArrows, placeHudArrows, type EdgeArrowInput, type NavMark } from '../ui/edgeArrows';
+import { flightHudRects, hudArrowFootprint, hudArrowRect, navArrows, placeHudArrows, type EdgeArrowInput, type NavMark, type ScreenRect } from '../ui/edgeArrows';
 import { formatClock } from '../ui/sites/chipFormat';
 import type { RouteMark } from './map/mapPlanUi';
 import type { EdgeArrowMark } from '../ui/EdgeArrowLayer';
@@ -1969,8 +1969,10 @@ export class Game {
     if (inputs.length === 0) return null;
     const view = { width: rect.width, height: rect.height };
     const placed = placeHudArrows(stationArrow, objectiveArrow, view, this.helpOpen);
-    const hudArrows = [placed.station, placed.goal].filter((a): a is EdgeArrow & { label: string } => a !== null);
-    return navArrows(inputs, view, { avoid: [...flightHudRects(view), ...hudArrows.map(hudArrowRect)], obstacles: hudArrows.map(hudArrowFootprint) });
+    const boxes: { rect: ScreenRect; foot: ScreenRect }[] = [];
+    if (placed.station) boxes.push({ rect: hudArrowRect(placed.station), foot: hudArrowFootprint(placed.station) });
+    if (placed.goal) boxes.push({ rect: hudArrowRect(placed.goal, true), foot: hudArrowFootprint(placed.goal, true) });
+    return navArrows(inputs, view, { avoid: [...flightHudRects(view), ...boxes.map((b) => b.rect)], obstacles: boxes.map((b) => b.foot) });
   }
 
   /** Callout labels with screen positions (the 2 nearest objects, the object under analysis). */

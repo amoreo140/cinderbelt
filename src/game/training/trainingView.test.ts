@@ -6,7 +6,7 @@ import { teleport, trainingSim, undock } from '../../sim/training/testing';
 import type { Simulation } from '../../sim/Simulation';
 import { HOME_STATION_ID } from '../../sim/world/stations';
 import { dockPoint } from '../../sim/station/dock';
-import { installNeeds, trainingCallouts, trainingGuide, trainingObjective, type TrainingContext } from './trainingView';
+import { installNeeds, trainingCallouts, trainingTargetName, trainingGuide, trainingObjective, type TrainingContext } from './trainingView';
 import { homeStation } from '../../sim/world/stations';
 
 const ctx = (patch: Partial<TrainingContext> = {}): TrainingContext => ({ tab: 'overview', craftKey: null, yard: null, mapOpen: false, inCombat: false, ...patch });
@@ -14,6 +14,20 @@ const at = (sim: Simulation, id: (typeof TRAINING_STEPS)[number]['id']): void =>
   sim.state.career.training.step = TRAINING_STEPS.findIndex((s) => s.id === id);
 };
 const yard = (grid: ShipGrid, selected: string | null, rot: Rotation, dirty = false): TrainingContext['yard'] => ({ selected: selected as never, rot, grid, dirty });
+
+describe('training goal name', () => {
+  it('names the buoy and the rock, nothing for a station step', () => {
+    const sim = trainingSim(1337);
+    at(sim, 'flyBuoy');
+    expect(trainingTargetName(sim.state)).toBe('Bója Cechu');
+    at(sim, 'mineIron');
+    expect(trainingTargetName(sim.state)).toBe('Cvičný kameň');
+    at(sim, 'brakeBuoy');
+    expect(trainingTargetName(sim.state)).toBe('Druhá bója');
+    at(sim, 'dockSell');
+    expect(trainingTargetName(sim.state)).toBeNull();
+  });
+});
 
 describe('training guide – flight and dock', () => {
   it('docked at the start: undock is highlighted; in flight: W, S (the reverse engine), A/D and the dampers note', () => {

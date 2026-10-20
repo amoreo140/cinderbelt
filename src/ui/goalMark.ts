@@ -24,21 +24,18 @@ export interface GoalHud {
 
 /**
  * The goal's mark from its projected screen point, the ship's screen point and the view size.
- * `bearing` points from the ship to the goal; a goal behind the camera is mirrored (as `edgeArrow` does).
+ * `bearing` points from the ship to the goal in screen space, the same direction the edge arrow points
+ * (for a goal behind the camera both are mirrored through the centre, as `edgeArrow` does: the screen
+ * direction away from the projected point, i.e. towards where the goal really is).
  */
 export function goalMark(
   goal: { x: number; y: number; behind?: boolean },
   ship: { x: number; y: number },
   view: { width: number; height: number },
 ): { mark: GoalMark; bearing: number } {
-  let dx = goal.x - ship.x;
-  let dy = goal.y - ship.y;
-  if (goal.behind) {
-    dx = 0 - dx;
-    dy = 0 - dy;
-  }
-  const bearing = Math.atan2(dy, dx);
   const edge = edgeArrow(goal, view, GOAL_MARGIN);
+  // off screen: the arrow's direction (from the view centre); on screen: from the ship to the goal
+  const bearing = edge ? (Math.abs(edge.angle) === Math.PI ? Math.PI : edge.angle) : Math.atan2(goal.y - ship.y, goal.x - ship.x);
   return { mark: edge ? { kind: 'edge', ...edge } : { kind: 'onScreen', x: goal.x, y: goal.y }, bearing };
 }
 
@@ -47,7 +44,7 @@ const px = Math.round;
 /** Same goal on screen: its name, the distance in whole units, the mark to whole pixels / ~0.5 degrees. */
 export function sameGoalHud(a: GoalHud, b: GoalHud): boolean {
   if (a === b) return true;
-  if (a.label !== b.label || px(a.distance) !== px(b.distance) || a.mark.kind !== b.mark.kind) return false;
+  if (a.label !== b.label || px(a.distance) !== px(b.distance) || Math.round(a.bearing * (360 / Math.PI)) !== Math.round(b.bearing * (360 / Math.PI)) || a.mark.kind !== b.mark.kind) return false;
   if (px(a.mark.x) !== px(b.mark.x) || px(a.mark.y) !== px(b.mark.y)) return false;
   return a.mark.kind !== 'edge' || b.mark.kind !== 'edge' || Math.round(a.mark.angle * (360 / Math.PI)) === Math.round(b.mark.angle * (360 / Math.PI));
 }

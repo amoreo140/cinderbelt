@@ -51,7 +51,7 @@ import { EdgeArrowLayer, type EdgeArrowMark } from './EdgeArrowLayer';
 import { LEFT_COLUMN, NAV_ZONE, TOP_RIGHT_ZONE } from './hudZones';
 import { goalLabelFlips, goalText, sameGoalHud, type GoalHud } from './goalMark';
 import { LiveSlot, LiveText } from './liveText';
-import { flightHudRects, placeHudArrows } from './edgeArrows';
+import { flightHudRects, goalLabelOffset, placeHudArrows } from './edgeArrows';
 import { columnClear, fitLeftColumn, LEFT_FIT_GAP, logClaim, type FitRect, type LeftFit } from './leftColumn';
 import type { AttentionHud, FortressHud, MapPirate, PirateHudData, RadarPirate, ReticleData, TollHud, TractorHud } from '../game/pirates/piratesUi';
 import type { CombatHudView } from '../game/combatView';
@@ -499,10 +499,12 @@ const RadarRangePart = pure(function RadarRange({ range }: { range: number }) {
   );
 });
 
+/** The measured panel zones as a string: the goal label's flip recomputes when they move. */
+const zonesKey = (): string => `${NAV_ZONE.width},${NAV_ZONE.height},${TOP_RIGHT_ZONE.width},${TOP_RIGHT_ZONE.height},${LEFT_COLUMN.chipsBottom},${LEFT_COLUMN.chipsRight ?? 0},${LEFT_COLUMN.radio?.y ?? 0}`;
+
 type HudArrowProps = { arrow: EdgeArrow & { label: string }; kind: 'station' | 'goal' };
 
-/** The station arrow (with a dock clamp icon) or the goal arrow at the screen edge. */
-type GoalMarkProps = { goal: GoalHud & { mark: { kind: 'onScreen'; x: number; y: number } }; view: { width: number; height: number } };
+type GoalMarkProps = { goal: GoalHud & { mark: { kind: 'onScreen'; x: number; y: number } }; view: { width: number; height: number }; zones: string };
 
 /** The goal on screen: a ring on it and "name · 97 u" beside it; pulses once when the goal changes. */
 const GoalMarkPart = pure(function GoalMark({ goal, view }: GoalMarkProps) {
@@ -518,9 +520,12 @@ const GoalMarkPart = pure(function GoalMark({ goal, view }: GoalMarkProps) {
       </div>
     </div>
   );
-}, (a: GoalMarkProps, b: GoalMarkProps) => a.view.width === b.view.width && a.view.height === b.view.height && sameGoalHud(a.goal, b.goal));
+}, (a: GoalMarkProps, b: GoalMarkProps) => a.view.width === b.view.width && a.view.height === b.view.height && a.zones === b.zones && sameGoalHud(a.goal, b.goal));
 
+/** The station arrow (with a dock clamp icon) or the goal arrow at the screen edge. */
 const HudArrowPart = pure(function HudArrow({ arrow, kind }: HudArrowProps) {
+  // the goal's bolder head needs the label further out (and further by its own width along the edge)
+  const off = kind === 'goal' ? goalLabelOffset(arrow.angle, arrow.label) : null;
   return (
     <div class={`hud-arrow hud-arrow--${kind}`} style={{ left: `${arrow.x}px`, top: `${arrow.y}px` }} data-testid={kind === 'station' ? 'station-arrow' : 'objective-arrow'}>
       <div class="hud-arrow-head" style={{ transform: `rotate(${arrow.angle}rad)` }} />
@@ -528,8 +533,8 @@ const HudArrowPart = pure(function HudArrow({ arrow, kind }: HudArrowProps) {
         class="hud-arrow-label"
         style={{
           // label towards the screen centre; horizontally further by half its width so it does not cover the tip
-          left: `${-Math.cos(arrow.angle) * (34 + 72 * Math.abs(Math.cos(arrow.angle)))}px`,
-          top: `${-Math.sin(arrow.angle) * 32}px`,
+          left: `${off ? off.x : -Math.cos(arrow.angle) * (34 + 72 * Math.abs(Math.cos(arrow.angle)))}px`,
+          top: `${off ? off.y : -Math.sin(arrow.angle) * 32}px`,
         }}
       >
         {/* a dock clamp icon: the station arrow differs from the red pirate arrows in shape, not only colour */}
@@ -1161,7 +1166,7 @@ export function Hud(d: HudData) {
       {d.scanArrows && !mapOpen && <EdgeArrowLayerPart arrows={d.scanArrows} />}
       {d.navArrows && !mapOpen && <EdgeArrowLayerPart arrows={d.navArrows} />}
       {goal && !mapOpen && <HudArrowPart arrow={goal} kind="goal" />}
-      {d.goal && d.goal.mark.kind === 'onScreen' && !mapOpen && <GoalMarkPart goal={d.goal as GoalMarkProps['goal']} view={view} />}
+      {d.goal && d.goal.mark.kind === 'onScreen' && !mapOpen && <GoalMarkPart goal={d.goal as GoalMarkProps['goal']} view={view} zones={zonesKey()} />}
       {d.message && <div class={`hud-hint hud-hint--${d.messageTone ?? 'bad'}`} role="alert">{d.message}</div>}
       {mapOpen && (
         <MapView

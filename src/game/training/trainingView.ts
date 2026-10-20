@@ -371,6 +371,12 @@ export function trainingTarget(state: SimState): Vec2 | null {
   }
 }
 
+/** The name of the current step's target in the world ("Guild buoy"), null where the step has none (a station). */
+export function trainingTargetName(state: SimState): string | null {
+  const step = currentTrainingStep(state.career.training);
+  return (step && t().goalNames[step.id]) || null;
+}
+
 export interface TrainingCallout {
   id: string;
   world: Vec2;

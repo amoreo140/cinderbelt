@@ -41,6 +41,9 @@ describe('sameGoalHud', () => {
   it('ignores sub-pixel and sub-unit changes', () => {
     expect(sameGoalHud(g(), g({ distance: 96.8, mark: { kind: 'onScreen', x: 100.4, y: 50 } }))).toBe(true);
   });
+  it('sees a changed bearing', () => {
+    expect(sameGoalHud(g(), g({ bearing: 0.5 }))).toBe(false);
+  });
   it('sees a changed name, distance or mark kind', () => {
     expect(sameGoalHud(g(), g({ label: 'Rock' }))).toBe(false);
     expect(sameGoalHud(g(), g({ distance: 99 }))).toBe(false);

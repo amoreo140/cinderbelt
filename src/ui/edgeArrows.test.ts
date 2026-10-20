@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { avoidHudPanels, clusterAngles, flightHudRects, groupEdgeArrows, hudArrowFootprint, hudArrowRect, navArrowFootprint, navArrows, navMarkColor, navMarkIcon, navMarkLabel, overlaps, placeEdgeArrows, placeHudArrows, proximityStyle, slideOutOf, type EdgeArrowInput, type NavMark } from './edgeArrows';
+import { avoidHudPanels, clusterAngles, flightHudRects, goalLabelOffset, groupEdgeArrows, hudArrowFootprint, hudArrowRect, navArrowFootprint, navArrows, navMarkColor, navMarkIcon, navMarkLabel, overlaps, placeEdgeArrows, placeHudArrows, proximityStyle, slideOutOf, type EdgeArrowInput, type NavMark } from './edgeArrows';
 import { PALETTE } from './theme/tokens';
 import type { HudZones } from './hudZones';
 
@@ -180,7 +180,7 @@ describe('placeHudArrows', () => {
     const placed = placeHudArrows(station, goal, view, false, zones);
     expect(placed.station).toMatchObject({ x: 1216, y: 360 });
     expect(placed.goal!.x).toBe(1216);
-    expect(overlaps(hudArrowFootprint(placed.station!), hudArrowFootprint(placed.goal!), 0)).toBe(false);
+    expect(overlaps(hudArrowFootprint(placed.station!), hudArrowFootprint(placed.goal!, true), 0)).toBe(false);
   });
 
   it('a full left column (every spot on the edge settles at the radio panel): the goal arrow steps into the screen', () => {
@@ -190,7 +190,7 @@ describe('placeHudArrows', () => {
       [500, 340],
     ] as const) {
       const placed = placeHudArrows({ x: 48, y: sy, angle: Math.PI, label: 'Základňa Počiatok 2 612 j' }, { x: 64, y: gy, angle: Math.PI, label: 'Eskorta 1 240 j' }, view, false, column);
-      expect(overlaps(hudArrowFootprint(placed.station!), hudArrowFootprint(placed.goal!), 0), `${sy} / ${gy}`).toBe(false);
+      expect(overlaps(hudArrowFootprint(placed.station!), hudArrowFootprint(placed.goal!, true), 0), `${sy} / ${gy}`).toBe(false);
     }
   });
 
@@ -405,5 +405,26 @@ describe('navArrows (M4d: route, notes, convoys, Guild relays)', () => {
     expect(navMarkIcon({ kind: 'route' })).toBeNull();
     expect(navMarkIcon({ kind: 'relay', lit: true })).toBe('assets/ui/icons/guild_relay_lit.svg');
     expect(navMarkIcon({ kind: 'note', icon: 'star' })).toBe('assets/ui/icons/note_star.svg');
+  });
+});
+
+describe('goal arrow geometry', () => {
+  it('the label clears the 44 px head also when the arrow points along the edge', () => {
+    for (const angle of [0, Math.PI, Math.PI / 2, -Math.PI / 2, 0.3]) {
+      const label = 'Guild buoy · 1 240 u';
+      const o = goalLabelOffset(angle, label);
+      const w = 9 * label.length + 24;
+      const labelBox = { x: o.x - w / 2, y: o.y - 17, width: w, height: 34 };
+      const head = { x: -22, y: -22, width: 44, height: 44 };
+      expect(overlaps(labelBox, head, 0), `angle ${angle}`).toBe(false);
+    }
+  });
+  it('the goal footprint is larger than the station one and grows with the label', () => {
+    const a = { x: 1216, y: 360, angle: 0, label: 'Guild buoy · 97 u' };
+    const goal = hudArrowFootprint(a, true);
+    expect(goal.height).toBeGreaterThanOrEqual(44);
+    expect(goal.width).toBeGreaterThan(9 * a.label.length);
+    expect(hudArrowFootprint({ ...a, label: a.label + ' xxxxxxxx' }, true).width).toBeGreaterThan(goal.width);
+    expect(hudArrowRect(a, true).width).toBeGreaterThan(goal.width);
   });
 });

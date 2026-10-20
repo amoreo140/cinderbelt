@@ -20,6 +20,7 @@ import { relayMaterials, relayMissing } from '../board/slipView';
 import { resumeData, type ResumeData } from '../board/resumeView';
 import { courierOffer, storagesData, type StoragesData } from '../board/storagesView';
 import { objectivesAt, type Objective } from '../objectives/objectives';
+import { trainingTargetName } from '../training/trainingView';
 import { trainingToast } from '../training/trainingUi';
 import type { Vec2 } from '../../sim/math/vec2';
 
@@ -174,7 +175,7 @@ export class CareerUi {
     const near = nearestDiscoveredStation(state.seed, state.world.discovered, state.player.body.pos);
     if (Math.hypot(near.pos.x - o.target.x, near.pos.y - o.target.y) < 1) return null;
     const pos = state.player.body.pos;
-    return { pos: o.target, label: tx().goals.objectives.tracks[o.track], distance: Math.hypot(o.target.x - pos.x, o.target.y - pos.y) };
+    return { pos: o.target, label: (o.track === 'training' ? trainingTargetName(state) : null) ?? tx().goals.objectives.tracks[o.track], distance: Math.hypot(o.target.x - pos.x, o.target.y - pos.y) };
   }
 
   /** Map (M): contract and training objectives with a position. */

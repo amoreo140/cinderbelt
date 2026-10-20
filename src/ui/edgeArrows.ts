@@ -226,11 +226,39 @@ export function flightHudRects(view: { width: number; height: number }, zones: H
   return rects;
 }
 
+/** Goal arrow (Hud.tsx, hud.css): head ±22 px, the label 1rem bold at ~9 px a character plus 24 px padding, 34 px high. */
+const GOAL_HEAD_HALF = 22;
+const GOAL_LABEL_H = 34;
+const goalLabelWidth = (label: string | undefined): number => 9 * (label?.length ?? 24) + 24;
+
+/**
+ * Where the goal arrow's label centre sits relative to the arrow's tip (px): towards the screen centre,
+ * far enough that the plate clears the 44 px head also when the arrow points straight along the edge
+ * (the offset includes the plate's half width, scaled by cos; diagonal arrows may still touch the head's bounding box).
+ */
+export function goalLabelOffset(angle: number, label: string | undefined): { x: number; y: number } {
+  const c = Math.cos(angle);
+  const s = Math.sin(angle);
+  return {
+    x: -c * (GOAL_HEAD_HALF + 10 + goalLabelWidth(label) / 2),
+    y: -s * (GOAL_HEAD_HALF + 10 + (GOAL_LABEL_H / 2) * Math.abs(s)),
+  };
+}
+
 /**
  * The station or goal arrow of the HUD (Hud.tsx: the head, the label beside it towards the centre,
- * ~7 px per character) – the box it takes on screen.
+ * ~7 px per character; `goal`: the bolder goal arrow, see `goalLabelOffset`) – the box it takes on screen.
  */
-export function hudArrowFootprint(arrow: EdgeArrow & { label?: string }): ScreenRect {
+export function hudArrowFootprint(arrow: EdgeArrow & { label?: string }, goal = false): ScreenRect {
+  if (goal) {
+    const o = goalLabelOffset(arrow.angle, arrow.label);
+    const w = goalLabelWidth(arrow.label);
+    const left = Math.min(arrow.x - GOAL_HEAD_HALF, arrow.x + o.x - w / 2);
+    const right = Math.max(arrow.x + GOAL_HEAD_HALF, arrow.x + o.x + w / 2);
+    const top = Math.min(arrow.y - GOAL_HEAD_HALF, arrow.y + o.y - GOAL_LABEL_H / 2);
+    const bottom = Math.max(arrow.y + GOAL_HEAD_HALF, arrow.y + o.y + GOAL_LABEL_H / 2);
+    return { x: left, y: top, width: right - left, height: bottom - top };
+  }
   const c = Math.cos(arrow.angle);
   const lx = arrow.x - c * (34 + 72 * Math.abs(c));
   const ly = arrow.y - Math.sin(arrow.angle) * 32;
@@ -246,8 +274,8 @@ export function hudArrowFootprint(arrow: EdgeArrow & { label?: string }): Screen
  * `hudArrowFootprint` grown by a navigation arrow label's reach – the route, note, convoy and relay
  * arrows (`navArrows`) slide off it like off a panel, so two arrows never stack (M4d).
  */
-export function hudArrowRect(arrow: EdgeArrow & { label?: string }): ScreenRect {
-  const b = hudArrowFootprint(arrow);
+export function hudArrowRect(arrow: EdgeArrow & { label?: string }, goal = false): ScreenRect {
+  const b = hudArrowFootprint(arrow, goal);
   return { x: b.x - LABEL_REACH.x, y: b.y - LABEL_REACH.y, width: b.width + 2 * LABEL_REACH.x, height: b.height + 2 * LABEL_REACH.y };
 }
 
@@ -315,7 +343,7 @@ export function placeHudArrows<A extends EdgeArrow & { label: string }>(
     const label = g.label;
     // a candidate counts where the panels put it (moving off a panel may land it back on the station)
     const settle = (a: EdgeArrow): EdgeArrow => avoidHudPanels(a, view, helpOpen, zones);
-    const free = (a: EdgeArrow) => !overlaps(hudArrowFootprint({ ...settle(a), label }), taken);
+    const free = (a: EdgeArrow) => !overlaps(hudArrowFootprint({ ...settle(a), label }, true), taken);
     let slid = slideAlongEdge(g, view, ARROW_HALF, free);
     // no free spot along the edge (a full left column: every spot settles beside the radio panel) – the
     // goal arrow steps into the screen past the station arrow's label instead

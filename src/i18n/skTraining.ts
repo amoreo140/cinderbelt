@@ -15,6 +15,8 @@ export interface TrainingTexts {
   /** "Krok 3/9". */
   stepOf: (n: number, total: number) => string;
   steps: Record<TrainingStepId, { title: string; why: string }>;
+  /** The goal marker's name of a step's target in the world (steps whose target is a station keep the generic name). */
+  goalNames: Partial<Record<TrainingStepId, string>>;
   /** Instruction lines by situation. */
   guide: {
     undock: GuideLine;
@@ -107,6 +109,7 @@ export interface TrainingTexts {
 export const skTraining: TrainingTexts = {
   title: 'Výcvik Cechu',
   stepOf: (n, total) => `Krok ${n}/${total}`,
+  goalNames: { flyBuoy: 'Bója Cechu', mineIron: 'Cvičný kameň', brakeBuoy: 'Druhá bója' },
   steps: {
     flyBuoy: { title: 'Doleť k bóji Cechu', why: 'Cech ti požičal cvičný trup – najprv sa s ním nauč lietať.' },
     mineIron: { title: 'Vyťaž 20 železa z cvičného kameňa', why: 'Železo je prvý zárobok a materiál na diely.' },

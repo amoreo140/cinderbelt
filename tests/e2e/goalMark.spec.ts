@@ -31,14 +31,10 @@ async function shipNearGoal(page: Page, dx: number, dy: number): Promise<boolean
   return ok;
 }
 
-for (const fixture of ['training-mid', 'escort'] as const) {
+{
+  const fixture = 'escort';
   test(`goal marker on screen, bold arrow off screen (${fixture})`, async ({ page }, info) => {
     await loadFixture(page, fixture, { params: { lang: 'en' }, ticks: 10 });
-    const hasGoal = await page.evaluate(() => {
-      const { sim, game } = window.__cinder!;
-      return (game as unknown as { career: { arrowTarget(s: unknown): unknown } }).career.arrowTarget(sim.state) !== null;
-    });
-    test.skip(!hasGoal, `no positioned goal in the ${fixture} fixture`);
 
     // 1) close to the goal: the ring
     expect(await shipNearGoal(page, 0, 8)).toBe(true);
@@ -59,5 +55,29 @@ for (const fixture of ['training-mid', 'escort'] as const) {
     await expect(page.getByTestId('goal-mark')).toHaveCount(0);
     await expect(arrow).toContainText(/\d+ [^\s\d]+/);
     await page.screenshot({ path: info.outputPath(`goal-arrow-${fixture}.png`) });
+
+    // 3) the arrow along a side edge: the label stays clear of the head (screenshots to look at)
+    for (const [name, dx] of [['east', 2500], ['west', -2500]] as const) {
+      expect(await shipNearGoal(page, dx, 0)).toBe(true);
+      await expect(arrow.locator('.hud-arrow-label')).toBeVisible();
+      await page.screenshot({ path: info.outputPath(`goal-arrow-${name}.png`) });
+    }
   });
 }
+
+test('training: the goal marker names the buoy', async ({ page }, info) => {
+  await page.goto('/');
+  await expect(page.getByTestId('main-menu')).toBeVisible({ timeout: 60_000 });
+  await page.getByTestId('menu-new').click();
+  await page.getByTestId('preset-standard').click();
+  await page.getByTestId('seed-input').fill('vycvik-1337');
+  await page.getByTestId('ng-training').getByRole('button', { name: 'Hrať výcvik' }).click();
+  await page.getByTestId('new-game-start').click();
+  await page.waitForFunction(() => (window.__cinder?.sim.state.tick ?? 0) > 5, null, { timeout: 120_000 });
+  await page.getByTestId('undock').click({ timeout: 20_000 });
+  await page.waitForFunction(() => window.__cinder!.sim.state.player.dock.mode === 'flying', null, { timeout: 30_000 });
+  // the buoy is off screen or on it: either mark carries its name
+  const mark = page.locator('[data-testid="goal-mark"], [data-testid="objective-arrow"]');
+  await expect(mark.first()).toContainText('Bója Cechu', { timeout: 20_000 });
+  await page.screenshot({ path: info.outputPath('goal-training.png') });
+});
