@@ -42,7 +42,7 @@
   width: min(32rem, calc(100vw - 2rem));
 }
 /* the docking prompt and the hint of the flight HUD sit above the bottom-centre panel */
-@media (min-width: 1760px) {
+@media (min-width: 1360px) {
   body:has(.tr-layer:not(.is-docked) .tr-panel) .hud-prompt {
     bottom: calc(var(--af-edge) + 20rem);
   }
@@ -50,10 +50,12 @@
     bottom: calc(var(--af-edge) + 24rem);
   }
 }
-/* narrower than ~1760 px the console (left, to x≈600 px) leaves no room for a
-   centred 32rem panel (it needs the console's edge + 2 × 16 px clear on both sides), and a wide one would cover the middle of the view: it keeps the top-left corner under the
-   navigation band, as before */
-@media (max-width: 1759px) {
+/* Breakpoint 1360 px: the compact console (20 rem = 320 px wide at the left edge, right edge 336 px) needs
+   (336 + 16) × 2 + 32 rem = 1216 px for a centred 32rem panel, and the scanner chip (left of the radar,
+   16–400 px from the right edge, revealed in the last step) 2 × (400 + 16) + 512 = 1344 → 1360 px. Narrower, a
+   centred panel would meet them (and cover the middle of the view): it keeps the top-left corner under
+   the navigation band. */
+@media (max-width: 1359px) {
   .tr-layer:not(.is-docked) .tr-panel {
     top: calc(var(--hud-nav-bottom, var(--af-edge) + 5.2rem) + 0.4rem);
     bottom: auto;
