@@ -24,3 +24,14 @@ describe('tabBadge', () => {
     expect(tabBadge('board', { ...badges, jobs: 3 })?.label).toBe('3 zákazky na odovzdanie');
   });
 });
+
+describe('showWelcome', () => {
+  it('names the home station, so it shows only there and only until the first undocking', async () => {
+    const { showWelcome } = await import('./StationHub');
+    const { homeStation } = await import('../../sim/world/stations');
+    const home = homeStation();
+    expect(showWelcome({ welcome: true }, home)).toBe(true);
+    expect(showWelcome({ welcome: false }, home)).toBe(false);
+    expect(showWelcome({ welcome: true }, { ...home, id: 'other' as typeof home.id })).toBe(false);
+  });
+});

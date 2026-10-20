@@ -217,6 +217,9 @@ export function tabBadge(tab: StationTab, badges: HubBadges | undefined): TabBad
   return undefined;
 }
 
+/** The welcome text names the home station, so it is shown only while docked there (until the first undocking). */
+export const showWelcome = (ui: Pick<StationUiState, 'welcome'>, station: StationDef): boolean => ui.welcome && station.id === HOME_STATION_ID;
+
 export const tabListed = (tab: StationTab, station: StationDef): boolean => tab !== 'development' || station.id === HOME_STATION_ID;
 
 function tabEnabled(tab: StationTab, station: StationDef): boolean {
@@ -279,36 +282,35 @@ function Overview(p: Props) {
   return (
     <div class="hub-overview">
       <ArrivalCard {...p} />
-      {p.ui.welcome && (
+      {showWelcome(p.ui, p.station) && (
         <Panel material="screen" cut="sm" class="hub-welcome">
           <Lamp state="info" />
           <p>{tx().station.welcome}</p>
         </Panel>
       )}
-      <div class="hub-columns">
-        <section>
-          <Heading>{tx().station.ship}</Heading>
-          <Panel material="screen" cut="md" class="hub-gauges">
-            <Gauge kind="energy" label={tx().hud.energy} value={p.energy} max={p.energyMax} />
-            <Gauge kind="cargo" label={tx().hud.cargo} value={used} max={p.cargoMax} decimals={1} invert />
-          </Panel>
-          {p.designGap && <DesignGapCard gap={p.designGap} on={on} />}
-          {(p.coveredNozzles ?? 0) > 0 && <CoveredNozzlesCard engines={p.coveredNozzles!} on={on} shipyard={p.station.services.shipyard && tabLockReason('shipyard', p.reveal) === null} />}
-        </section>
-        <section class="hub-quick">
-          <Heading>{tx().station.quickActions}</Heading>
-          <Act
-            on={on}
-            block
-            disabled={emptyCargo}
-            reason={tx().market.nothingToMove}
-            {...(refinedAboard >= 0.05 ? { hint: tx().home.workshop.transferWarning(formatNumber(refinedAboard, 1, true)), class: 'ws-transfer-warn' } : {})}
-            onClick={unloadAll}
-          >
-            {tx().station.unloadAll}
-          </Act>
-        </section>
-      </div>
+      <section>
+        <Heading>{tx().station.ship}</Heading>
+        <Panel material="screen" cut="md" class="hub-gauges">
+          <Gauge kind="energy" label={tx().hud.energy} value={p.energy} max={p.energyMax} />
+          <Gauge kind="cargo" label={tx().hud.cargo} value={used} max={p.cargoMax} decimals={1} invert />
+        </Panel>
+        {!emptyCargo && (
+          <div class="hub-unload">
+            <Act
+              on={on}
+              size="sm"
+              variant="secondary"
+              testId="unload-all"
+              {...(refinedAboard >= 0.05 ? { hint: tx().home.workshop.transferWarning(formatNumber(refinedAboard, 1, true)), class: 'ws-transfer-warn' } : {})}
+              onClick={unloadAll}
+            >
+              {tx().station.unloadAll}
+            </Act>
+          </div>
+        )}
+        {p.designGap && <DesignGapCard gap={p.designGap} on={on} />}
+        {(p.coveredNozzles ?? 0) > 0 && <CoveredNozzlesCard engines={p.coveredNozzles!} on={on} shipyard={p.station.services.shipyard && tabLockReason('shipyard', p.reveal) === null} />}
+      </section>
       {(p.station.services.refuel || p.station.services.repair || p.repair.damaged) && (
         <>
           <Seam />
@@ -498,7 +500,7 @@ function OverviewCareer(p: Props) {
   const ready = board.active.filter((a) => a.state === 'ready').length;
   return (
     <section class="hub-career">
-      <SectorStrip sector={board.sector} testId="overview-sector" />
+      <SectorStrip sector={board.sector} testId="overview-sector" hideWhenCalm />
       <div class="hub-list-row hub-career-row">
         <span class="hub-list-label">{tx().goals.board.active}</span>
         <div class="hub-career-line">

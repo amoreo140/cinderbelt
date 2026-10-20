@@ -103,7 +103,6 @@ export const en: CoreTexts = {
       nothingNoJobs: 'Nothing to do here.',
     },
     ship: 'Ship',
-    quickActions: 'Quick actions',
     serviceSection: 'Service',
     sellAll: 'Sell all cargo',
     unloadAll: 'Unload cargo to storage',

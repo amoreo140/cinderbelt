@@ -137,7 +137,6 @@ export interface CoreTexts {
       nothingNoJobs: string;
     };
     ship: string;
-    quickActions: string;
     serviceSection: string;
     sellAll: string;
     unloadAll: string;
@@ -925,7 +924,6 @@ export const sk = {
       nothingNoJobs: 'Tu nie je čo robiť.',
     },
     ship: 'Loď',
-    quickActions: 'Rýchle akcie',
     serviceSection: 'Servis',
     sellAll: 'Predať celý náklad',
     unloadAll: 'Vyložiť náklad do skladu',

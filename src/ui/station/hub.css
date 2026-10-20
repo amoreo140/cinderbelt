@@ -147,24 +147,16 @@
   margin: 0.2rem 0 0;
   font-size: var(--af-fs-lg);
 }
-.hub-columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-  gap: 1.25rem;
-}
 .hub-gauges {
   padding: 0.8rem 1rem 0.7rem;
 }
 .hub-gauges .af-gauge + .af-gauge {
   margin-top: 0.7rem;
 }
-.hub-quick {
+.hub-unload {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.hub-quick .af-heading {
-  margin-bottom: 2px;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
 }
 .hub-lists {
   display: flex;
@@ -352,12 +344,6 @@
 .hub--yard ~ .ui-toast--docked {
   left: 50%;
   top: max(calc(var(--hub-head-bottom, 6.5rem) + 3.2rem), calc(var(--yard-top-bottom, 0px) + 0.5rem));
-}
-
-@media (max-width: 560px) {
-  .hub-columns {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* parts market */
