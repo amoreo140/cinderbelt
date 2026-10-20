@@ -5,7 +5,8 @@
 //  - cargo:      mining is active (`HudData.mining.active`) or the hold is not empty – and 'cargo' revealed.
 //  - speed:      a dock clamp approach is on (`HudData.prompt.approach`, the dock helper wants the speed) or the
 //                goal is a stop-here target within STOP_TARGET_RANGE units (`HudData.goal.distance`: the
-//                training's brake buoy, a dock point) – and 'speed' revealed.
+//                training's brake buoy, a dock point) or the dampers are OFF (the ship drifts: the
+//                speed shows how fast) – and 'speed' revealed.
 //  - silhouette: combat data present (pirates around or attacking, the alert band, a wreck to salvage, the
 //                ship destroyed) or anything damaged (a part below its max HP, a part missing, hull below max).
 //                The shield gauge goes with it. Combat parts are never gated by the reveal.
@@ -56,7 +57,7 @@ function shared(cargo: boolean, speed: boolean, silhouette: boolean, dampers: bo
 export function consoleRules(i: ConsoleRulesInput): ConsoleRules {
   return shared(
     i.parts.cargo && (i.mining || i.cargoUsed > 0),
-    i.parts.speed && (i.dockApproach || i.stopTarget),
+    i.parts.speed && (i.dockApproach || i.stopTarget || !i.dampersOn),
     i.combat || i.damaged,
     i.parts.dampers && !i.dampersOn,
     i.tractor,

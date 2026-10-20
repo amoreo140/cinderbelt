@@ -38,6 +38,11 @@ describe('consoleRules', () => {
     expect(rules({ damaged: true }).silhouette).toBe(true);
   });
 
+  it('speed: shown while the dampers are off (the ship drifts)', () => {
+    expect(rules({ dampersOn: false }).speed).toBe(true);
+    expect(rules({ dampersOn: true }).speed).toBe(false);
+  });
+
   it('dampers: only as a warning while they are off', () => {
     expect(rules({ dampersOn: false }).dampers).toBe(true);
     expect(rules({ dampersOn: true }).dampers).toBe(false);
