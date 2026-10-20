@@ -3,9 +3,9 @@
 // credits with the opened controls help K), so the edge arrows of the station, the goal, the scanner finds
 // and the pirates step around their real size - the stack grows with the sector badge's survey dots
 // and the attention row, the help is tall while open. The defaults are the bands' usual size.
-// LEFT_COLUMN holds what hangs below the stack on the left: the M4b event chips and the radio panel
-// (or its log); Hud measures them after each HUD frame, as they come and go with the events and the
-// radio's messages.
+// LEFT_COLUMN holds what hangs below the stack on the left: the M4b event chips and the comm log
+// (when open); Hud measures them after each HUD frame, as they come and go with the events and the
+// player's key presses.
 
 /** A screen rect (px). */
 export interface ZoneRect {
@@ -36,10 +36,10 @@ export const BOTTOM_RIGHT_ZONE = { width: 430, height: 230 };
 export const CONSOLE_ZONE_DEFAULT = { width: CONSOLE_ZONE.width, height: CONSOLE_ZONE.height };
 
 /**
- * Under the top-left stack: the bottom of the event chip column (0 = no chips) and the radio panel or
+ * Under the top-left stack: the bottom of the event chip column (0 = no chips) and
  * the comm log (null = none on screen).
  */
-export const LEFT_COLUMN: { chipsBottom: number; chipsRight?: number; radio: ZoneRect | null } = { chipsBottom: 0, radio: null };
+export const LEFT_COLUMN: { chipsBottom: number; chipsRight?: number; log: ZoneRect | null } = { chipsBottom: 0, log: null };
 
 /** The measured HUD zones the edge arrows and the world callouts avoid. */
 export interface HudZones {
@@ -51,13 +51,13 @@ export interface HudZones {
   chipsBottom?: number;
   /** Right edge of the chip column (M4d: the Guild chips beside the event chips reach past the stack). */
   chipsRight?: number;
-  /** The radio panel or the comm log (null = none). */
-  radio?: ZoneRect | null;
+  /** The comm log (L; null = closed). */
+  log?: ZoneRect | null;
 }
 
 /** The zones as Hud measured them last. */
 export function currentHudZones(): HudZones {
-  return { nav: NAV_ZONE, topRight: TOP_RIGHT_ZONE, console: CONSOLE_ZONE, chipsBottom: LEFT_COLUMN.chipsBottom, chipsRight: LEFT_COLUMN.chipsRight, radio: LEFT_COLUMN.radio };
+  return { nav: NAV_ZONE, topRight: TOP_RIGHT_ZONE, console: CONSOLE_ZONE, chipsBottom: LEFT_COLUMN.chipsBottom, chipsRight: LEFT_COLUMN.chipsRight, log: LEFT_COLUMN.log };
 }
 
 /**

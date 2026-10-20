@@ -89,7 +89,7 @@ export function edgeArrowBox(a: EdgeArrow): Box {
 
 /**
  * The top HUD panels and the left column as boxes (the navigation band with the objectives band and
- * the event chips under them, the credits with the controls help, the radio panel), as Hud measured
+ * the event chips under them, the credits with the controls help, the comm log), as Hud measured
  * them last (the bottom corners when the view height is given): a label next to them takes the other side of its anchor or slides off them.
  */
 export function hudPanelBoxes(view: { width: number; height?: number }): Box[] {
@@ -100,7 +100,7 @@ export function hudPanelBoxes(view: { width: number; height?: number }): Box[] {
   if (tr.width > 0) out.push({ x: view.width - tr.width, y: 0, w: tr.width, h: tr.height });
   const beside = chipsBesideZone(zones);
   if (beside) out.push({ x: beside.x, y: beside.y, w: beside.width, h: beside.height });
-  if (zones.radio) out.push({ x: zones.radio.x, y: zones.radio.y, w: zones.radio.width, h: zones.radio.height });
+  if (zones.log) out.push({ x: zones.log.x, y: zones.log.y, w: zones.log.width, h: zones.log.height });
   // the bottom corners: the console (measured) and the radar with the scanner and K chips
   if (view.height !== undefined) {
     const c = zones.console ?? CONSOLE_ZONE_DEFAULT;

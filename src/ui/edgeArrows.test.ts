@@ -85,7 +85,7 @@ const column: HudZones = {
   nav: { width: 470, height: 231 },
   topRight: { width: 0, height: 0 },
   chipsBottom: 298,
-  radio: { x: 16, y: 380, width: 400, height: 125 },
+  log: { x: 16, y: 380, width: 400, height: 125 },
 };
 const inRect = (a: { x: number; y: number }, r: { x: number; y: number; width: number; height: number }) =>
   a.x >= r.x && a.x <= r.x + r.width && a.y >= r.y && a.y <= r.y + r.height;
@@ -171,7 +171,7 @@ describe('hudArrowRect (M4d: the route arrow keeps off the station arrow)', () =
 });
 
 describe('placeHudArrows', () => {
-  const zones: HudZones = { nav: { width: 300, height: 100 }, topRight: { width: 110, height: 90 }, chipsBottom: 0, radio: null };
+  const zones: HudZones = { nav: { width: 300, height: 100 }, topRight: { width: 110, height: 90 }, chipsBottom: 0, log: null };
 
   it('the goal arrow steps along its edge off the station arrow and its label', () => {
     const station = { x: 1216, y: 360, angle: 0, label: 'Základňa Počiatok 612 j' };

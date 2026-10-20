@@ -468,7 +468,7 @@ const RadarSectionPart = pure(function RadarSection({ scope, pulse, range, fresh
       <canvas ref={scope.attach} class="hud-radar-canvas" style={RADAR_STYLE} aria-hidden="true" />
       {/* the legend is on demand: hold "?" (or hover the radar) */}
       {legend && (
-        <span class="hud-radar-key" title={tx().hud.legendHint}>
+        <span class="hud-radar-key" title={tx().hud.legendHint} aria-hidden="true">
           <Key dark>?</Key>
         </span>
       )}
@@ -488,7 +488,7 @@ const RadarRangePart = pure(function RadarRange({ range }: { range: number }) {
 });
 
 /** The measured panel zones as a string: the goal label's flip recomputes when they move. */
-const zonesKey = (): string => `${NAV_ZONE.width},${NAV_ZONE.height},${TOP_RIGHT_ZONE.width},${TOP_RIGHT_ZONE.height},${LEFT_COLUMN.chipsBottom},${LEFT_COLUMN.chipsRight ?? 0},${LEFT_COLUMN.radio?.y ?? 0}`;
+const zonesKey = (): string => `${NAV_ZONE.width},${NAV_ZONE.height},${TOP_RIGHT_ZONE.width},${TOP_RIGHT_ZONE.height},${LEFT_COLUMN.chipsBottom},${LEFT_COLUMN.chipsRight ?? 0},${LEFT_COLUMN.log?.y ?? 0}`;
 
 type HudArrowProps = { arrow: EdgeArrow & { label: string }; kind: 'station' | 'goal' };
 
@@ -903,36 +903,31 @@ function chipColumn(parts: readonly (Element | null)[]): FitRect | null {
 }
 
 /**
- * Applies a fold to the UI root: `data-left-fit` (guild.css), the Guild chips' `--gs-left` beside the
- * event chips and the radio's `--cm-left` (comms.css) when aside.
+ * Applies a fold to the UI root: `data-left-fit` (guild.css) and the Guild chips' `--gs-left` beside the
+ * event chips.
  */
-function applyLeftFit(root: HTMLElement, fit: LeftFit, column: FitRect | null, events: Element | null): void {
+function applyLeftFit(root: HTMLElement, fit: LeftFit, events: Element | null): void {
   if (fit === 'full') delete root.dataset.leftFit;
   else root.dataset.leftFit = fit;
   const beside = fit === 'beside' ? events : null;
   if (beside) root.style.setProperty('--gs-left', `${Math.round(beside.getBoundingClientRect().right - root.getBoundingClientRect().left + LEFT_FIT_GAP)}px`);
   else root.style.removeProperty('--gs-left');
-  if (fit === 'aside' && column) {
-    root.style.setProperty('--cm-left', `${Math.round(column.x + column.width - root.getBoundingClientRect().left + 2 * LEFT_FIT_GAP)}px`);
-  } else {
-    root.style.removeProperty('--cm-left');
-  }
 }
 
-/** The chips drop in and the radio slides in (240 ms): the column is measured on every redraw meanwhile. */
+/** The chips drop in (240 ms): the column is measured on every redraw meanwhile. */
 const LEFT_SETTLE_MS = 400;
 
-type LeftSlot = 'events' | 'guild' | 'radio' | 'log' | 'console';
+type LeftSlot = 'events' | 'guild' | 'log' | 'console';
 
 /**
  * The left column under the top-left stack, measured into LEFT_COLUMN (hudZones.ts): the event chips,
- * the Guild status chips and the radio panel or the comm log – siblings of the HUD in the game UI that
+ * the Guild status chips and the comm log – siblings of the HUD in the game UI that
  * come and go with the events and the messages. The edge arrows use it from the next frame on. First
- * it folds the column so the chips end clear of the radio (leftColumn.ts): fitted again from `full`
- * when the column's content changes, folded further when it still meets the radio.
+ * it folds the column so the chips end clear of the log (leftColumn.ts): fitted again from `full`
+ * when the column's content changes, folded further when it still meets the log.
  *
  * Driven by change, not by every HUD redraw (audit 2026-10-17 P7): a ResizeObserver on the chips, the
- * radio / log, the console (the radio sits on it) and the UI root flags a size change; a new element
+ * log, the console and the UI root flags a size change; a new element
  * or a changed content key (window, stack bottom, chip count, Guild states and hints) does the same.
  * Only then – and for LEFT_SETTLE_MS after it, while the drop-in animations move the boxes – is the
  * column measured and fitted; a quiet frame reads no layout and writes nothing.
@@ -941,10 +936,10 @@ class LeftColumnWatch {
   private readonly observer: ResizeObserver | null;
   private dirty = true;
   private settleUntil = 0;
-  private readonly el: Record<LeftSlot, Element | null> = { events: null, guild: null, radio: null, log: null, console: null };
-  /** The content key without the radio's height (cheap: no layout read). */
+  private readonly el: Record<LeftSlot, Element | null> = { events: null, guild: null, log: null, console: null };
+  /** The content key (cheap: no layout read). */
   private content = '';
-  /** The full key of the last fit (with the radio's height) and its fold. */
+  /** The key of the last fit and its fold. */
   private key = '';
   private fit: LeftFit = 'full';
   private leftBottom = '';
@@ -966,22 +961,18 @@ class LeftColumnWatch {
   frame(): void {
     let events: Element | null = null;
     let guild: Element | null = null;
-    let radio: Element | null = null;
     let log: Element | null = null;
     for (let el = this.root.firstElementChild; el; el = el.nextElementSibling) {
       const c = el.classList;
       if (c.contains('ev-chips')) events ??= c.contains('ev-chips--inline') ? null : el;
       else if (c.contains('gs-chips')) guild ??= c.contains('gs-chips--inline') ? null : el;
-      else if (c.contains('cm-panel')) radio ??= c.contains('is-docked') ? null : el;
       else if (c.contains('cm-log')) log ??= c.contains('is-docked') ? null : el;
     }
-    if (radio) log = null;
     const known = this.el.console;
     const console = known?.isConnected ? known : this.hud.querySelector('.hud-console');
     let changed = this.dirty || !this.observer;
     changed = this.watch('events', events) || changed;
     changed = this.watch('guild', guild) || changed;
-    changed = this.watch('radio', radio) || changed;
     changed = this.watch('log', log) || changed;
     changed = this.watch('console', console) || changed;
     const content = this.contentKey();
@@ -1006,18 +997,18 @@ class LeftColumnWatch {
     return true;
   }
 
-  /** What decides the fold, short of the radio's height: the window, the stack, the chips (count, Guild states, hints). */
+  /** What decides the fold: the window, the stack, the chips (count, Guild states, hints). */
   private contentKey(): string {
-    const { events, guild, radio, log } = this.el;
+    const { events, guild, log } = this.el;
     let key = `${window.innerWidth}x${window.innerHeight}|${this.root.style.getPropertyValue('--hud-tl-bottom')}|${events?.childElementCount ?? 0}`;
     for (let chip = guild?.firstElementChild ?? null; chip; chip = chip.nextElementSibling) {
       const data = (chip as HTMLElement).dataset;
       key += `|${data.state ?? data.stage ?? ''}:${chip.querySelector('.gs-next')?.textContent ?? ''}`;
     }
-    return key + (radio ? '|radio' : log ? '|log' : '|-');
+    return key + (log ? '|log' : '|-');
   }
 
-  /** Fits the column (from `full` on a new key, further when it still meets the radio) and publishes it. */
+  /** Fits the column (from `full` on a new key, further when it still meets the log) and publishes it. */
   private measure(): void {
     const root = this.root;
     // the console's size (it grows with its contextual rows and the silhouette): the edge arrows keep off it
@@ -1027,19 +1018,19 @@ class LeftColumnWatch {
       CONSOLE_ZONE.width = Math.round(consoleBox.right) + 16;
       CONSOLE_ZONE.height = Math.round(window.innerHeight - consoleBox.top) + 8;
     }
-    const { events, guild, radio, log } = this.el;
+    const { events, guild, log } = this.el;
     const parts = [events, guild];
-    const claim = (): FitRect | null => (radio ? boxOf(radio) : log ? logClaim(boxOf(log)) : null);
+    const claim = (): FitRect | null => (log ? logClaim(boxOf(log)) : null);
     const clear = (f: LeftFit): boolean => {
-      applyLeftFit(root, f, chipColumn(parts), events);
-      return columnClear(chipColumn(parts), f === 'aside' ? null : claim());
+      applyLeftFit(root, f, events);
+      return columnClear(chipColumn(parts), claim());
     };
-    const key = `${this.content}:${radio ? (radio as HTMLElement).offsetHeight : ''}`;
+    const key = this.content;
     if (key !== this.key) {
       this.key = key;
-      this.fit = fitLeftColumn(clear, radio !== null);
-    } else if (this.fit !== 'aside' && !columnClear(chipColumn(parts), claim())) {
-      this.fit = fitLeftColumn(clear, radio !== null, this.fit);
+      this.fit = fitLeftColumn(clear);
+    } else if (!columnClear(chipColumn(parts), claim())) {
+      this.fit = fitLeftColumn(clear, this.fit);
     }
     // the event chips and the M4d Guild status chips under them
     const column = chipColumn(parts);
@@ -1052,23 +1043,23 @@ class LeftColumnWatch {
       if (leftBottom) root.style.setProperty('--hud-left-bottom', leftBottom);
       else root.style.removeProperty('--hud-left-bottom');
     }
-    const shown = radio ?? log;
+    const shown = log;
     if (!shown) {
-      LEFT_COLUMN.radio = null;
+      LEFT_COLUMN.log = null;
       return;
     }
     const box = shown.getBoundingClientRect();
-    LEFT_COLUMN.radio = { x: Math.round(box.left), y: Math.round(box.top), width: Math.round(box.width), height: Math.round(box.height) };
+    LEFT_COLUMN.log = { x: Math.round(box.left), y: Math.round(box.top), width: Math.round(box.width), height: Math.round(box.height) };
   }
 
   dispose(): void {
     this.observer?.disconnect();
     LEFT_COLUMN.chipsBottom = 0;
     LEFT_COLUMN.chipsRight = 0;
-    LEFT_COLUMN.radio = null;
+    LEFT_COLUMN.log = null;
     CONSOLE_ZONE.width = CONSOLE_ZONE_DEFAULT.width;
     CONSOLE_ZONE.height = CONSOLE_ZONE_DEFAULT.height;
-    applyLeftFit(this.root, 'full', null, null);
+    applyLeftFit(this.root, 'full', null);
     this.root.style.removeProperty('--hud-left-bottom');
   }
 }

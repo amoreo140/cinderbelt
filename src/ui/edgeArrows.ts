@@ -219,7 +219,7 @@ export function flightHudRects(view: { width: number; height: number }, zones: H
   }
   const beside = chipsBesideZone(zones);
   if (beside) rects.push({ x: 0, y: beside.y - LABEL_REACH.y, width: beside.width + LABEL_REACH.x, height: beside.height + 2 * LABEL_REACH.y });
-  const radio = zones.radio;
+  const radio = zones.log;
   if (radio) {
     rects.push({ x: 0, y: radio.y - LABEL_REACH.y, width: radio.x + radio.width + LABEL_REACH.x, height: radio.height + 2 * LABEL_REACH.y });
   }
@@ -306,7 +306,7 @@ export function avoidHudPanels(arrow: EdgeArrow, view: { width: number; height: 
     a = { ...a, y: tl.height + 24 };
     left = true;
   }
-  const radio = zones.radio;
+  const radio = zones.log;
   if (radio && a.x < radio.x + radio.width && a.y > radio.y - ARROW_HALF && a.y < radio.y + radio.height + ARROW_HALF) {
     const above = radio.y - ARROW_HALF - 4;
     a = above >= tl.height + 24 ? { ...a, y: above } : { ...a, x: radio.x + radio.width + 24 };

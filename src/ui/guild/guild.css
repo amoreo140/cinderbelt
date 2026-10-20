@@ -158,11 +158,11 @@
 }
 
 /* a short screen with a full left column (Hud, leftColumn.ts): the chips fold so they end clear of the
-   radio – first the hint lines (the objectives band says the same), then the hull / step rows (the head
+   log – first the hint lines (the objectives band says the same), then the hull / step rows (the head
    keeps the state, the lamp and the distance), then they move up beside the event chips (Hud measures
    where those end: --gs-left) */
-:is([data-left-fit='hints'], [data-left-fit='rows'], [data-left-fit='beside'], [data-left-fit='aside']) > .gs-chips:not(.gs-chips--inline) .gs-next,
-:is([data-left-fit='rows'], [data-left-fit='beside'], [data-left-fit='aside']) > .gs-chips:not(.gs-chips--inline) :is(.gs-hulls, .gs-steps) {
+:is([data-left-fit='hints'], [data-left-fit='rows'], [data-left-fit='beside']) > .gs-chips:not(.gs-chips--inline) .gs-next,
+:is([data-left-fit='rows'], [data-left-fit='beside']) > .gs-chips:not(.gs-chips--inline) :is(.gs-hulls, .gs-steps) {
   display: none;
 }
 [data-left-fit='beside'] > .gs-chips:not(.gs-chips--inline) {

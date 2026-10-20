@@ -99,7 +99,7 @@ function kitHud(helpOpen: boolean, view: { width: number; height: number } = VIE
     ),
     // the HUD panels as the game measures them at 1280 × 720 (the kit page holds several HUDs)
     // (the arrows sit at the edges of the kit frame as it is drawn, so their labels fit in it)
-    navArrows: navArrows(marks, view, { avoid: flightHudRects(view, { nav: { width: 470, height: 110 }, topRight: { width: 110, height: 90 }, chipsBottom: 290, radio: null }) }),
+    navArrows: navArrows(marks, view, { avoid: flightHudRects(view, { nav: { width: 470, height: 110 }, topRight: { width: 110, height: 90 }, chipsBottom: 290, log: null }) }),
   };
 }
 
