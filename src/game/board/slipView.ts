@@ -2,7 +2,7 @@
 import { SHORT_CONTRACT_SECONDS, type ContractType } from '../../data/contracts';
 import { ESCORT } from '../../data/convoys';
 import { RELAY_CHAIN } from '../../data/guild';
-import { RESOURCE_IDS, type Cargo } from '../../data/resources';
+import { RESOURCE_IDS, type Cargo, type ResourceId } from '../../data/resources';
 import type { RelayStage } from '../../sim/guild/types';
 import type { LaneId } from '../../sim/regions/lanes';
 import { emblemPath, type RepFactionId } from '../../data/factions';
@@ -89,6 +89,8 @@ export interface SlipData {
   deposit?: number;
   /** M4d escort: the number of ambushes on the stretch (a tag). */
   ambushes?: number;
+  /** A delivery offer: how much of the goods the ship and this station together still lack (omitted when covered). */
+  needs?: { resource: ResourceId; amount: number };
 }
 
 const RISK_INDEX = { 0: 0, 0.25: 1, 0.5: 2 } as const;
@@ -324,7 +326,16 @@ function base(state: SimState, o: ContractOffer, quote: { seconds: number; rewar
 
 /** A slip from the board offer (reward based on the current ship). */
 export function offerSlip(state: SimState, o: ContractOffer, canAccept: SlipAction): SlipData {
-  return { ...base(state, o, quoteOffer(state, o)), key: o.id, serial: null, state: 'offer', progress: null, next: null, accept: canAccept };
+  return { ...base(state, o, quoteOffer(state, o)), ...offerNeeds(state, o), key: o.id, serial: null, state: 'offer', progress: null, next: null, accept: canAccept };
+}
+
+/** The goods a delivery offer still needs beyond the hold and the docked station's storage. */
+function offerNeeds(state: SimState, o: ContractOffer): { needs?: { resource: ResourceId; amount: number } } {
+  if (o.target.kind !== 'delivery') return {};
+  const dock = state.player.dock;
+  const stored = dock.mode === 'docked' ? availableResources(state, dock.stationId)[o.target.resource] : 0;
+  const missing = Math.ceil(o.target.amount - state.player.cargo[o.target.resource] - stored - 1e-9);
+  return missing > 0 ? { needs: { resource: o.target.resource, amount: missing } } : {};
 }
 
 /** An accepted contract (frozen reward, progress, hand-in at the `docked` station). */
