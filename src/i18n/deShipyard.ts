@@ -23,9 +23,11 @@ export const deShipyard: ShipyardTexts = {
   // --- hangar camera ---
   camera: {
     topView: 'Draufsicht',
+    angledView: 'Schrägansicht',
     controls:
-      'Kreisen: mit der mittleren Taste oder Alt + links ziehen, Q / E. Neigen: auf und ab ziehen, Bild↑ / Bild↓. Schwenken: Shift + mittlere Taste ziehen, Pfeiltasten. Zoom: Mausrad. Pos1: Draufsicht, C: Schiff zentrieren.',
+      'Kreisen: mit der mittleren Taste oder Alt + links ziehen, Q / E. Neigen: auf und ab ziehen, Bild↑ / Bild↓. Schwenken: Shift + mittlere Taste ziehen, Pfeiltasten. Zoom: Mausrad. Pos1: Draufsicht und zurück, C: Schiff zentrieren.',
     orbit: 'Kreisansicht',
+    dragKeys: 'Alt+Ziehen',
   },
 
   // --- SL2 E1: mirror mode ---

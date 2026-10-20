@@ -1616,6 +1616,7 @@ export class Game {
       reshape: this.yardReshape(yard),
       help: this.yardHelp,
       bow: this.renderer.hangar.bowAngle(),
+      topDown: this.renderer.hangar.isTopView(),
       restore: yard.restoreInfo(),
       info: this.selectedPartInfo(yard),
       ...(station ? { header: this.fleet.header(this.sim.state, station) } : {}),

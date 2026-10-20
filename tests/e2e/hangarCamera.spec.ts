@@ -190,6 +190,14 @@ test('hangar camera: orbit, tilt, pan, top view, and placing a part in a tilted 
   expect(p6.pitch).toBeCloseTo(Math.PI / 2);
   expect(Math.abs(Math.sin(p6.yaw))).toBeLessThan(1e-6);
   expect(Math.cos(p6.yaw)).toBeCloseTo(1);
+  // pressed again, the same button (now "3/4 view") returns to the default angled view
+  await expect(page.getByTestId('yard-top-view')).toHaveText(/3\/4|Šikmý/);
+  await page.getByTestId('yard-top-view').click();
+  await settle(page);
+  expect((await pose(page)).pitch).toBeCloseTo((55 * Math.PI) / 180);
+  await expect(page.getByTestId('yard-top-view')).toHaveText(/Top view|zhora/);
+  await page.getByTestId('yard-top-view').click();
+  await settle(page);
   await page.keyboard.press('Escape');
   await page.mouse.move(640, 700);
   await page.screenshot({ path: `${SHOTS}/hangar-cam-top-after.png` });

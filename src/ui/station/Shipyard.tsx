@@ -48,6 +48,8 @@ export interface ShipyardUiData {
   info?: PartInfoView | null;
   /** Hangar camera: the bow's screen direction (degrees clockwise from up) for the bow marker. */
   bow?: number;
+  /** The hangar camera looks straight down: the view button offers the way back. */
+  topDown?: boolean;
   /** The active ship's name and log for the header (M4a; the hub head shows it on the Shipyard tab). */
   header?: ShipHeaderView;
   /** Mirror mode (SL2 E1, M): on, and the axis on the seam above the cockpit row (`half`). */
@@ -887,7 +889,7 @@ function Viewport({ d, on, help, toggleHelp }: { d: ShipyardUiData; on: Shipyard
           </Button>
           {on.topView && (
             <Button size="sm" variant="ghost" keyHint="Home" onClick={on.topView} hint={tx().shipyardV2.camera.controls} testId="yard-top-view">
-              {tx().shipyardV2.camera.topView}
+              {d.topDown ? tx().shipyardV2.camera.angledView : tx().shipyardV2.camera.topView}
             </Button>
           )}
         </div>
@@ -1049,7 +1051,7 @@ export function ShipyardActions({ d, on }: { d: ShipyardUiData; on: ShipyardHand
         <Hint keys={<span class="yd-mouse">{t().mouse.right}</span>}>{t().hints.remove}</Hint>
         <Hint keys={<Key dark>R</Key>}>{t().hints.rotate}</Hint>
         <Hint keys={<span class="yd-mouse">{t().mouse.alt}</span>}>{t().hints.eyedrop}</Hint>
-        <Hint keys={<><Key dark>Q</Key><Key dark>E</Key></>}>{tx().shipyardV2.camera.orbit}</Hint>
+        <Hint keys={<><span class="yd-mouse">{tx().shipyardV2.camera.dragKeys}</span><Key dark>Q</Key><Key dark>E</Key></>}>{tx().shipyardV2.camera.orbit}</Hint>
         <Hint keys={<Key dark>M</Key>}>{tx().shipyardV2.mirror.hint}</Hint>
         <Hint keys={<Key dark>{tx().shipyardV2.shapes.keys}</Key>}>{tx().shipyardV2.shapes.hint}</Hint>
       </span>

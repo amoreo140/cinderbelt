@@ -255,6 +255,17 @@ export class HangarCamera {
     this.set({ yaw: nearestYaw(this.current.yaw, 0), pitch: PITCH_TOP, zoom: ZOOM_DEFAULT, panX: at.x, panZ: at.z });
   }
 
+  /** The goal looks (nearly) straight down – the "Top view" button shows its way back. */
+  isTopView(): boolean {
+    return this.goal.pitch >= PITCH_TOP - 0.02;
+  }
+
+  /** Home / "Top view" as a toggle: from the top view back to the default 3/4 view, eased. */
+  toggleTopView(at: { x: number; z: number }): void {
+    if (!this.isTopView()) this.topView(at);
+    else this.set({ yaw: nearestYaw(this.current.yaw, 0), pitch: PITCH_DEFAULT, zoom: ZOOM_DEFAULT, panX: at.x, panZ: at.z });
+  }
+
   /** Editor opens: the default 3/4 view centred on `at`, without easing. */
   frame(at: { x: number; z: number }): void {
     this.set({ yaw: 0, pitch: PITCH_DEFAULT, zoom: ZOOM_DEFAULT, panX: at.x, panZ: at.z });

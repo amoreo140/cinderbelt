@@ -238,6 +238,18 @@ describe('HangarCamera', () => {
     expect([c.goal.panX, c.goal.panZ]).toEqual([1, -2]);
   });
 
+  it('top view toggles: a second press returns to the default 3/4 view', () => {
+    const c = make();
+    expect(c.isTopView()).toBe(false);
+    c.toggleTopView({ x: 1, z: -2 });
+    expect(c.isTopView()).toBe(true);
+    expect(c.goal.pitch).toBe(PITCH_TOP);
+    c.update(10);
+    c.toggleTopView({ x: 0.5, z: 0 });
+    expect(c.isTopView()).toBe(false);
+    expect(c.goal).toEqual({ yaw: 0, pitch: PITCH_DEFAULT, zoom: ZOOM_DEFAULT, panX: 0.5, panZ: 0 });
+  });
+
   it('opening frames the ship in the default 3/4 view at once', () => {
     const c = make();
     c.orbit(2);

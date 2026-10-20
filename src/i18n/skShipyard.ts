@@ -40,8 +40,12 @@ export interface ShipyardTexts {
     topView: string;
     /** Tooltip of the view buttons: every camera control. */
     controls: string;
+    /** The same button while the view is from the top: back to the default 3/4 view. */
+    angledView: string;
     /** Footer hint next to the Q E keys. */
     orbit: string;
+    /** Footer: the mouse drag that orbits and tilts (Alt + left or the middle button). */
+    dragKeys: string;
   };
 
   // --- SL2 E1: mirror mode ---
@@ -167,9 +171,11 @@ export const skShipyard: ShipyardTexts = {
   // --- hangar camera ---
   camera: {
     topView: 'Pohľad zhora',
+    angledView: 'Šikmý pohľad',
     controls:
-      'Otočiť: stredné tlačidlo alebo Alt + ľavé ťahaním, Q / E. Naklopiť: ťahanie hore-dole, PgUp / PgDn. Posunúť: Shift + stredné ťahaním, šípky. Priblížiť: koliesko. Home: pohľad zhora, C: vycentrovať loď.',
+      'Otočiť: stredné tlačidlo alebo Alt + ľavé ťahaním, Q / E. Naklopiť: ťahanie hore-dole, PgUp / PgDn. Posunúť: Shift + stredné ťahaním, šípky. Priblížiť: koliesko. Home: pohľad zhora a späť, C: vycentrovať loď.',
     orbit: 'otočiť pohľad',
+    dragKeys: 'Alt+ťah',
   },
 
   // --- SL2 E1: mirror mode ---

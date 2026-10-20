@@ -23,9 +23,11 @@ export const enShipyard: ShipyardTexts = {
   // --- hangar camera ---
   camera: {
     topView: 'Top view',
+    angledView: '3/4 view',
     controls:
-      'Orbit: drag with the middle button or Alt + left, Q / E. Tilt: drag up and down, PgUp / PgDn. Pan: Shift + middle drag, arrow keys. Zoom: mouse wheel. Home: top view, C: centre the ship.',
+      'Orbit: drag with the middle button or Alt + left, Q / E. Tilt: drag up and down, PgUp / PgDn. Pan: Shift + middle drag, arrow keys. Zoom: mouse wheel. Home: top view and back, C: centre the ship.',
     orbit: 'orbit view',
+    dragKeys: 'Alt+drag',
   },
 
   // --- SL2 E1: mirror mode ---

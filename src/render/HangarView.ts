@@ -371,9 +371,14 @@ export class HangarView {
     this.view.centre(this.shipCentre());
   }
 
-  /** Home / "Top view": straight down, bow up, centred on the ship. */
+  /** Home / "Top view": straight down, bow up, centred on the ship; pressed again, back to the 3/4 view. */
   topView(): void {
-    this.view.topView(this.shipCentre());
+    this.view.toggleTopView(this.shipCentre());
+  }
+
+  /** The camera looks straight down (the button then offers the 3/4 view). */
+  isTopView(): boolean {
+    return this.view.isTopView();
   }
 
   /** The editor opens – the next sync frames the ship. */
