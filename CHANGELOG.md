@@ -26,6 +26,9 @@ All notable changes to this project are documented here. The format follows [Kee
 - The welcome text appears only at the home station; "Unload cargo to storage" sits under the cargo gauge.
 - Training: the suggested cells are shown before the engine is turned, with an R prompt; the compact panel in the shipyard no longer overlaps its skip link.
 
+### Languages
+- German as a third language, contributed by @brummilab (#1): every text module translated (`de*.ts`), a German glossary (`src/i18n/GLOSSARY-DE.md`), German sector names with gender agreement, German seed words, and German number and percent formatting.
+
 ## [0.3.0] – first public release
 
 ### Flight & mining

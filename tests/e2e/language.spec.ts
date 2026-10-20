@@ -108,3 +108,28 @@ test('in game: a toast on screen says the same in the new language after a live 
   await expect(toast).toContainText('Micrometeor shower', { timeout: 5_000 });
   expect(errors).toEqual([]);
 });
+
+test('German: the menu switches to German live, and the hub and flight HUD run in German', async ({ page }, info) => {
+  test.setTimeout(120_000);
+  const errors = trackErrors(page);
+  await openMenu(page);
+  await page.getByTestId('menu-language').getByRole('button', { name: 'Deutsch' }).click();
+  await expect.poll(() => lang(page)).toBe('de');
+  await page.waitForTimeout(1600); // the menu's intro animation
+  await page.screenshot({ path: info.outputPath('menu-de.png') });
+  await page.getByTestId('menu-settings').click();
+  await expect(page.getByTestId('settings')).toContainText('Grafikqualität');
+  await expect(page.getByTestId('set-language').getByRole('button', { pressed: true })).toHaveText('Deutsch');
+  await page.screenshot({ path: info.outputPath('settings-de.png') });
+
+  await page.goto('/?play');
+  await expect(page.getByTestId('station-hub')).toBeVisible({ timeout: 30_000 });
+  expect(await lang(page)).toBe('de');
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: info.outputPath('hub-de.png') });
+  await page.getByTestId('undock').click();
+  await page.waitForFunction(() => window.__cinder!.sim.state.player.dock.mode === 'flying');
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: info.outputPath('flight-de.png') });
+  expect(errors).toEqual([]);
+});

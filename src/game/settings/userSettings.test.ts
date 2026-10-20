@@ -46,7 +46,7 @@ describe('user settings', () => {
       zoomSensitivity: 0.01,
       showControlsHelp: false,
       reducedMotion: 'sometimes',
-      language: 'de',
+      language: 'fr',
     });
     expect(s).toEqual({
       ...DEFAULT_USER_SETTINGS,
@@ -200,10 +200,11 @@ describe('user settings', () => {
     expect(zoomFactor({ ...DEFAULT_USER_SETTINGS, zoomSensitivity: 2 })).toBe(2);
   });
 
-  it('language: English by default, Slovak accepted, anything else repaired', () => {
+  it('language: English by default, Slovak and German accepted, anything else repaired', () => {
     expect(DEFAULT_USER_SETTINGS.language).toBe('en');
     expect(sanitizeUserSettings({ language: 'sk' }).language).toBe('sk');
-    expect(sanitizeUserSettings({ language: 'de' }).language).toBe('en');
+    expect(sanitizeUserSettings({ language: 'de' }).language).toBe('de');
+    expect(sanitizeUserSettings({ language: 'fr' }).language).toBe('en');
   });
 
   it('a first launch is English whatever the browser says; stored settings keep their language', () => {
@@ -224,7 +225,7 @@ describe('user settings', () => {
       expect(loadUserSettings(store).language).toBe('sk');
       saveUserSettings(store, { ...DEFAULT_USER_SETTINGS, language: 'en' });
       expect(loadUserSettings(store).language).toBe('en');
-      g.__CINDER_FIRST_LANGUAGE__ = 'de';
+      g.__CINDER_FIRST_LANGUAGE__ = 'fr';
       expect(loadUserSettings(memoryStore()).language).toBe('en');
     } finally {
       delete g.__CINDER_FIRST_LANGUAGE__;

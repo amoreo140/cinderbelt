@@ -6,13 +6,13 @@
 //   tx().pirates.toll.pay           the other modules under their name (skPirates.ts / enPirates.ts)
 //
 // Only the active language is loaded (audit 2026-10-17, P6/P10): each language is one bundle
-// (textsSk.ts / textsEn.ts) fetched with `import()` the first time it is needed. `setLocale` (locale.ts)
+// (textsSk.ts / textsEn.ts / textsDe.ts) fetched with `import()` the first time it is needed. `setLocale` (locale.ts)
 // switches once the new bundle is in, so `tx()` stays synchronous and always has the current language.
 // The boot awaits the first language before anything renders; tests and the UI kit register both
 // languages up front (allTexts.ts).
 //
-// Adding a text module: write `skFoo.ts` with an exported interface and `enFoo.ts` typed by it, then add
-// it to `Texts` (texts.ts) and both bundles (the parity test checks every pair).
+// Adding a text module: write `skFoo.ts` with an exported interface and `enFoo.ts` / `deFoo.ts` typed by it,
+// then add it to `Texts` (texts.ts) and every bundle (the parity test checks every pair).
 import { getLocale, setLocaleLoader, type Locale } from './locale';
 import type { Texts } from './texts';
 
@@ -25,6 +25,7 @@ const loading: Partial<Record<Locale, Promise<Texts>>> = {};
 const IMPORTS: Record<Locale, () => Promise<Texts>> = {
   sk: () => import('./textsSk').then((m) => m.skTexts),
   en: () => import('./textsEn').then((m) => m.enTexts),
+  de: () => import('./textsDe').then((m) => m.deTexts),
 };
 
 /** Makes a language available without a download (tests, the UI kit – allTexts.ts). */

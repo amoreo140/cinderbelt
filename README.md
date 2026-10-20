@@ -6,7 +6,7 @@
 
 ## [▶ Play in your browser](https://amoreo140.github.io/cinderbelt/)
 
-Cinderbelt is a top-down 3D space game that runs in the browser. You mine asteroids, trade, and assemble your ship from parts on a grid. The ship is simulated as one rigid body, so where you put an engine or a cargo hold changes how it flies. You then explore an endless, sectorised universe and fight the Rust pirates, who fly ships built from parts just like yours. The game is available in English and Slovak.
+Cinderbelt is a top-down 3D space game that runs in the browser. You mine asteroids, trade, and assemble your ship from parts on a grid. The ship is simulated as one rigid body, so where you put an engine or a cargo hold changes how it flies. You then explore an endless, sectorised universe and fight the Rust pirates, who fly ships built from parts just like yours. The game is available in English, Slovak and German.
 
 ![Gameplay: flying and mining](docs/media/gameplay.gif)
 
