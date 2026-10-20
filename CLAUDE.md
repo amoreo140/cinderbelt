@@ -3,11 +3,11 @@
 ## Language
 - **All code is in English: identifiers AND code comments.** `npm run lint:lang` checks
   comments and test titles (string literals may hold Slovak – tests assert the Slovak localisation).
-- **The game is bilingual: Slovak + English.** Every player-facing string lives in
+- **The game is multilingual: Slovak + English + German.** Every player-facing string lives in
   the i18n files (`src/i18n/`), never hard-coded in components or the simulation.
-  Add every new string in both languages.
+  Add every new string in all three languages (German terms: `src/i18n/GLOSSARY-DE.md`).
   Only the active language is loaded at runtime (`setLocale()` is async on a first switch – await or poll
-  in e2e); vitest and the UI kit register both via `src/i18n/allTexts.ts`.
+  in e2e); vitest and the UI kit register all of them via `src/i18n/allTexts.ts`.
 - Documentation may be bilingual (Slovak/English).
 
 ## Git

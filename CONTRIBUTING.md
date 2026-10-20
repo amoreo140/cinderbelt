@@ -18,9 +18,10 @@ Python and Blender are only needed if you regenerate art or music (see below).
 
 - **English code.** Identifiers and code comments are English. `npm run lint:lang` enforces this
   for comments and test titles.
-- **Bilingual game.** The game ships in Slovak and English. Every player-facing string lives in
-  `src/i18n/`, in both languages, never hard-coded in a component or in the simulation. Add a
-  string to both the `sk*.ts` and the `en*.ts` module; the parity test fails otherwise. Only the
+- **Multilingual game.** The game ships in Slovak, English and German. Every player-facing string
+  lives in `src/i18n/`, in every language, never hard-coded in a component or in the simulation.
+  Add a string to the `sk*.ts`, the `en*.ts` and the `de*.ts` module; the parity test fails
+  otherwise. German terms follow `src/i18n/GLOSSARY-DE.md`. Only the
   active language is loaded at runtime, so `setLocale()` is async on the first switch: await or
   poll in e2e tests.
 - **Pure simulation.** `src/sim` must stay deterministic: no three.js, no DOM, no `Math.random`,

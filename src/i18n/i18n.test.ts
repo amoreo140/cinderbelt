@@ -124,9 +124,11 @@ describe('English consistency', () => {
   });
 
   it('part variant names match the explanations', () => {
-    const en = textsFor('en');
-    for (const [id, name] of Object.entries(en.discovery.variants)) {
-      expect(en.partInfo.variants[id as keyof typeof en.partInfo.variants].startsWith(`${name}:`), id).toBe(true);
+    for (const locale of ['en', 'de'] as const) {
+      const t = textsFor(locale);
+      for (const [id, name] of Object.entries(t.discovery.variants)) {
+        expect(t.partInfo.variants[id as keyof typeof t.partInfo.variants].startsWith(`${name}:`), `${locale} ${id}`).toBe(true);
+      }
     }
   });
 });
