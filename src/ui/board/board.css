@@ -1,7 +1,10 @@
 /* Board (hub tab 6): sector state, contract slips, factions, wanted captains. */
 
 .bd-section {
-  margin-top: 1rem;
+  margin-top: 1.25rem;
+}
+.bd-section > .af-heading {
+  margin-bottom: 0.5rem;
 }
 .bd-empty {
   margin: 0.2rem 0 0.4rem;
@@ -292,4 +295,112 @@
 .bd-trophies li {
   padding: 0.3rem 0;
   font-size: var(--af-fs-md);
+}
+
+/* active contracts: compact cards, but readable */
+.bd-active .af-slip-title {
+  font-size: var(--af-fs-lg);
+}
+.bd-active .af-slip-credits {
+  font-size: var(--af-fs-xl);
+}
+
+/* recommended offer: the expanded card with a kicker */
+.bd-rec .af-heading {
+  color: var(--af-trim-deep, var(--af-warn));
+}
+.bd-rec-why {
+  margin: 0 0 0.45rem;
+  font-size: var(--af-fs-lg);
+  color: var(--af-ink-soft);
+}
+.bd-rec .af-slip-title {
+  font-size: var(--af-fs-xl);
+}
+.bd-rec .af-slip-credits {
+  font-size: var(--af-fs-2xl);
+}
+.bd-rec-needs {
+  margin: 0.45rem 0 0;
+  font-size: var(--af-fs-lg);
+  font-weight: 700;
+  color: var(--af-warn-ink);
+}
+
+/* other offers: compact rows */
+.bd-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.bd-row {
+  --trim: var(--af-trim);
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3.5rem;
+  padding: 0.4rem 0.7rem 0.4rem 0.5rem;
+  background: linear-gradient(180deg, #f3f5f8 0%, #e3e8ee 100%);
+  box-shadow: inset 3px 0 0 var(--trim), inset 0 0 0 1px var(--af-seam);
+  transition: background 0.12s;
+}
+.bd-row--institute {
+  --trim: #2fb6d6;
+}
+.bd-row:hover,
+.bd-row:focus-within {
+  background: linear-gradient(180deg, #ffffff 0%, #eef2f6 100%);
+}
+.bd-kind {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  color: var(--trim);
+  background: #1d2631;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+.bd-row-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+.bd-row-title {
+  font-size: var(--af-fs-lg);
+  font-weight: 750;
+  color: var(--af-ink);
+}
+.bd-row-meta {
+  font-size: var(--af-fs-md);
+  color: var(--af-ink-soft);
+}
+.bd-row-reward {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.25;
+  white-space: nowrap;
+  font-size: var(--af-fs-md);
+  color: var(--af-ink-soft);
+}
+.bd-row-reward strong {
+  font-size: var(--af-fs-lg);
+  color: var(--af-ink);
+}
+.bd-row-reward small {
+  font-size: var(--af-fs-md);
+  font-weight: 600;
+}
+@media (max-width: 560px) {
+  .bd-row {
+    grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+  }
+  .bd-row-act {
+    grid-column: 2 / -1;
+  }
 }

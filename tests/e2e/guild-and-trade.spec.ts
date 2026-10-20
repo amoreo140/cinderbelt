@@ -345,7 +345,7 @@ test('Guild relay: the pinned slip, accept, F at the mast repairs it with the ca
   await page.getByTestId('tab-board').click();
   const slip = page.locator('[data-testid$=".relay"]').first();
   await expect(slip).toBeVisible();
-  await expect(slip).toContainText('Relé Cechu');
+  await expect(slip).toContainText(/Relé Cechu/i);
   await slip.scrollIntoViewIfNeeded();
   await page.mouse.move(10, 10);
   await waitTicks(page, 10);

@@ -1,5 +1,7 @@
 // The Board tab (long-term design 10.6): ContractSlip slips, active contracts, faction reputation
 // with emblems, the sector state and wanted captains.
+import { recommendOffer, recommendReason } from '../../game/board/recommend';
+import type { SlipData } from '../../game/board/slipView';
 import type { BoardData, BoardViewMode, CaptainView, FactionView } from '../../game/board/boardView';
 import { amountText, resourceName } from '../../game/board/names';
 import { assetUrl } from '../../render/assets/url';
@@ -10,6 +12,7 @@ import { Heading, Lamp, Panel, Segmented } from '../theme';
 import { Act, type ClickSound } from '../station/Act';
 import { Cartography } from './Cartography';
 import { SectorStrip } from './SectorStrip';
+import { OfferRow } from './OfferRow';
 import { Slip } from './Slip';
 import './board.css';
 
@@ -24,9 +27,27 @@ export interface BoardHandlers extends ClickSound {
 }
 
 function Contracts({ d, on, from }: { d: BoardData; on: BoardHandlers; from: { x: number; y: number } }) {
+  const pick = recommendOffer(d.offers);
+  const why = pick ? recommendReason(pick, d.offers) : null;
+  const whyText = why
+    ? [why.noRisk && t().recommendedWhy.noRisk, why.short && t().recommendedWhy.short, why.bestPay && t().recommendedWhy.bestPay].filter(Boolean).join(' · ')
+    : '';
+  const rest = d.offers.filter((o) => o !== pick);
+  const accept = (s: SlipData, size: 'sm' | 'md') => (
+    <Act
+      on={on}
+      size={size}
+      disabled={!s.accept?.enabled}
+      {...(s.accept?.reason ? { reason: s.accept.reason } : {})}
+      testId={`accept-${s.offerId}`}
+      onClick={() => on.action({ type: 'acceptContract', offerId: s.offerId })}
+    >
+      {tx().goals.slip.accept}
+    </Act>
+  );
   return (
     <div class="bd-contracts">
-      <SectorStrip sector={d.sector} testId="board-sector" />
+      <SectorStrip sector={d.sector} testId="board-sector" hideWhenCalm />
       <section class="bd-section">
         <Heading aside={`${d.active.length} / 3`}>{t().active}</Heading>
         {d.active.length === 0 ? (
@@ -38,6 +59,7 @@ function Contracts({ d, on, from }: { d: BoardData; on: BoardHandlers; from: { x
                 key={s.key}
                 d={s}
                 from={from}
+                compact
                 actions={
                   <>
                     {s.abandon && (
@@ -72,32 +94,29 @@ function Contracts({ d, on, from }: { d: BoardData; on: BoardHandlers; from: { x
           </div>
         )}
       </section>
+      {pick && (
+        <section class="bd-section bd-rec" data-testid="board-recommended">
+          <Heading>{t().recommended}</Heading>
+          <p class="bd-rec-why">{whyText}</p>
+          <Slip key={pick.key} d={pick} from={from} actions={accept(pick, 'md')} />
+          {pick.needs && <p class="bd-rec-needs">{t().needs(amountText(pick.needs.amount), resourceName(pick.needs.resource))}</p>}
+        </section>
+      )}
       <section class="bd-section">
-        <Heading aside={t().refresh(d.refreshMinutes)}>{t().offers}</Heading>
-        {d.offers.length === 0 ? (
-          <p class="bd-empty">{t().noOffers}</p>
+        {rest.length > 0 ? (
+          <>
+            <Heading>{t().otherOffers(d.refreshMinutes)}</Heading>
+            <ul class="bd-rows">
+              {rest.map((s) => (
+                <OfferRow key={s.key} d={s} from={from} actions={accept(s, 'sm')} />
+              ))}
+            </ul>
+          </>
         ) : (
-          <div class="bd-offers">
-            {d.offers.map((s) => (
-              <Slip
-                key={s.key}
-                d={s}
-                from={from}
-                actions={
-                  <Act
-                    on={on}
-                    size="sm"
-                    disabled={!s.accept?.enabled}
-                    {...(s.accept?.reason ? { reason: s.accept.reason } : {})}
-                    testId={`accept-${s.offerId}`}
-                    onClick={() => on.action({ type: 'acceptContract', offerId: s.offerId })}
-                  >
-                    {tx().goals.slip.accept}
-                  </Act>
-                }
-              />
-            ))}
-          </div>
+          <>
+            {d.offers.length === 0 && <Heading aside={t().refresh(d.refreshMinutes)}>{t().offers}</Heading>}
+            <p class="bd-empty">{d.offers.length === 0 ? t().noOffers : t().refresh(d.refreshMinutes)}</p>
+          </>
         )}
       </section>
     </div>

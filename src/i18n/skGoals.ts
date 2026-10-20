@@ -114,6 +114,10 @@ export interface GoalsTexts {
     noActive: string;
     noOffers: string;
     refresh: (min: number) => string;
+    recommended: string;
+    recommendedWhy: { noRisk: string; short: string; bestPay: string };
+    needs: (amount: string, res: string) => string;
+    otherOffers: (min: number) => string;
     sector: string;
     calm: string;
     sectorChange: (min: number) => string;
@@ -418,6 +422,10 @@ export const skGoals = {
     noActive: 'Žiadny aktívny kontrakt – vyber si lístok z ponuky.',
     noOffers: 'Tabuľa je prázdna. Nové lístky prídu o chvíľu – alebo zvýš reputáciu.',
     refresh: (min: number): string => `Nové lístky o ${min} min`,
+    recommended: 'Odporúčané',
+    recommendedWhy: { noRisk: 'bez rizika', short: 'krátke', bestPay: 'najlepšia odmena za minútu' },
+    needs: (amount: string, res: string): string => `Potrebuješ ${amount} ${res} – vyťaž to alebo kúp.`,
+    otherOffers: (min: number): string => `Ďalšie ponuky · nové o ${min} min`,
     sector: 'Miestne podmienky',
     calm: 'Nič mimoriadne – žiadne varovania ani anomálie.',
     sectorChange: (min: number): string => `zmena o ${min} min`,

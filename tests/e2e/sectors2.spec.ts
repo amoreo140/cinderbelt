@@ -126,7 +126,7 @@ test('sectors 2: chart a sector by its survey points and sell its chart (SK) –
   await loadFixture(page, 'start');
   // the "First chart" slip on the home Board
   await page.getByTestId('tab-board').click();
-  const first = page.locator('.af-slip', { hasText: 'Prvá mapa' }).first();
+  const first = page.locator('.af-slip, .bd-row', { hasText: 'Prvá mapa' }).first();
   await expect(first).toBeVisible();
   await first.screenshot({ path: out('sk-slip-first-chart') });
 
@@ -209,7 +209,7 @@ test('sectors 2: English Cartography, survey callout, map points and sector card
   await expect(page.getByTestId('cartography-never')).toContainText('never shows caches, Echoes or wreck contents');
   await page.getByTestId('station-hub').screenshot({ path: out('en-board-cartography') });
   await page.getByRole('button', { name: /^Contracts$/ }).click();
-  const first = page.locator('.af-slip', { hasText: 'First chart' }).first();
+  const first = page.locator('.af-slip, .bd-row', { hasText: 'First chart' }).first();
   await expect(first).toBeVisible();
   await first.screenshot({ path: out('en-slip-first-chart') });
 

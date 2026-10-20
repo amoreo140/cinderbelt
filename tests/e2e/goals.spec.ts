@@ -1,6 +1,7 @@
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { dockAtClamp } from './dockHelper';
+import { loadFixture } from './fixtures';
 
 // M3.5a "Why": Board (contracts, factions, quests), Goals (strip + panel), "First day", Depots
 // with a courier, the "Where I left off" card and the course of one contract from accepting to handing in.
@@ -66,7 +67,10 @@ test('M3.5a: board tab with contract slips, factions and wanted captains', async
   await page.screenshot({ path: `${OUT}/m35a-overview.png` });
   await page.keyboard.press('Digit4');
   await expect(page.getByTestId('board')).toBeVisible();
+  // busySector() gives the sector modifiers, so the strip is shown (a calm sector renders nothing)
+  await expect(page.getByTestId('board-sector')).toBeVisible();
   await expect(page.getByTestId('board-sector')).not.toContainText('Pokojná');
+  await expect(page.getByTestId('board-recommended')).toBeVisible();
   const offers = await page.locator('[data-testid^="offer-"]').count();
   expect(offers).toBeGreaterThanOrEqual(3);
   await waitTicks(page, 20);
@@ -318,4 +322,22 @@ test('M3.5a: ui kit – contract slips, objective band and sector state', async 
   await page.waitForTimeout(400);
   await section.screenshot({ path: `${OUT}/m35a-kit.png` });
   expect(errors).toEqual([]);
+});
+
+test('jobs: a recommended card on top, the other offers as rows, Accept works in a row', async ({ page }) => {
+  await loadFixture(page, 'hour1');
+  await expect(page.getByTestId('station-hub')).toBeVisible();
+  await page.keyboard.press('Digit4');
+  await expect(page.getByTestId('board')).toBeVisible();
+  const rec = page.getByTestId('board-recommended');
+  await expect(rec).toBeVisible();
+  const total = await page.evaluate(() => [...window.__cinder!.sim.state.career.boards.values()].reduce((n, b) => n + b.offers.length, 0));
+  const rows = page.locator('.bd-row');
+  await expect(rows).toHaveCount(total - 1);
+  const row = rows.first();
+  const accept = row.locator('[data-testid^="accept-"]');
+  await expect(accept).toBeEnabled();
+  await accept.click();
+  await page.waitForFunction(() => window.__cinder!.sim.state.career.contracts.length === 1);
+  await expect(page.locator('[data-testid^="contract-"]')).toHaveCount(1);
 });

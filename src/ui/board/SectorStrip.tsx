@@ -6,7 +6,9 @@ import './board.css';
 
 const t = () => tx().goals.board;
 
-export function SectorStrip({ sector, testId }: { sector: SectorView; testId?: string }) {
+/** `hideWhenCalm`: render nothing when the sector has no modifier (the strip is only news when something is going on). */
+export function SectorStrip({ sector, testId, hideWhenCalm }: { sector: SectorView; testId?: string; hideWhenCalm?: boolean }) {
+  if (hideWhenCalm && sector.modifiers.length === 0) return null;
   return (
     <Panel material="screen" cut="sm" class="bd-sector" testId={testId}>
       <span class="af-label bd-sector-title">{t().sector}</span>
