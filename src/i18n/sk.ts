@@ -39,8 +39,6 @@ export interface CoreTexts {
     energy: string;
     cargo: string;
     zone: string;
-    position: string;
-    station: string;
     distanceUnit: string;
     /** Vein mining (M2d): the heat bar of the hottest laser and the bonus. */
     heat: string;
@@ -833,8 +831,6 @@ export const sk = {
     energy: 'Energia',
     cargo: 'Náklad',
     zone: 'Zóna',
-    position: 'Poloha',
-    station: 'Stanica',
     distanceUnit: 'j',
     heat: 'Teplo lasera',
     heatShort: 'Teplo',

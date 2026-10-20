@@ -26,8 +26,6 @@ export const en: CoreTexts = {
     energy: 'Energy',
     cargo: 'Cargo',
     zone: 'Zone',
-    position: 'Position',
-    station: 'Station',
     distanceUnit: 'u',
     heat: 'Laser heat',
     heatShort: 'Heat',
