@@ -9,7 +9,7 @@
   left: 50%;
   translate: -50% 0;
   width: max-content;
-  max-width: min(42rem, calc(100vw - 2 * var(--af-edge)));
+  max-width: min(38rem, calc(100vw - 2 * var(--af-edge)));
   padding: 0;
   /* in flight the radio never takes the mouse from aiming, mining and firing – only its toll buttons do */
   pointer-events: none;
@@ -18,6 +18,12 @@
 /* under the pirate warning band (top centre as well; the band lives in the .hud sibling before us) */
 .hud:has(.cb-threat) ~ .cm-line {
   top: calc(var(--af-edge) + 3.6rem);
+}
+/* from 1600 px the centred line may be wider (a centred 42 rem line would run over the 28 rem navigation stack below that) */
+@media (min-width: 1600px) {
+  .cm-line:not(.is-docked) {
+    max-width: min(42rem, calc(100vw - 2 * var(--af-edge)));
+  }
 }
 /* the toast (top centre too) moves below the radio line */
 .cm-line:not(.is-docked) ~ .ui-toast {
@@ -31,7 +37,7 @@
   body:has(.tr-layer:not(.is-docked) .tr-panel) .cm-line:not(.is-docked) {
     left: calc(var(--af-edge) + 30.5rem);
     translate: none;
-    max-width: min(42rem, calc(100vw - var(--af-edge) - 30.5rem - 13rem));
+    max-width: min(38rem, calc(100vw - var(--af-edge) - 30.5rem - 13rem));
   }
 }
 /* docked: the hub fills the top centre, so the line sits low on the left (as the radio card did) */
