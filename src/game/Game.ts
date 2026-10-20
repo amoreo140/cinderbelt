@@ -84,6 +84,7 @@ import { WorkshopLamps } from './workshopView';
 import type { GuildDevHooks } from './guild/types';
 import { GuildUi } from './guild/guildUi';
 import { MapPlanUi } from './map/mapPlanUi';
+import { goalEdgeArrow, goalMark, type GoalHud } from '../ui/goalMark';
 import { flightHudRects, hudArrowFootprint, hudArrowRect, navArrows, placeHudArrows, type EdgeArrowInput, type NavMark } from '../ui/edgeArrows';
 import { formatClock } from '../ui/sites/chipFormat';
 import type { RouteMark } from './map/mapPlanUi';
@@ -1871,7 +1872,8 @@ export class Game {
     const stationArrow = stationShown
       ? { ...arrowPos, label: routeAtStation && route.seconds !== null ? tx().guild.route.station(stationLabel, formatClock(route.seconds)) : stationLabel }
       : null;
-    const objectiveArrow = this.goalArrow(goal, rect);
+    const goalHud = this.goalHud(goal, rect, pos);
+    const objectiveArrow = goalHud ? goalEdgeArrow(goalHud) : null;
     const marks =
       flying && !this.mapOpen && !berthed
         ? this.navArrowMarks(state, rect, routeAtStation ? null : route, stationArrow, objectiveArrow)
@@ -1917,6 +1919,7 @@ export class Game {
       // the training's step panel takes the band's place (one onboarding, no duplicate line)
       objectives: flying && !trainingActive(state) ? this.career.band(state) : null,
       objectiveArrow,
+      goal: goalHud,
       scan: flying || player.destroyed ? this.explore.scanHud(state, this.clock) : null,
       discovery: { radar: this.explore.radar(state, radarRange), callouts: this.calloutItems(state, rect) },
       onToggleLayer: this.toggleMapLayer,
@@ -2014,10 +2017,15 @@ export class Game {
     });
   }
 
-  /** Arrow to the target (contract, "First day") at the screen edge when it is off screen. */
-  private goalArrow(goal: { pos: Vec2; label: string } | null, rect: DOMRect): HudData['objectiveArrow'] {
+  /**
+   * The goal (contract, "First day", training target): a ring on it while on screen, an edge arrow while
+   * off screen, its distance and the bearing from the ship (`goalMark`).
+   */
+  private goalHud(goal: { pos: Vec2; label: string; distance: number } | null, rect: DOMRect, ship: Vec2): GoalHud | null {
     if (!goal) return null;
-    const a = edgeArrow(this.renderer.projectToScreen(goal.pos), { width: rect.width, height: rect.height }, 64);
-    return a ? { ...a, label: goal.label } : null;
+    const p = this.renderer.projectToScreen(goal.pos);
+    const s = this.renderer.projectToScreen(ship);
+    const { mark, bearing } = goalMark({ x: p.x - rect.left, y: p.y - rect.top, behind: p.behind }, { x: s.x - rect.left, y: s.y - rect.top }, { width: rect.width, height: rect.height });
+    return { label: goal.label, distance: goal.distance, bearing, mark };
   }
 }

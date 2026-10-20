@@ -406,3 +406,91 @@
 .hud-arrow--goal .hud-arrow-label {
   box-shadow: inset 2px 0 0 var(--af-glow);
 }
+
+/* a bolder goal arrow: about twice the station arrow */
+.hud-arrow--goal .hud-arrow-head {
+  left: -22px;
+  top: -19px;
+  width: 44px;
+  height: 38px;
+  transform-origin: 22px 19px;
+}
+.hud-arrow--goal .hud-arrow-label {
+  font-size: var(--af-fs-md, 1rem);
+  font-size: max(1rem, var(--af-fs-md, 1rem));
+  padding: 4px 12px;
+}
+
+/* the goal on screen: a ring on it and a plate beside it */
+.hud-goal {
+  position: absolute;
+  width: 0;
+  height: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.hud-goal-ring {
+  position: absolute;
+  left: -2.25rem;
+  top: -2.25rem;
+  width: 4.5rem;
+  height: 4.5rem;
+  box-sizing: border-box;
+  border: 3px solid var(--af-glow);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(0, 0, 0, 0.5), 0 0 12px var(--af-glow);
+  animation: hud-goal-pulse 900ms var(--af-ease-out, ease-out) 1 both;
+}
+.hud-goal-label {
+  --cut: 4px;
+  position: absolute;
+  left: calc(2.25rem + 8px);
+  top: 0;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  padding: 4px 12px;
+  font-size: 1rem;
+  color: var(--af-text);
+  background: rgba(27, 34, 45, 0.9);
+  box-shadow: inset 2px 0 0 var(--af-glow);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.hud-goal.is-flipped .hud-goal-label {
+  left: auto;
+  right: calc(2.25rem + 8px);
+}
+.hud-goal-label b {
+  font-weight: 800;
+}
+.hud-goal-dist {
+  font-weight: 500;
+  color: var(--af-ink-soft, #aab6c6);
+}
+@keyframes hud-goal-pulse {
+  0% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-goal-ring {
+    animation: none;
+  }
+}
+:root[data-reduced-motion] .hud-goal-ring {
+  animation: none;
+}
+
+/* with a goal marker or arrow shown, the other navigation arrows step back (not smaller) */
+.hud--goal .hud-arrow--station,
+.hud--goal [data-testid^="nav-arrow-"],
+.hud--goal [data-testid^="nav-pin-"] {
+  opacity: 0.75;
+}

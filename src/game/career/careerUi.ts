@@ -167,14 +167,14 @@ export class CareerUi {
   }
 
   /** Target of the screen-edge arrow (the first objective with a position). */
-  arrowTarget(state: SimState): { pos: Vec2; label: string } | null {
+  arrowTarget(state: SimState): { pos: Vec2; label: string; distance: number } | null {
     const o = objectivesAt(state).find((x) => x.target !== null && x.scale === 'now') ?? null;
     if (!o?.target) return null;
     // target = the nearest station (hand-in) – the orange arrow already points there
     const near = nearestDiscoveredStation(state.seed, state.world.discovered, state.player.body.pos);
     if (Math.hypot(near.pos.x - o.target.x, near.pos.y - o.target.y) < 1) return null;
     const pos = state.player.body.pos;
-    return { pos: o.target, label: `${tx().goals.objectives.tracks[o.track]} ${formatInt(Math.hypot(o.target.x - pos.x, o.target.y - pos.y))} ${tx().units.unit}` };
+    return { pos: o.target, label: tx().goals.objectives.tracks[o.track], distance: Math.hypot(o.target.x - pos.x, o.target.y - pos.y) };
   }
 
   /** Map (M): contract and training objectives with a position. */
