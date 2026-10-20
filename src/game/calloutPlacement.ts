@@ -2,7 +2,7 @@
 // screen edge and clear of the edge-arrow labels (the hostile pirates', the scanner finds'). Pure –
 // Game asks it at the UI redraw and on every frame while it moves the labels.
 import type { EdgeArrow } from '../ui/stationHud';
-import { chipsBesideZone, currentHudZones, topLeftZone } from '../ui/hudZones';
+import { BOTTOM_RIGHT_ZONE, CONSOLE_ZONE_DEFAULT, chipsBesideZone, currentHudZones, topLeftZone } from '../ui/hudZones';
 import { calloutShiftStyle } from '../ui/theme/Callout';
 
 /** A screen rectangle (px, UI-root coordinates). */
@@ -90,9 +90,9 @@ export function edgeArrowBox(a: EdgeArrow): Box {
 /**
  * The top HUD panels and the left column as boxes (the navigation band with the objectives band and
  * the event chips under them, the credits with the controls help, the radio panel), as Hud measured
- * them last: a label next to them takes the other side of its anchor or slides off them.
+ * them last (the bottom corners when the view height is given): a label next to them takes the other side of its anchor or slides off them.
  */
-export function hudPanelBoxes(view: { width: number }): Box[] {
+export function hudPanelBoxes(view: { width: number; height?: number }): Box[] {
   const zones = currentHudZones();
   const tl = topLeftZone(zones);
   const out: Box[] = [{ x: 0, y: 0, w: tl.width, h: tl.height }];
@@ -101,5 +101,11 @@ export function hudPanelBoxes(view: { width: number }): Box[] {
   const beside = chipsBesideZone(zones);
   if (beside) out.push({ x: beside.x, y: beside.y, w: beside.width, h: beside.height });
   if (zones.radio) out.push({ x: zones.radio.x, y: zones.radio.y, w: zones.radio.width, h: zones.radio.height });
+  // the bottom corners: the console (measured) and the radar with the scanner and K chips
+  if (view.height !== undefined) {
+    const c = zones.console ?? CONSOLE_ZONE_DEFAULT;
+    out.push({ x: 0, y: view.height - c.height, w: c.width, h: c.height });
+    out.push({ x: view.width - BOTTOM_RIGHT_ZONE.width, y: view.height - BOTTOM_RIGHT_ZONE.height, w: BOTTOM_RIGHT_ZONE.width, h: BOTTOM_RIGHT_ZONE.height });
+  }
   return out;
 }

@@ -1,5 +1,5 @@
 // Radar legend (readability pass R7): the radar grammar with samples drawn by the radar's own glyph
-// functions – in the controls help (K) and as a card when the pointer is over the radar.
+// functions – pinned while the "?" key is held and as a card when the pointer is over the radar.
 import { useEffect, useRef } from 'preact/hooks';
 import { tx } from '../i18n';
 import { prepareCanvas } from './canvasDraw';
@@ -24,7 +24,7 @@ function GlyphSample({ glyph }: { glyph: RadarGlyph }) {
 }
 
 /**
- * The legend as its own panel above the radar: `help` pinned while the controls help (K) is open,
+ * The legend as its own panel above the radar: `help` pinned while "?" is held,
  * `hover` while the pointer is on the radar – it must be the radar panel's next sibling (shown by
  * `.hud-radar:hover + …`; a child would be clipped by the panel's cut corners).
  */

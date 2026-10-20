@@ -52,7 +52,7 @@ import { FixedLoop } from './fixedLoop';
 import { miningHud, MiningHudMemo } from './miningView';
 import { MiningUi } from './mining/miningUi';
 import { GameAudio } from './GameAudio';
-import { buildCommand, KeyboardState, letterKey, PointerState } from './input';
+import { buildCommand, KeyboardState, letterKey, PointerState, QUESTION_HELD } from './input';
 import { CareerUi } from './career/careerUi';
 import { TrainingUi } from './training/trainingUi';
 import type { TrainingContext } from './training/trainingView';
@@ -1937,6 +1937,7 @@ export class Game {
       message: hint,
       messageTone: hintTone,
       helpOpen: this.helpOpen,
+      legendHeld: this.keyboard.pressed.has(QUESTION_HELD),
       mining: miningHud({ lasers: props.lasers.length, heat: player.heat, beams: flying ? player.beams : [] }, this.clock, this.miningMemo),
       miningPops: this.mining.activePops(this.clock),
       combat: {
@@ -2009,7 +2010,7 @@ export class Game {
     for (const m of this.guild.navMarks(state)) add(m.pos, m.mark);
     if (inputs.length === 0) return null;
     const view = { width: rect.width, height: rect.height };
-    const placed = placeHudArrows(stationArrow, objectiveArrow, view, this.helpOpen);
+    const placed = placeHudArrows(stationArrow, objectiveArrow, view, this.keyboard.pressed.has(QUESTION_HELD));
     const boxes: { rect: ScreenRect; foot: ScreenRect }[] = [];
     if (placed.station) boxes.push({ rect: hudArrowRect(placed.station), foot: hudArrowFootprint(placed.station) });
     if (placed.goal) boxes.push({ rect: hudArrowRect(placed.goal, true), foot: hudArrowFootprint(placed.goal, true) });

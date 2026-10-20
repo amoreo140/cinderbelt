@@ -51,6 +51,8 @@ export interface CoreTexts {
     /** Screen-reader labels of the radar and of the in-world object labels. */
     radar: string;
     callouts: string;
+    /** Tooltip of the "?" keycap on the radar corner. */
+    legendHint: string;
   };
   rings: readonly string[];
   resources: {
@@ -841,6 +843,7 @@ export const sk = {
     bonus: (x: string): string => `bonus ×${x}`,
     radar: 'Radar',
     callouts: 'Štítky objektov',
+    legendHint: 'Podrž ? pre legendu radaru',
   },
   rings: ['Domovský pás', 'Vonkajšie pásy', 'Kryštálové hmloviny', 'Mŕtve zóny'],
   resources: { iron: 'Železo', copper: 'Meď', ice: 'Ľad', titanium: 'Titán' },
@@ -1563,6 +1566,7 @@ export const sk = {
       'I – sklady',
       'N – zvuk zap / vyp',
       'H – odtiahnutie (bez paliva)',
+      '? – podrž: legenda radaru',
       'Koliesko – priblíženie',
       'F5 – uložiť hru',
       'Esc – pauza',

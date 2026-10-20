@@ -155,9 +155,8 @@ describe('hudArrowRect (M4d: the route arrow keeps off the station arrow)', () =
       avoid: [...flightHudRects(view, column), box],
     });
     expect(inRect(route!, box)).toBe(false);
-    // at 1280 px the bottom edge between the console and the radar is all station arrow: the route
-    // arrow steps up past its label
-    expect(route!.y).toBeLessThan(box.y);
+    // it steps along the edge or up past the station arrow's label, never onto it
+    expect(route!.x < box.x || route!.x > box.x + box.width || route!.y < box.y).toBe(true);
   });
 
   it('on a side edge the route arrow slides along the edge, its label clear of the station label', () => {
@@ -194,6 +193,17 @@ describe('placeHudArrows', () => {
     }
   });
 
+  it('a goal arrow on the console edge is lifted until its head and label plate clear the console zone', () => {
+    const consoleZones: HudZones = { ...zones, console: { width: 352, height: 150 } };
+    const goal = { x: 40, y: 700, angle: Math.PI, label: 'Bója Cechu' };
+    const placed = placeHudArrows(null, goal, view, false, consoleZones).goal!;
+    const plate = hudArrowFootprint(placed, true);
+    expect(plate.y + plate.height).toBeLessThanOrEqual(view.height - 150);
+    // away from the corners nothing moves
+    const far = { x: 640, y: 680, angle: Math.PI / 2, label: 'Bója Cechu' };
+    expect(placeHudArrows(null, far, view, false, consoleZones).goal).toEqual(far);
+  });
+
   it('apart already, or only one: each just off the panels', () => {
     const station = { x: 1216, y: 200, angle: 0, label: 'Kotva' };
     const goal = { x: 1216, y: 440, angle: 0, label: 'Cieľ' };
@@ -221,7 +231,8 @@ describe('avoidHudPanels', () => {
   });
 
   it('an arrow pushed up by the console lands above the radio panel', () => {
-    const a = avoidHudPanels(arrow(300, 690), view, false, column);
+    // a console with a silhouette and several rows reaches up to the radio panel
+    const a = avoidHudPanels(arrow(300, 690), view, false, { ...column, console: { width: 640, height: 250 } });
     expect(a.y).toBeLessThan(380 - 20);
   });
 

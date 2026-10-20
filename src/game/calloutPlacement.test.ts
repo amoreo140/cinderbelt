@@ -70,4 +70,12 @@ describe('callout placement', () => {
       Object.assign(NAV_ZONE, saved);
     }
   });
+
+  it('with the view height, the bottom corners (the console, the radar group) are panels too', () => {
+    const tall = { width: 1280, height: 720 };
+    const boxes = hudPanelBoxes(tall);
+    expect(boxes.some((b) => b.x === 0 && b.y + b.h === 720)).toBe(true);
+    expect(boxes.some((b) => b.x + b.w === 1280 && b.y + b.h === 720)).toBe(true);
+    expect(hudPanelBoxes({ width: 1280 })).toHaveLength(boxes.length - 2);
+  });
 });

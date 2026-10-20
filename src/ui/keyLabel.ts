@@ -7,7 +7,7 @@ export interface KeyLabel {
 
 const SEP = ' – ';
 /** A key is a short token (a letter, Esc, 1–5…) – not a whole sentence. */
-const KEY_TOKEN = /^[A-Za-zÁ-ž0-9–+]{1,9}$/;
+const KEY_TOKEN = /^[A-Za-zÁ-ž0-9–+?]{1,9}$/;
 
 export function splitKeyLabel(line: string): KeyLabel | null {
   const i = line.indexOf(SEP);

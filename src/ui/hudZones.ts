@@ -1,6 +1,6 @@
 // Where the flight HUD's top corner panels are right now (px from the top-left of the window). Hud's
 // ResizeObservers keep them (NavStack: the navigation band with the objectives band; TopRight: the
-// credits with the controls help K), so the edge arrows of the station, the goal, the scanner finds
+// credits with the opened controls help K), so the edge arrows of the station, the goal, the scanner finds
 // and the pirates step around their real size - the stack grows with the sector badge's survey dots
 // and the attention row, the help is tall while open. The defaults are the bands' usual size.
 // LEFT_COLUMN holds what hangs below the stack on the left: the M4b event chips and the radio panel
@@ -18,8 +18,22 @@ export interface ZoneRect {
 /** Top left: the navigation band and the objectives band under it. */
 export const NAV_ZONE = { width: 470, height: 175 };
 
-/** Top right: the credits and the controls help (K); 0 × 0 until measured. */
+/** Top right: the credits and the opened controls help (K); 0 × 0 until measured. */
 export const TOP_RIGHT_ZONE = { width: 0, height: 0 };
+
+/**
+ * Bottom left: the flight console (px from the window's left and bottom edge, with a margin). Hud measures
+ * it, as it grows with the rows `consoleRules` shows and with the ship silhouette; the defaults are the
+ * compact console (three bars, 20 rem wide) at the root font size.
+ */
+export const CONSOLE_ZONE = { width: 352, height: 150 };
+/**
+ * Bottom right: the radar, the scanner chip left of it and the K chip above that (hud.css `.hud-br`:
+ * 200 px + 11.5 rem from the right edge, ≤ 130 px tall); fixed, they do not grow.
+ */
+export const BOTTOM_RIGHT_ZONE = { width: 430, height: 230 };
+/** The defaults of CONSOLE_ZONE (restored when the HUD unmounts). */
+export const CONSOLE_ZONE_DEFAULT = { width: CONSOLE_ZONE.width, height: CONSOLE_ZONE.height };
 
 /**
  * Under the top-left stack: the bottom of the event chip column (0 = no chips) and the radio panel or
@@ -31,6 +45,8 @@ export const LEFT_COLUMN: { chipsBottom: number; chipsRight?: number; radio: Zon
 export interface HudZones {
   nav: { width: number; height: number };
   topRight: { width: number; height: number };
+  /** The flight console, bottom left (absent = the compact default). */
+  console?: { width: number; height: number };
   /** Bottom of the event chip column (0 = none). */
   chipsBottom?: number;
   /** Right edge of the chip column (M4d: the Guild chips beside the event chips reach past the stack). */
@@ -41,7 +57,7 @@ export interface HudZones {
 
 /** The zones as Hud measured them last. */
 export function currentHudZones(): HudZones {
-  return { nav: NAV_ZONE, topRight: TOP_RIGHT_ZONE, chipsBottom: LEFT_COLUMN.chipsBottom, chipsRight: LEFT_COLUMN.chipsRight, radio: LEFT_COLUMN.radio };
+  return { nav: NAV_ZONE, topRight: TOP_RIGHT_ZONE, console: CONSOLE_ZONE, chipsBottom: LEFT_COLUMN.chipsBottom, chipsRight: LEFT_COLUMN.chipsRight, radio: LEFT_COLUMN.radio };
 }
 
 /**

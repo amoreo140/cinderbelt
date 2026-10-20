@@ -8,7 +8,7 @@ import { tx } from '../i18n';
 import type { EdgeArrowMark } from './EdgeArrowLayer';
 import { formatInt } from './format';
 import { edgeArrow, type EdgeArrow } from './stationHud';
-import { chipsBesideZone, currentHudZones, topLeftZone, type HudZones } from './hudZones';
+import { BOTTOM_RIGHT_ZONE, chipsBesideZone, CONSOLE_ZONE_DEFAULT, currentHudZones, topLeftZone, type HudZones } from './hudZones';
 import { formatClock } from './sites/chipFormat';
 import { PALETTE } from './theme/tokens';
 
@@ -209,8 +209,8 @@ const LABEL_REACH = { x: 80, y: 20 };
 export function flightHudRects(view: { width: number; height: number }, zones: HudZones = currentHudZones()): ScreenRect[] {
   const tl = topLeftZone(zones);
   const rects: ScreenRect[] = [
-    { x: 0, y: view.height - 250, width: 640, height: 250 },
-    { x: view.width - 430, y: view.height - 230, width: 430, height: 230 },
+    { x: 0, y: view.height - consoleZone(zones).height, width: consoleZone(zones).width, height: consoleZone(zones).height },
+    { x: view.width - BOTTOM_RIGHT_ZONE.width, y: view.height - BOTTOM_RIGHT_ZONE.height, width: BOTTOM_RIGHT_ZONE.width, height: BOTTOM_RIGHT_ZONE.height },
     { x: 0, y: 0, width: tl.width + LABEL_REACH.x, height: tl.height + LABEL_REACH.y },
   ];
   const tr = zones.topRight;
@@ -279,10 +279,10 @@ export function hudArrowRect(arrow: EdgeArrow & { label?: string }, goal = false
   return { x: b.x - LABEL_REACH.x, y: b.y - LABEL_REACH.y, width: b.width + 2 * LABEL_REACH.x, height: b.height + 2 * LABEL_REACH.y };
 }
 
-/** The bottom corners hold the console (left) and the radar (right) – the arrow moves above them. */
-const CONSOLE_ZONE = { width: 640, height: 250 };
-/** The radar and the scanner widget left of it (M3.5b). */
-const RADAR_ZONE = { width: 430, height: 230 };
+/** The bottom corners hold the console (left, measured by Hud: it grows with its rows) and the radar (right) – the arrow moves above them. */
+const consoleZone = (zones: HudZones): { width: number; height: number } => zones.console ?? CONSOLE_ZONE_DEFAULT;
+/** The radar, the scanner widget left of it (M3.5b) and the K chip above that. */
+const RADAR_ZONE = BOTTOM_RIGHT_ZONE;
 /** The radar legend pinned above the radar while the controls help is open (radarLegend.css). */
 const LEGEND_ZONE = { width: 330, top: 400, bottom: 200 };
 /** Half the height of the station / goal arrow with its label beside it (px). */
@@ -296,10 +296,11 @@ const ARROW_HALF = 22;
  */
 export function avoidHudPanels(arrow: EdgeArrow, view: { width: number; height: number }, helpOpen: boolean, zones: HudZones = currentHudZones()): EdgeArrow {
   const tl = topLeftZone(zones);
+  const console = consoleZone(zones);
   let a = arrow;
   let left = false;
-  if (a.x < CONSOLE_ZONE.width && a.y > view.height - CONSOLE_ZONE.height) {
-    a = { ...a, y: view.height - CONSOLE_ZONE.height };
+  if (a.x < console.width && a.y > view.height - console.height) {
+    a = { ...a, y: view.height - console.height };
     left = true;
   } else if (a.x < tl.width && a.y < tl.height) {
     a = { ...a, y: tl.height + 24 };
@@ -321,6 +322,25 @@ export function avoidHudPanels(arrow: EdgeArrow, view: { width: number; height: 
   // the pinned radar legend: beside it, towards the centre (also after the moves above landed on it)
   if (helpOpen && a.x > view.width - LEGEND_ZONE.width && a.y > view.height - LEGEND_ZONE.top && a.y < view.height - LEGEND_ZONE.bottom) {
     a = { ...a, x: view.width - LEGEND_ZONE.width - 24 };
+  }
+  return a;
+}
+
+/**
+ * The goal arrow's head (±22 px) and its label extend past the tip that `avoidHudPanels` put on a
+ * corner zone's border: lifts the arrow until its plate (`hudArrowFootprint`) is above the console and
+ * the radar block.
+ */
+function liftOffCorners(arrow: EdgeArrow & { label: string }, view: { width: number; height: number }, zones: HudZones): EdgeArrow {
+  const console = consoleZone(zones);
+  const corners: ScreenRect[] = [
+    { x: 0, y: view.height - console.height, width: console.width, height: console.height },
+    { x: view.width - RADAR_ZONE.width, y: view.height - RADAR_ZONE.height, width: RADAR_ZONE.width, height: RADAR_ZONE.height },
+  ];
+  let a: EdgeArrow = arrow;
+  for (const zone of corners) {
+    const plate = hudArrowFootprint({ ...a, label: arrow.label }, true);
+    if (overlaps(plate, zone, 0)) a = { ...a, y: a.y - (plate.y + plate.height - zone.y) - 4 };
   }
   return a;
 }
@@ -350,6 +370,8 @@ export function placeHudArrows<A extends EdgeArrow & { label: string }>(
     if (!free(slid)) slid = slideInward(g, view, free);
     g = { ...g, ...settle(slid) };
   }
+  // the goal's head and label reach past the arrow's tip: lift the whole plate clear of the corners
+  if (g) g = { ...g, ...liftOffCorners(g, view, zones) };
   return { station: s, goal: g };
 }
 

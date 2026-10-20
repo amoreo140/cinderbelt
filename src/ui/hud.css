@@ -18,72 +18,84 @@
   gap: 0.4rem;
 }
 .hud-nav {
-  padding: 0.55rem 0.9rem 0.6rem 0.65rem;
-  min-width: 14rem;
+  padding: 0.45rem 0.9rem 0.5rem 0.6rem;
 }
 .hud-nav .af-ring-name {
   font-size: var(--af-fs-lg);
   color: var(--af-text);
 }
-.hud-nav-grid {
+.hud-nav .sc-badge-head .sc-sec {
+  flex: none;
+}
+
+ /* ───── console bottom left: three thin bars; the rest only when the situation asks (consoleRules.ts) ───── */
+.hud-console {
+  position: absolute;
+  left: var(--af-edge);
+  bottom: var(--af-edge);
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 1px var(--af-s3);
-  margin: 0.4rem 0 0;
-  padding-left: calc(1.3rem + 0.5rem);
+  /* 18rem of content + 2 × 1rem padding = a 20rem block; the ship silhouette adds a column in combat (combat.css) */
+  grid-template-columns: 18rem;
+  gap: var(--af-s4);
+  padding: 0.7rem 1rem 0.65rem;
+}
+.hud-console-main {
+  min-width: 0;
+}
+.hud-console-gauges {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.hud-console-gauges .af-gauge + .af-gauge {
+  margin-top: 0;
+}
+/* thin bars: label left, number right (the maximum only where it matters: the hold) */
+.hud-console .af-gauge-track {
+  height: 8px;
+}
+.hud-console .af-gauge--hull .af-gauge-value small,
+.hud-console .af-gauge--shield .af-gauge-value small,
+.hud-console .af-gauge--fuel .af-gauge-value small,
+.hud-console .af-gauge--energy .af-gauge-value small {
+  display: none;
+}
+.hud-console .af-gauge-value {
+  font-variant-numeric: tabular-nums;
+}
+/* contextual rows under the bars: speed, the dampers warning, the tractor line */
+.hud-console-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.45rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid rgba(232, 237, 244, 0.08);
+}
+.hud-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
   font-size: var(--af-fs-sm);
 }
-.hud-nav-grid dt {
+.hud-row-label {
   font-family: var(--af-font-display);
   font-stretch: var(--af-stretch-label);
   letter-spacing: var(--af-track-label);
   text-transform: uppercase;
   font-size: var(--af-fs-xs);
   font-weight: 650;
-  align-self: center;
   color: var(--af-text-dim);
 }
-.hud-nav-grid dd {
-  margin: 0;
-  font-weight: 700;
-  justify-self: end;
-}
-.hud-nav-station {
-  display: inline-flex;
-  gap: 0.5rem;
-  align-items: baseline;
-}
-.hud-nav-station-name {
-  font-weight: 400;
-  color: var(--af-text-dim);
-}
-
-/* ───── console bottom left: speed, dampers, gauges ───── */
-.hud-console {
-  position: absolute;
-  left: var(--af-edge);
-  bottom: var(--af-edge);
-  display: grid;
-  grid-template-columns: auto 15.5rem;
-  gap: var(--af-s4);
-  padding: 0.85rem 1rem 0.75rem;
-}
-.hud-console-flight {
-  display: flex;
-  flex-direction: column;
+.hud-speed {
   justify-content: space-between;
-  gap: var(--af-s3);
-  padding-right: var(--af-s4);
-  border-right: 1px solid rgba(232, 237, 244, 0.08);
-  min-width: 7.5rem;
 }
-.hud-console-flight .af-readout-value {
+.hud-speed .af-readout-value {
   color: var(--af-text);
+  font-size: var(--af-fs-md);
 }
 .hud-dampers {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
   font-family: var(--af-font-display);
   font-stretch: var(--af-stretch-label);
   letter-spacing: var(--af-track-label);
@@ -101,14 +113,10 @@
   color: var(--af-bad);
 }
 .hud-dampers .af-key {
-  margin-left: 0.15rem;
+  margin-left: auto;
 }
-.hud-console-gauges .af-gauge + .af-gauge {
-  margin-top: 0.35rem;
-}
-.hud-cargo {
-  margin-top: 0.5rem;
-  font-size: var(--af-fs-sm);
+.hud-console-rows .pr-tractor {
+  margin-top: 0;
 }
 
 /* ───── radar bottom right ───── */
@@ -122,6 +130,13 @@
 .hud-radar-canvas {
   display: block;
 }
+.hud-radar-key {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  line-height: 1;
+  opacity: 0.8;
+}
 .hud-radar-range {
   position: absolute;
   right: 10px;
@@ -131,7 +146,7 @@
   color: var(--af-text-dim);
 }
 
-/* ───── top right: credits and help ───── */
+/* ───── top right: credits and the opened controls help ───── */
 .hud-topright {
   position: absolute;
   right: var(--af-edge);
@@ -140,6 +155,24 @@
   flex-direction: column;
   align-items: flex-end;
   gap: var(--af-s2);
+}
+/* bottom right, left of the radar: the "K Controls" chip above the scanner chip */
+.hud-br {
+  position: absolute;
+  right: var(--af-edge);
+  bottom: var(--af-edge);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
+.hud-br.has-radar {
+  right: calc(var(--af-edge) + 200px);
+}
+.hud-br .ds-scan {
+  position: relative;
+  right: auto;
+  bottom: auto;
 }
 .hud-help.is-collapsed {
   padding: 0.3rem 0.55rem;
@@ -197,8 +230,7 @@
   max-width: 7rem;
 }
 
-/* windows under ~1000 px tall: the key list in two columns, so it ends above the radar legend
-   (pinned over the radar while the help is open) and never covers the radar itself */
+/* windows under ~1000 px tall: the key list in two columns, so it never covers the radar */
 @media (max-height: 1000px) {
   .hud-help:not(.is-collapsed) {
     width: auto;
@@ -392,7 +424,7 @@
 /* narrow windows: smaller radar and console */
 @media (max-width: 760px), (max-height: 520px) {
   .hud-console {
-    grid-template-columns: auto 11rem;
+    grid-template-columns: 14rem;
   }
   .hud-help:not(.is-collapsed) {
     display: none;

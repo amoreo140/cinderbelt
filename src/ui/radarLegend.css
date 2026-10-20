@@ -1,4 +1,4 @@
-/* Radar legend (RadarLegend.tsx): in the controls help (K) and as a hover card over the radar. */
+/* Radar legend (RadarLegend.tsx): pinned while "?" is held and as a hover card over the radar. */
 .af-radar-legend-head {
   display: flex;
   align-items: baseline;
@@ -45,12 +45,13 @@
 
 .af-radar-legend {
   width: 18.5rem;
+  max-width: calc(100vw - 2 * var(--af-edge));
   padding: 0.5rem 0.7rem 0.55rem;
   line-height: normal;
 }
 
 /* above the radar, clear of the top centre (toasts, the sector entry notice) and of the key list:
-   pinned while the controls help (K) is open, else while the pointer is on the radar */
+   pinned while "?" is held, else while the pointer is on the radar */
 .af-radar-legend--help,
 .af-radar-legend--hover {
   position: absolute;
@@ -58,7 +59,7 @@
   bottom: calc(var(--af-edge) + 200px);
   z-index: 3;
 }
-/* pinned it is a little tighter (short windows: the key list ends right above it): three columns, so
+/* pinned it is wide: three columns, so
    the M4b site rows (derelict, graveyard, comet) do not make it taller than before */
 .af-radar-legend--help {
   width: 28rem;
@@ -85,11 +86,4 @@
   opacity: 1;
   visibility: visible;
   transition: opacity 140ms linear 250ms, visibility 0s linear 250ms;
-}
-
-/* narrow windows hide the expanded help – the legend goes with it */
-@media (max-width: 760px), (max-height: 520px) {
-  .af-radar-legend--help {
-    display: none;
-  }
 }

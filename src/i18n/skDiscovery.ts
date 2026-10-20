@@ -211,7 +211,7 @@ export interface DiscoveryTexts {
     done: string;
     unknown: string;
   };
-  /** Radar legend (readability pass R7): in the controls help (K) and on hovering the radar. */
+  /** Radar legend (readability pass R7): pinned while "?" is held and on hovering the radar. */
   radarLegend: {
     title: string;
     /** The grammar in one line: filled = ships, hollow = objects. */

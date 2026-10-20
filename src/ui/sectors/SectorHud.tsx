@@ -45,19 +45,19 @@ export interface RadarSectorData {
   groups: { security: Security; adjacent: boolean; lines: readonly (readonly number[])[] }[];
 }
 
-/** The badge in the navigation band. */
+/** The badge in the navigation band, one line: "[x] Origin · GUARDED" (the threat and the depth are its tooltip). */
 export function SectorBadge({ d }: { d: SectorBadgeData }) {
   return (
-    <div class="sc-badge" data-security={d.security} data-testid="sector-badge" title={d.depth} aria-label={`${tx().sectors.hud.badge}: ${d.name}, ${d.securityWord}`}>
+    <div class="sc-badge" data-security={d.security} data-testid="sector-badge" title={`${d.depth} · ${d.threat}`} aria-label={`${tx().sectors.hud.badge}: ${d.name}, ${d.securityWord}`}>
       <span class="sc-badge-head">
         <span class="sc-glyph" data-knowledge={d.knowledge}>
           {d.glyph}
         </span>
         <span class="sc-badge-name">{d.name}</span>
-      </span>
-      <span class="sc-badge-sub">
+        <span class="sc-badge-dot" aria-hidden="true">
+          ·
+        </span>
         <span class="sc-sec">{d.securityWord}</span>
-        <span class="sc-badge-threat">· {d.threat}</span>
       </span>
       {d.survey && (
         <span class="sc-badge-survey" data-testid="sector-badge-survey">

@@ -26,6 +26,12 @@ export function letterOf(code: string, key: string): string | null {
 /** Key of a one-shot action for a letter (e.g. `key:z`). */
 export const letterKey = (letter: string): string => `key:${letter}`;
 
+/** Held while the "?" key is down (the radar legend): `pressed` has it besides the physical code. */
+export const QUESTION_HELD = 'key:?';
+
+/** Is this the "?" key – by what it types (any layout) or by the Slash position? */
+const isQuestionKey = (code: string, key: string): boolean => key === '?' || code === 'Slash';
+
 /**
  * Turns the keyboard and mouse state into a command for the simulation.
  * `pressed` holds KeyboardEvent.code (movement by the key's position),
@@ -70,6 +76,8 @@ export class KeyboardState {
   /** New presses with Shift (even when Shift is released before the frame handles them). */
   private shifted = new Set<string>();
   private lastShifted = new Set<string>();
+  /** The physical key that holds QUESTION_HELD (its keyup, with or without Shift, releases it). */
+  private questionCode: string | null = null;
 
   attach(target: EventTarget, signal?: AbortSignal): void {
     target.addEventListener(
@@ -79,6 +87,10 @@ export class KeyboardState {
         if (fromEditable(e)) return;
         if (e.code === 'Tab') e.preventDefault();
         this.pressed.add(e.code);
+        if (isQuestionKey(e.code, e.key ?? '')) {
+          this.pressed.add(QUESTION_HELD);
+          this.questionCode = e.code;
+        }
         if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
         this.justPressed.add(e.code);
         const letter = letterOf(e.code, e.key ?? '');
@@ -92,8 +104,26 @@ export class KeyboardState {
       { signal },
     );
     // keyup is always handled so a key never stays "stuck"
-    target.addEventListener('keyup', (e) => this.pressed.delete((e as KeyboardEvent).code), { signal });
-    target.addEventListener('blur', () => this.pressed.clear(), { signal });
+    target.addEventListener(
+      'keyup',
+      (event) => {
+        const code = (event as KeyboardEvent).code;
+        this.pressed.delete(code);
+        if (code === this.questionCode) {
+          this.pressed.delete(QUESTION_HELD);
+          this.questionCode = null;
+        }
+      },
+      { signal },
+    );
+    target.addEventListener(
+      'blur',
+      () => {
+        this.pressed.clear();
+        this.questionCode = null;
+      },
+      { signal },
+    );
   }
 
   consumeJustPressed(): Set<string> {

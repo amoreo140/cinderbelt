@@ -1,6 +1,6 @@
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
-import { RESOURCE_IDS, cargoUsed, type Cargo } from '../data/resources';
+import { cargoUsed, type Cargo } from '../data/resources';
 import { tx } from '../i18n';
 import type { Vec2 } from '../sim/math/vec2';
 import { CHUNK_SIZE } from '../sim/world/generate';
@@ -12,7 +12,7 @@ import { CollisionBand, type CollisionHud } from './FlightAssist';
 import { DockApproachView } from './DockApproach';
 import type { RadarContact, ThreatContact } from './radar';
 import type { DockPrompt, EdgeArrow, StationContact } from './stationHud';
-import { Gauge, Key, KeyHint, Lamp, Odometer, Panel, Readout, ResourceChip, RingBadge } from './theme';
+import { Gauge, Key, KeyHint, Lamp, Odometer, Panel, Readout, RingBadge } from './theme';
 import type { MiningHudData } from '../game/miningView';
 import { MiningHeat } from './MiningHeat';
 import type { MiningPop } from '../game/mining/miningUi';
@@ -28,12 +28,12 @@ import { drawRadarGuild, drawRadarRock, drawRadarShip, drawRadarSites, drawRadar
 import type { GuildContact, SiteContact } from './radar';
 import { RadarLegend } from './RadarLegend';
 import { hudParts, isFresh } from './hudParts';
+import { consoleRules, stopTargetNear, type ConsoleRules } from './consoleRules';
 import type { UiFeature } from '../game/onboarding/reveal';
 import { deepEqual, pure, sameDeep } from './pure';
 import {
   RADAR_SIZE,
   sameCallouts,
-  sameCargoTags,
   sameCollision,
   sameConsoleGauges,
   sameEdgeArrows,
@@ -50,7 +50,7 @@ import {
   type ConsoleGaugesProps,
 } from './hudMemo';
 import { EdgeArrowLayer, type EdgeArrowMark } from './EdgeArrowLayer';
-import { LEFT_COLUMN, NAV_ZONE, TOP_RIGHT_ZONE } from './hudZones';
+import { CONSOLE_ZONE, CONSOLE_ZONE_DEFAULT, LEFT_COLUMN, NAV_ZONE, TOP_RIGHT_ZONE } from './hudZones';
 import { goalLabelFlips, goalText, sameGoalHud, type GoalHud } from './goalMark';
 import { LiveSlot, LiveText } from './liveText';
 import { flightHudRects, goalLabelOffset, placeHudArrows } from './edgeArrows';
@@ -97,6 +97,8 @@ export interface HudData {
   arrow: (EdgeArrow & { label: string }) | null;
   /** Expanded controls help (K). */
   helpOpen?: boolean;
+  /** The "?" key is held: the radar legend is pinned above the radar (otherwise it shows on hovering the radar). */
+  legendHeld?: boolean;
   /** Combat (M3b): ship state, hits, warning, salvage. */
   combat?: CombatHudData | null;
   /** Vein mining (M2d): heat of the hottest laser and the bonus. */
@@ -381,56 +383,40 @@ const VignettePart = pure(function Vignette({ seq }: { seq: number }) {
   return seq >= 0 ? <div key={seq} class="cb-vignette" aria-hidden="true" /> : null;
 });
 
-/** The speed readout: its number is a live text the HUD writes at each redraw (liveText.ts). */
+/** The speed row (a contextual console row): its number is a live text the HUD writes at each redraw (liveText.ts). */
 const SpeedPart = pure(function Speed({ live, fresh }: { live: LiveText; fresh: boolean }) {
-  return <Readout size="lg" label={tx().hud.speed} live={live} unit={tx().hud.speedUnit} fresh={fresh} />;
+  return (
+    <div class={`hud-row hud-speed${fresh ? ' is-new' : ''}`} data-testid="hud-speed">
+      <span class="hud-row-label">{tx().hud.speed}</span>
+      <Readout live={live} unit={tx().hud.speedUnit} />
+    </div>
+  );
 });
 
-/** The dampers lamp and its key. */
-const DampersPart = pure(function Dampers({ on, fresh }: { on: boolean; fresh: boolean }) {
+/** The dampers warning row (shown only while they are OFF) and its key. */
+const DampersPart = pure(function Dampers({ fresh }: { fresh: boolean }) {
   return (
-    <div class={`hud-dampers${on ? '' : ' is-off'}${fresh ? ' is-new' : ''}`}>
-      <Lamp state={on ? 'ok' : 'bad'} />
+    <div class={`hud-row hud-dampers is-off${fresh ? ' is-new' : ''}`} role="status">
+      <Lamp state="bad" />
       <span>{tx().hud.dampers}</span>
-      <strong>{on ? tx().hud.on : tx().hud.off}</strong>
+      <strong>{tx().hud.off}</strong>
       <Key dark>Z</Key>
     </div>
   );
 });
 
-/** Cargo as tags (from 0.05 up); `flight` = the combat console's place under the speed. */
-function CargoTags({ cargo, flight }: { cargo: Cargo; flight: boolean }) {
-  const ids = RESOURCE_IDS.filter((id) => cargo[id] >= 0.05);
-  if (ids.length === 0) return null;
-  return (
-    // in the combat console the gauge column is taller – cargo as tags goes under the speed
-    <div class={`af-res-list hud-cargo${flight ? ' hud-cargo--flight' : ''}`}>
-      {ids.map((id) => (
-        <ResourceChip key={id} id={id} amount={cargo[id]} tag />
-      ))}
-    </div>
-  );
-}
-
-const CargoTagsPart = pure(CargoTags, (a: { cargo: Cargo; flight: boolean }, b: { cargo: Cargo; flight: boolean }) => a.flight === b.flight && sameCargoTags(a, b));
-
-/** The console's gauge column: shield and hull in combat, fuel, energy (with the laser heat), cargo. */
+/**
+ * The console's gauge column: hull, fuel, energy always (thin bars); the shield (with the silhouette),
+ * the laser heat (while mining) and the cargo (consoleRules.ts) when the situation asks for them.
+ */
 const ConsoleGaugesPart = pure(function ConsoleGauges(p: ConsoleGaugesProps) {
   return (
     <div class="hud-console-gauges">
       {p.shield && <Gauge {...p.shield} />}
+      {p.mining && <MiningHeatPart m={p.mining} />}
       {p.hull && <Gauge {...p.hull} />}
       <Gauge {...p.fuel} />
-      {p.energy &&
-        (p.mining ? (
-          // energy and laser heat on one row – a console with lasers keeps its height while mining
-          <div class="hud-gauge-pair">
-            <Gauge {...p.energy} />
-            <MiningHeatPart m={p.mining} />
-          </div>
-        ) : (
-          <Gauge {...p.energy} />
-        ))}
+      {p.energy && <Gauge {...p.energy} />}
       {p.cargo && (
         <div class="hud-cargo-wrap">
           <Gauge {...p.cargo} />
@@ -441,50 +427,32 @@ const ConsoleGaugesPart = pure(function ConsoleGauges(p: ConsoleGaugesProps) {
           ))}
         </div>
       )}
-      {p.tags && <CargoTags cargo={p.tags} flight={false} />}
     </div>
   );
 }, sameConsoleGauges);
 
-/** The navigation band: the sector badge (or the ring), the position, the nearest station, the attention row. */
+/**
+ * The location band, one line: the sector's name and security ("Origin · GUARDED"; the ring's name
+ * before the sectors are known) with the pirate attention row under it only while pirates watch. The
+ * position and the nearest station are on the map (M).
+ */
 const NavPart = pure(function NavBand({
   sector,
   ring,
-  position,
-  station,
-  distance,
   attention,
   full,
   fresh,
 }: {
   fresh: boolean;
-  /** False = the location rows are not unlocked yet: only the attention row (an attack) shows. */
+  /** False = the location line is not unlocked yet: only the attention row (an attack) shows. */
   full: boolean;
   sector: SectorBadgeData | null;
   ring: number;
-  /** The position as shown ("x, y" in whole units) – live texts. */
-  position: HudLive['position'];
-  station: string | null;
-  /** The distance to the nearest station as shown – a live text. */
-  distance: LiveText;
   attention: AttentionHud | null;
 }) {
   return (
     <Panel material="band" translucent cut="md" class={`hud-nav${fresh ? ' is-new' : ''}`} as="section" aria-label={tx().hud.zone}>
       {full && (sector ? <SectorBadgePart d={sector} /> : <RingBadge ring={ring} name={tx().rings[ring - 1]} />)}
-      {full && <dl class="hud-nav-grid">
-        <dt>{tx().hud.position}</dt>
-        <LiveSlot tag="dd" live={position} />
-        {station !== null && (
-          <>
-            <dt>{tx().hud.station}</dt>
-            <dd class="hud-nav-station">
-              <span class="hud-nav-station-name">{station}</span>
-              <Readout live={distance} unit={tx().hud.distanceUnit} />
-            </dd>
-          </>
-        )}
-      </dl>}
       {attention && <AttentionRowPart a={attention} />}
     </Panel>
   );
@@ -494,10 +462,16 @@ const NavPart = pure(function NavBand({
  * The radar panel: the canvas (its scope draws it), the scanner pulse ring and the range readout. It
  * redraws only for a new pulse or a new language; the contacts go to the scope.
  */
-const RadarSectionPart = pure(function RadarSection({ scope, pulse, range, fresh }: { scope: RadarScope; pulse: number | null; range: number; fresh: boolean }) {
+const RadarSectionPart = pure(function RadarSection({ scope, pulse, range, fresh, legend }: { scope: RadarScope; pulse: number | null; range: number; fresh: boolean; legend: boolean }) {
   return (
     <Panel material="band" translucent cut="lg" class={`hud-radar${fresh ? ' is-new' : ''}`} as="aside" aria-label={tx().hud.radar}>
       <canvas ref={scope.attach} class="hud-radar-canvas" style={RADAR_STYLE} aria-hidden="true" />
+      {/* the legend is on demand: hold "?" (or hover the radar) */}
+      {legend && (
+        <span class="hud-radar-key" title={tx().hud.legendHint}>
+          <Key dark>?</Key>
+        </span>
+      )}
       {pulse !== null && <span key={pulse} class="ds-radar-pulse" aria-hidden="true" />}
       <RadarRangePart range={range} />
     </Panel>
@@ -564,17 +538,17 @@ const HudArrowPart = pure(function HudArrow({ arrow, kind }: HudArrowProps) {
 }, (a: HudArrowProps, b: HudArrowProps) => a.kind === b.kind && sameHudArrow(a, b));
 
 
-/** The flight console: the ship status in combat, the speed, the dampers, the tractor line, the gauges. */
+/**
+ * The flight console: three thin bars (hull, fuel, energy) and the rows `consoleRules` asks for – the
+ * ship silhouette with the shield on the left in combat or with damage, the cargo row, the speed row,
+ * the dampers warning, the tractor line.
+ */
 interface ConsoleProps {
-  /** The combat view (ship status, cannons, hold), null outside combat. */
+  rules: ConsoleRules;
+  /** The combat view (ship status, cannons, hold); null unless `rules.silhouette`. */
   status: CombatHudView | null;
-  /** Null = not unlocked yet. */
-  speed: LiveText | null;
-  /** The cargo tags in the combat console; null = the cargo is not unlocked yet. */
-  cargo: Cargo | null;
-  /** Null = the dampers row is not unlocked yet. */
-  dampers: boolean | null;
-  /** The speed readout / the dampers row were just unlocked. */
+  speed: LiveText;
+  /** The speed row / the dampers warning were just unlocked. */
   speedNew: boolean;
   dampersNew: boolean;
   tractor: TractorHud | null;
@@ -584,13 +558,12 @@ interface ConsoleProps {
 const sameStatus = (a: ConsoleProps, b: ConsoleProps): boolean => (a.status && b.status ? sameShipStatus({ view: a.status }, { view: b.status }) : a.status === b.status);
 
 const sameConsole = (a: ConsoleProps, b: ConsoleProps): boolean =>
+  a.rules === b.rules &&
   a.speed === b.speed &&
-  a.dampers === b.dampers &&
   a.speedNew === b.speedNew &&
   a.dampersNew === b.dampersNew &&
   sameStatus(a, b) &&
   deepEqual(a.tractor, b.tractor) &&
-  (a.cargo && b.cargo ? sameCargoTags({ cargo: a.cargo }, { cargo: b.cargo }) : a.cargo === b.cargo) &&
   sameConsoleGauges(a.gauges, b.gauges);
 
 /**
@@ -601,17 +574,20 @@ const sameConsole = (a: ConsoleProps, b: ConsoleProps): boolean =>
 const CONSOLE_SETTLE_AT = SHIP_STATUS_SETTLE_AT.map((ms) => ms + 50);
 
 const ConsolePart = pure(
-  function Console({ status, speed, cargo, dampers, speedNew, dampersNew, tractor, gauges }: ConsoleProps) {
+  function Console({ rules, status, speed, speedNew, dampersNew, tractor, gauges }: ConsoleProps) {
     return (
       <Panel material="band" translucent cut="md" trim="top" class={`hud-console${status ? ' has-status' : ''}`} as="section" aria-label={tx().station.ship}>
         {status && <ShipStatusPart view={status} />}
-        <div class="hud-console-flight">
-          {speed && <SpeedPart live={speed} fresh={speedNew} />}
-          {status && cargo && <CargoTagsPart cargo={cargo} flight />}
-          {dampers !== null && <DampersPart on={dampers} fresh={dampersNew} />}
-          {tractor && <TractorLinePart t={tractor} />}
+        <div class="hud-console-main">
+          <ConsoleGaugesPart {...gauges} />
+          {(rules.speed || rules.dampers || tractor) && (
+            <div class="hud-console-rows">
+              {rules.speed && <SpeedPart live={speed} fresh={speedNew} />}
+              {rules.dampers && <DampersPart fresh={dampersNew} />}
+              {tractor && <TractorLinePart t={tractor} />}
+            </div>
+          )}
         </div>
-        <ConsoleGaugesPart {...gauges} />
       </Panel>
     );
   },
@@ -625,8 +601,10 @@ const ConsolePart = pure(
  * every member still skips unless it is the one that changed (each is memoised on its own).
  */
 interface QuietPartsProps {
-  /** Null = the radar legend is not unlocked yet. */
+  /** Null = the radar legend is not unlocked yet; `help` = pinned while "?" is held, `hover` = on hovering the radar. */
   legend: 'help' | 'hover' | null;
+  /** The radar shows (it decides where the bottom-right group sits). */
+  radar: boolean;
   /** null = no callouts (the map is open, or no discovery data). */
   callouts: readonly CalloutItem[] | null;
   fortress: FortressHud | null;
@@ -636,7 +614,7 @@ interface QuietPartsProps {
   notice: EntryNoticeData | null;
   /** Null = the credits are not unlocked yet. */
   credits: number | null;
-  /** Whether the help chip (K) shows. */
+  /** Whether the controls help (K) is unlocked: the chip bottom right, or the opened panel top right. */
   help: boolean;
   /** Freshly unlocked parts (highlighted). */
   creditsNew: boolean;
@@ -651,6 +629,7 @@ const orNone = <T,>(a: T | null, b: T | null, same: (p: T, q: T) => boolean): bo
 function sameQuietParts(a: QuietPartsProps, b: QuietPartsProps): boolean {
   return (
     a.legend === b.legend &&
+    a.radar === b.radar &&
     a.credits === b.credits &&
     a.help === b.help &&
     a.creditsNew === b.creditsNew &&
@@ -670,19 +649,25 @@ function sameQuietParts(a: QuietPartsProps, b: QuietPartsProps): boolean {
 const QuietPartsPart = pure(function QuietParts(p: QuietPartsProps) {
   return (
     <>
-      {/* above the radar: pinned while the controls help (K) is open, else on hover */}
+      {/* above the radar: pinned while "?" is held, else on hover */}
       {p.legend && <RadarLegend variant={p.legend} />}
 
       {p.callouts && <CalloutLayerPart items={p.callouts} />}
       {p.fortress && <FortressBandPart f={p.fortress} />}
       {p.toll && <TollBandPart t={p.toll} />}
       {p.reticle && <CannonReticlePart r={p.reticle} />}
-      {p.scan && <ScanWidgetPart d={p.scan} fresh={p.scanNew} />}
+      {/* bottom right, left of the radar: the K chip above the scanner chip */}
+      {((p.help && !p.helpOpen) || p.scan) && (
+        <div class={`hud-br${p.radar ? ' has-radar' : ''}`}>
+          {p.help && !p.helpOpen && <HelpChip fresh={p.helpNew} />}
+          {p.scan && <ScanWidgetPart d={p.scan} fresh={p.scanNew} />}
+        </div>
+      )}
       {p.scan && <BuffStripPart d={p.scan} />}
       {p.scan && <StormBannerPart on={p.scan.storm} />}
       {p.notice && <EntryNoticePart d={p.notice} />}
 
-      <TopRightPart credits={p.credits} help={p.help} helpOpen={p.helpOpen} creditsNew={p.creditsNew} helpNew={p.helpNew} />
+      <TopRightPart credits={p.credits} help={p.help && p.helpOpen} creditsNew={p.creditsNew} helpNew={p.helpNew} />
 
       {p.collision && <CollisionBandPart c={p.collision} />}
     </>
@@ -736,20 +721,19 @@ function helpLines(): readonly string[] {
   return lines;
 }
 
-/** Memoised: the help only changes when it is toggled (K) or the language changes. */
-const Help = pure(HelpView);
+/** The collapsed controls help: the "K Controls" chip, bottom right above the scanner chip. */
+const HelpChip = pure(function HelpChipView({ fresh }: { fresh: boolean }) {
+  return (
+    <div class={`hud-help is-collapsed${fresh ? ' is-new' : ''}`}>
+      <KeyHint keys="K" dark>
+        {tx().help.title}
+      </KeyHint>
+    </div>
+  );
+});
 
-function HelpView({ open, fresh }: { open: boolean; fresh: boolean }) {
-  if (!open) {
-    return (
-      <div class={`hud-help is-collapsed${fresh ? ' is-new' : ''}`}>
-        <KeyHint keys="K" dark>
-          {tx().help.title}
-        </KeyHint>
-      </div>
-    );
-  }
-  // the radar legend (R7) is pinned above the radar while the help is open (Hud renders it there)
+/** The opened controls help (K), top right; memoised: it only changes when it is toggled or the language changes. */
+const Help = pure(function HelpView({ fresh }: { fresh: boolean }) {
   return (
     <Panel material="band" translucent cut="md" class={`hud-help${fresh ? ' is-new' : ''}`} as="aside" aria-label={tx().help.title}>
       <div class="hud-help-head">
@@ -778,7 +762,7 @@ function HelpView({ open, fresh }: { open: boolean; fresh: boolean }) {
       </dl>
     </Panel>
   );
-}
+});
 
 function DockPromptLine({ prompt }: { prompt: DockPrompt }) {
   const parsed = prompt.kind === 'ok' ? splitShortKeyLabel(prompt.text) : null;
@@ -810,7 +794,7 @@ function DockPromptLine({ prompt }: { prompt: DockPrompt }) {
 
 const DockPromptView = pure(DockPromptLine, sameDeep);
 
-/** The credits and the controls help, top right; an observer keeps TOP_RIGHT_ZONE (edge arrows avoid it). */
+/** The credits and the opened controls help, top right; an observer keeps TOP_RIGHT_ZONE (edge arrows avoid it). */
 function TopRight({ children }: { children: ComponentChildren }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -841,11 +825,11 @@ function TopRight({ children }: { children: ComponentChildren }) {
 }
 
 /** The top-right corner's content: it changes only with the credits and the help toggle (K). */
-const TopRightPart = pure(function TopRightView({ credits, help, helpOpen, creditsNew, helpNew }: { credits: number | null; help: boolean; helpOpen: boolean; creditsNew: boolean; helpNew: boolean }) {
+const TopRightPart = pure(function TopRightView({ credits, help, creditsNew, helpNew }: { credits: number | null; help: boolean; creditsNew: boolean; helpNew: boolean }) {
   return (
     <TopRight>
       {credits !== null && <Odometer value={credits} testId="hud-credits" fresh={creditsNew} />}
-      {help && <Help open={helpOpen} fresh={helpNew} />}
+      {help && <Help fresh={helpNew} />}
     </TopRight>
   );
 });
@@ -1036,6 +1020,13 @@ class LeftColumnWatch {
   /** Fits the column (from `full` on a new key, further when it still meets the radio) and publishes it. */
   private measure(): void {
     const root = this.root;
+    // the console's size (it grows with its contextual rows and the silhouette): the edge arrows keep off it
+    const consoleEl = this.el.console;
+    const consoleBox = consoleEl?.isConnected ? consoleEl.getBoundingClientRect() : null;
+    if (consoleBox && consoleBox.width > 0) {
+      CONSOLE_ZONE.width = Math.round(consoleBox.right) + 16;
+      CONSOLE_ZONE.height = Math.round(window.innerHeight - consoleBox.top) + 8;
+    }
     const { events, guild, radio, log } = this.el;
     const parts = [events, guild];
     const claim = (): FitRect | null => (radio ? boxOf(radio) : log ? logClaim(boxOf(log)) : null);
@@ -1075,6 +1066,8 @@ class LeftColumnWatch {
     LEFT_COLUMN.chipsBottom = 0;
     LEFT_COLUMN.chipsRight = 0;
     LEFT_COLUMN.radio = null;
+    CONSOLE_ZONE.width = CONSOLE_ZONE_DEFAULT.width;
+    CONSOLE_ZONE.height = CONSOLE_ZONE_DEFAULT.height;
     applyLeftFit(this.root, 'full', null, null);
     this.root.style.removeProperty('--hud-left-bottom');
   }
@@ -1102,9 +1095,6 @@ function useLeftColumn(ref: { current: HTMLDivElement | null }): void {
 /** The HUD's live texts (liveText.ts): values that change at nearly every redraw in flight. */
 interface HudLive {
   speed: LiveText;
-  /** "x, y" as three text nodes, as the JSX `{x}, {y}` they replace (the text shapes the same). */
-  position: readonly [LiveText, string, LiveText];
-  distance: LiveText;
 }
 
 export function Hud(d: HudData) {
@@ -1114,22 +1104,32 @@ export function Hud(d: HudData) {
   const scope = (scopeRef.current ??= new RadarScope());
   useEffect(() => () => scope.dispose(), [scope]);
   const liveRef = useRef<HudLive | null>(null);
-  const live = (liveRef.current ??= { speed: new LiveText(), position: [new LiveText(), ', ', new LiveText()], distance: new LiveText() });
+  const live = (liveRef.current ??= { speed: new LiveText() });
   live.speed.set(formatAmount(d.speed));
-  live.position[0].set(String(Math.round(d.pos.x)));
-  live.position[2].set(String(Math.round(d.pos.y)));
-  live.distance.set(d.nearest ? formatInt(d.nearest.distance) : '');
   // in flight: the map's chunk in an idle moment (M opens it any time – lazy.ts)
   useEffect(prefetchMap, []);
   const view = { width: window.innerWidth, height: window.innerHeight };
   // off the HUD panels, the goal arrow off the station arrow
-  const { station: arrow, goal } = placeHudArrows(d.arrow, d.objectiveArrow, view, d.helpOpen ?? true);
+  const { station: arrow, goal } = placeHudArrows(d.arrow, d.objectiveArrow, view, d.legendHeld ?? false);
   const parts = hudParts(d.reveal);
   const combat = d.combat ?? null;
   const mapOpen = d.map.open;
   // a goal marker or arrow on screen: the other navigation arrows step back (opacity, not size)
   const showGoal = !mapOpen && !!d.goal;
   const shield = combat?.view.shield;
+  const ship = combat?.view;
+  // the contextual console rows (consoleRules.ts): what the situation asks for, on top of the reveal
+  const rules = consoleRules({
+    parts,
+    mining: d.mining?.active ?? false,
+    cargoUsed: cargoUsed(d.cargo),
+    combat: !!ship && (ship.threat.nearby > 0 || ship.threat.attacking > 0 || combat?.threat != null || ship.salvage !== null || ship.destroyed),
+    damaged: !!ship && (ship.silhouette.damaged > 0 || (ship.silhouette.missing ?? 0) > 0 || ship.hull.current < ship.hull.max),
+    dockApproach: !!d.prompt?.approach,
+    stopTarget: stopTargetNear(d.goal?.distance ?? null),
+    dampersOn: d.dampers,
+    tractor: d.pirates?.tractor?.active ?? false,
+  });
   scope.update({
     range: d.radar.range,
     contacts: d.radar.contacts,
@@ -1154,37 +1154,34 @@ export function Hud(d: HudData) {
           fresh={isFresh(d.fresh, 'location')}
           sector={d.sector ?? null}
           ring={d.ring}
-          position={live.position}
-          station={d.nearest?.name ?? null}
-          distance={live.distance}
           attention={d.pirates?.attention ?? null}
         />}
         {d.objectives && <ObjectiveBandPart items={d.objectives} />}
       </NavStack>
 
       <ConsolePart
-        status={combat ? combat.view : null}
-        speed={parts.speed ? live.speed : null}
-        cargo={parts.cargo ? d.cargo : null}
-        dampers={parts.dampers ? d.dampers : null}
+        rules={rules}
+        status={rules.silhouette && combat ? combat.view : null}
+        speed={live.speed}
         speedNew={isFresh(d.fresh, 'speed')}
         dampersNew={isFresh(d.fresh, 'dampers')}
-        tractor={d.pirates?.tractor ?? null}
+        tractor={rules.tractor ? (d.pirates?.tractor ?? null) : null}
         gauges={{
-          shield: shield ? { kind: 'shield', label: tx().combat.shield, value: shield.current, max: shield.max, warnAt: 0.3, critAt: 0.001, compact: true, segments: 24, testId: 'gauge-shield' } : null,
+          shield: rules.silhouette && shield ? { kind: 'shield', label: tx().combat.shield, value: shield.current, max: shield.max, warnAt: 0.3, critAt: 0.001, compact: true, segments: 24, testId: 'gauge-shield' } : null,
           hull: combat ? { kind: 'hull', label: tx().combat.hull, value: combat.view.hull.current, max: combat.view.hull.max, warnAt: 0.6, critAt: 0.3, compact: true, segments: 24, testId: 'gauge-hull' } : null,
           fuel: { kind: 'fuel', label: tx().hud.fuel, value: d.fuel, max: d.fuelMax, compact: true, segments: 24 },
-          energy: parts.energy ? { fresh: isFresh(d.fresh, 'energy'), kind: 'energy', label: tx().hud.energy, value: d.energy, max: d.energyMax, compact: true, segments: d.mining && parts.heat ? 12 : 24 } : null,
-          cargo: parts.cargo ? { fresh: isFresh(d.fresh, 'cargo'), kind: 'cargo', label: tx().hud.cargo, value: cargoUsed(d.cargo), max: d.cargoMax, decimals: 1, invert: true, compact: true, segments: 24 } : null,
-          mining: parts.heat && parts.energy ? (d.mining ?? null) : null,
+          energy: parts.energy ? { fresh: isFresh(d.fresh, 'energy'), kind: 'energy', label: tx().hud.energy, value: d.energy, max: d.energyMax, compact: true, segments: 24 } : null,
+          cargo: rules.cargo ? { fresh: isFresh(d.fresh, 'cargo'), kind: 'cargo', label: tx().hud.cargo, value: cargoUsed(d.cargo), max: d.cargoMax, decimals: 1, invert: true, compact: true, segments: 24 } : null,
+          // the laser heat sits on top of the console while the lasers work
+          mining: parts.heat && parts.energy && d.mining?.active ? d.mining : null,
           pops: d.miningPops ?? EMPTY,
-          tags: combat || !parts.cargo ? null : d.cargo,
         }}
       />
 
-      {parts.radar && <RadarSectionPart scope={scope} pulse={d.scan?.pulse ?? null} range={Math.round(d.radar.range)} fresh={isFresh(d.fresh, 'radar')} />}
+      {parts.radar && <RadarSectionPart scope={scope} pulse={d.scan?.pulse ?? null} range={Math.round(d.radar.range)} fresh={isFresh(d.fresh, 'radar')} legend={parts.radarLegend} />}
       <QuietPartsPart
-        legend={parts.radarLegend ? ((d.helpOpen ?? true) ? 'help' : 'hover') : null}
+        legend={parts.radarLegend ? (d.legendHeld ? 'help' : 'hover') : null}
+        radar={parts.radar}
         callouts={d.discovery && !mapOpen ? d.discovery.callouts : null}
         fortress={!mapOpen ? (d.pirates?.fortress ?? null) : null}
         toll={d.pirates?.toll ?? null}

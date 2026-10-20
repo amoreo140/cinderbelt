@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildCommand, KeyboardState, letterKey, letterOf, PointerState } from './input';
+import { buildCommand, KeyboardState, letterKey, letterOf, PointerState, QUESTION_HELD } from './input';
 
 const none = new Set<string>();
 
@@ -105,6 +105,23 @@ describe('letterOf', () => {
 });
 
 describe('KeyboardState', () => {
+  it('holds the "?" key (any layout) while it is down, also when Shift is released first', () => {
+    const { keyboard, down, up } = setup();
+    // US layout: Shift + Slash
+    down({ code: 'ShiftLeft', key: 'Shift', shiftKey: true });
+    down({ code: 'Slash', key: '?', shiftKey: true });
+    expect(keyboard.pressed.has(QUESTION_HELD)).toBe(true);
+    up({ code: 'ShiftLeft', key: 'Shift' });
+    expect(keyboard.pressed.has(QUESTION_HELD)).toBe(true);
+    up({ code: 'Slash', key: '/' });
+    expect(keyboard.pressed.has(QUESTION_HELD)).toBe(false);
+    // Slovak layout: Shift + the comma key types "?"
+    down({ code: 'Comma', key: '?', shiftKey: true });
+    expect(keyboard.pressed.has(QUESTION_HELD)).toBe(true);
+    up({ code: 'Comma', key: ',' });
+    expect(keyboard.pressed.has(QUESTION_HELD)).toBe(false);
+  });
+
   it('remembers which fresh presses came with Shift, even when Shift is released before the frame', () => {
     const { keyboard, down, up } = setup();
     down({ code: 'ShiftLeft', key: 'Shift', shiftKey: true });
