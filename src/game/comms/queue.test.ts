@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CommsQueue, LOG_SIZE, MAX_WAIT, MAX_WAITING, messageDuration, SPEAKER_COOLDOWN, typeTime, TYPE_DELAY, TYPE_RATE } from './queue';
+import { CommsQueue, LOG_SIZE, MAX_WAIT, MAX_WAITING, messageDuration, READ_MAX, READ_MIN, SPEAKER_COOLDOWN } from './queue';
 import type { CommsChannel, CommsMessage, Speaker } from './types';
 
 const speaker = (id: string): Speaker => ({ id, name: id, role: 'role', portrait: 'unknown', faction: 'unknown', kind: 'unknown', accent: '#93a0b3' });
@@ -18,11 +18,41 @@ describe('CommsQueue', () => {
     expect(q.push(a, 0)).toBe('shown');
     expect(q.push(b, 0.1)).toBe('queued');
     expect(q.waitingCount).toBe(1);
-    expect(typeTime(a)).toBeCloseTo(TYPE_DELAY + 5 / TYPE_RATE);
     expect(q.update(messageDuration(a) - 0.01)).toBeNull();
     expect(q.showing?.msg).toBe(a);
     expect(q.update(messageDuration(a))).toBe(b);
     expect(q.showing?.shownAt).toBe(messageDuration(a));
+  });
+
+  it('display time rule: max(ttl, min(12, 5 + chars / 30)); ttl 0 and pinned stay until handled', () => {
+    const short = msg('s', 'station', { lines: ['Hi'], ttl: 2 });
+    expect(messageDuration(short)).toBeCloseTo(READ_MIN + 2 / 30);
+    const long = msg('l', 'station', { lines: ['x'.repeat(90)], ttl: 2 });
+    expect(messageDuration(long)).toBeCloseTo(8);
+    const huge = msg('h', 'station', { lines: ['x'.repeat(600)], ttl: 2 });
+    expect(messageDuration(huge)).toBe(READ_MAX);
+    // a source asking for more than the rule gets it
+    expect(messageDuration(msg('t', 'station', { lines: ['Hi'], ttl: 20 }))).toBe(20);
+    expect(messageDuration(msg('z', 'station', { ttl: 0 }))).toBe(Infinity);
+    expect(messageDuration(msg('p', 'danger', { pinned: true, ttl: 3 }))).toBe(Infinity);
+    const q = new CommsQueue();
+    q.push(msg('persist', 'station', { ttl: 0 }), 0);
+    expect(q.update(1000)).toBeNull();
+    expect(q.showing?.msg.key).toBe('persist');
+  });
+
+  it('a second normal message waits for the first to end; a danger message preempts it', () => {
+    const q = new CommsQueue();
+    const a = msg('a', 'station');
+    const b = msg('b', 'station');
+    q.push(a, 0);
+    expect(q.push(b, 3)).toBe('queued');
+    expect(q.update(READ_MIN - 0.1)).toBeNull();
+    expect(q.showing?.msg).toBe(a);
+    expect(q.update(READ_MIN + 0.5)).toBe(b);
+    const alarm = msg('alarm', 'danger');
+    expect(q.push(alarm, READ_MIN + 2)).toBe('shown');
+    expect(q.showing?.msg).toBe(alarm);
   });
 
   it('orders by priority: story / danger > training > station > flavour', () => {
@@ -54,7 +84,7 @@ describe('CommsQueue', () => {
     expect(q.showing?.msg.pinned).toBe(false);
   });
 
-  it('a cut message that was still being typed comes back after the cutting one; a boosted answer cuts danger', () => {
+  it('a cut message that was just shown comes back after the cutting one; a boosted answer cuts danger', () => {
     const q = new CommsQueue();
     const chat = msg('chat', 'station', { lines: ['A long line that takes a while to type out on the radio'] });
     q.push(chat, 0);
@@ -62,7 +92,7 @@ describe('CommsQueue', () => {
     expect(q.queued[0]).toBe(chat);
     const answer = msg('dock:home', 'station', { boost: 3 });
     expect(q.push(answer, 0.3)).toBe('shown');
-    // the alarm was cut while typing too – it comes back before the older chat
+    // the alarm was cut just after it appeared too – it comes back before the older chat
     expect(q.queued.map((m) => m.key)).toEqual(['alarm', 'chat']);
     // a newer answer to the player cuts an equally boosted one
     expect(q.push(msg('contract:1', 'station', { boost: 3 }), 0.35)).toBe('shown');

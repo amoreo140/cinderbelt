@@ -6,17 +6,13 @@
 // clock (seconds) is passed in.
 import { CHANNEL_PRIORITY, type CommsChannel, type CommsLogEntry, type CommsMessage } from './types';
 
-/** Typing speed of the panel (characters per second) – the panel and the queue share it. */
-export const TYPE_RATE = 75;
-/** A short burst of static before the text starts (s). */
-export const TYPE_DELAY = 0.25;
 /** Most messages waiting behind the showing one. */
 export const MAX_WAITING = 6;
 /** Messages kept for the comm log. */
 export const LOG_SIZE = 30;
 /** Per-speaker cooldown by channel (s): flavour does not repeat the same voice too often. */
 export const SPEAKER_COOLDOWN: Record<CommsChannel, number> = { story: 0, danger: 0, training: 0, station: 0, flavour: 25 };
-/** A message cut this soon after its text was typed out comes back later (s); a read one does not. */
+/** A message cut this soon after it appeared comes back later (s); a read one does not. */
 export const CUT_GRACE = 0.5;
 /** A waiting message older than this (s) is stale and skipped – the moment has passed. */
 export const MAX_WAIT: Record<CommsChannel, number> = { story: 40, danger: 20, training: 40, station: 15, flavour: 8 };
@@ -24,11 +20,20 @@ export const MAX_WAIT: Record<CommsChannel, number> = { story: 40, danger: 20, t
 /** Number of characters typed out (lines and the note). */
 export const messageChars = (m: Pick<CommsMessage, 'lines'>): number => m.lines.reduce((n, l) => n + l.length, 0);
 
-/** Seconds of typing before the message is fully shown. */
-export const typeTime = (m: Pick<CommsMessage, 'lines'>): number => TYPE_DELAY + messageChars(m) / TYPE_RATE;
+/** Shortest reading time of any message (s). */
+export const READ_MIN = 5;
+/** Longest reading time the rule adds for a long text (s). */
+export const READ_MAX = 12;
+/** Extra reading time per character (the rule: 5 s + chars / 30). */
+export const READ_CHARS_PER_SECOND = 30;
 
-/** How long a message is on the radio (typing + ttl). */
-export const messageDuration = (m: Pick<CommsMessage, 'lines' | 'ttl'>): number => typeTime(m) + m.ttl;
+/**
+ * How long a message stays on the radio (s) – the ONE place of the display-time rule:
+ * max(sourceTtl, min(12, 5 + chars / 30)). `ttl: 0` (and a pinned message) stays until it is handled.
+ * The text is shown at once (no typewriter): reading time matters more than the effect.
+ */
+export const messageDuration = (m: Pick<CommsMessage, 'lines' | 'ttl' | 'pinned'>): number =>
+  m.pinned || m.ttl === 0 ? Infinity : Math.max(m.ttl, Math.min(READ_MAX, READ_MIN + messageChars(m) / READ_CHARS_PER_SECOND));
 
 export const messagePriority = (m: Pick<CommsMessage, 'channel' | 'reply' | 'boost'>): number => CHANNEL_PRIORITY[m.channel] + (m.reply ? 10 : 0) + (m.boost ?? 0);
 
@@ -116,7 +121,7 @@ export class CommsQueue {
     // more important cuts the current message; so does an answer to what the player just did (boost) over
     // one as important – the newest answer is on the air. One still being typed comes back after it.
     if ((p > q || (msg.boost !== undefined && p >= q)) && !cur.msg.pinned) {
-      if (now < cur.shownAt + typeTime(cur.msg) + CUT_GRACE) this.enqueue(cur.msg, now, -1);
+      if (now < cur.shownAt + CUT_GRACE) this.enqueue(cur.msg, now, -1);
       this.current = { msg, shownAt: now };
       return 'shown';
     }
@@ -137,7 +142,7 @@ export class CommsQueue {
    */
   update(now: number): CommsMessage | null {
     const cur = this.current;
-    if (cur && !cur.msg.pinned && now >= cur.shownAt + messageDuration(cur.msg)) this.current = null;
+    if (cur && now >= cur.shownAt + messageDuration(cur.msg)) this.current = null;
     // stale messages leave the line (the moment has passed) – "+N" counts only what will still play
     this.waiting = this.waiting.filter((w) => now - w.at <= MAX_WAIT[w.msg.channel]);
     if (this.current) return null;

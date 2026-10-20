@@ -11,7 +11,7 @@ import type { TollHud } from '../pirates/piratesUi';
 import { FirstContacts } from './firstContact';
 import { Instructor } from './instructor';
 import { commsFromEvents, groupSpeaker, membersOf, type CommsContext } from './mapper';
-import { CommsQueue } from './queue';
+import { CommsQueue, messageDuration } from './queue';
 import { IMPORTANT_CHANNELS, type CommsChannel, type CommsLogEntry, type CommsMessage, type CommsText, type RadioSetting, type Speaker } from './types';
 import { pickLine } from './variants';
 import { CommsWatch } from './watch';
@@ -52,6 +52,8 @@ export interface CommsPanelData {
   queued: number;
   /** The open toll demand (interactive), when this is the toll message. */
   toll: TollHud | null;
+  /** Display time of the message in seconds (the time bar); null = stays until handled. */
+  seconds: number | null;
   /** In the dock the panel sits low on the left (no flight console). */
   docked: boolean;
 }
@@ -296,6 +298,7 @@ export class CommsUi {
         journal: !!m.journal,
         queued: this.queue.waitingCount,
         toll: m.reply === 'toll' ? toll() : null,
+        seconds: Number.isFinite(messageDuration(m)) ? messageDuration(m) : null,
         docked,
       };
     }

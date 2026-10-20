@@ -17,6 +17,7 @@ const panel = (id: string, patch: Partial<CommsPanelData> & Pick<CommsPanelData,
   channel: 'station',
   journal: false,
   queued: 0,
+  seconds: null,
   toll: null,
   docked: false,
   ...patch,
@@ -37,7 +38,7 @@ export function KitComms() {
     <Panel material="band" cut="lg" as="section" class="kit-section">
       <h2 class="kit-h2">Communicator</h2>
       <p class="kit-note">
-        The radio sits on the top edge of the flight console (bottom left when docked): a portrait in a recessed display with the voice colour on
+        The radio is one line at the top centre: a small portrait in a recessed display with the voice colour on
         its lower edge, the role as a template label in the voice colour, the name, the speech types out quickly. Under the speech a quiet factual
         line (what used to be a toast). A side band in the voice colour, the enemy has warning stripes. “+N” = more messages waiting. The toll is
         answered right in the radio (Y / X as before). The log (L) keeps the last 30 messages.

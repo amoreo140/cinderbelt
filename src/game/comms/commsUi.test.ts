@@ -50,7 +50,7 @@ describe('CommsUi', () => {
     c.onStep(sim.state, [reject], ctx);
     expect(sounds).toEqual([['radio', false]]);
     const d = c.uiData(() => null, false);
-    expect(d.panel).toMatchObject({ note: 'toast:dockRejected', channel: 'station', queued: 0, toll: null, docked: false });
+    expect(d.panel).toMatchObject({ note: 'toast:dockRejected', channel: 'station', queued: 0, toll: null, seconds: expect.any(Number), docked: false });
     c.onStep(sim.state, [hunt], ctx);
     // the boosted docking answer keeps the air; the hunting party waits
     expect(c.uiData(() => null, false).panel!.queued).toBe(1);

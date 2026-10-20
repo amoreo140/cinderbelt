@@ -1,22 +1,19 @@
-// The communicator panel (the radio module): who is talking – the portrait in a recessed
-// screen, the name and role tag, a channel stripe in the speaker's colour (hazard stripes for danger) –
-// and what they say, typed out quickly (a click finishes it, the next click closes the message). The
-// toll demand answers inside the panel (Y / X as before). "+N" = more messages waiting.
-import { useEffect, useRef, useState } from 'preact/hooks';
+// The communicator line (the radio module): ONE compact line at the top centre – a small portrait,
+// the speaker's name as a kicker in the voice colour, the sentence (shown at once, it stays long enough
+// to read: the rule lives in queue.ts), "+N" when more are waiting and a thin bar under it with the
+// remaining display time. A hostile voice gets hazard stripes. The toll demand answers inside the line
+// (Y / X as before); in the dock a click closes the message. After it ends it lives in the log (L).
+import { useState } from 'preact/hooks';
 import type { CommsHandlers, CommsLogItem, CommsPanelData, CommsUiData } from '../../game/comms/commsUi';
-import { TYPE_DELAY, TYPE_RATE } from '../../game/comms/queue';
 import type { Speaker } from '../../game/comms/types';
 import { FACTIONS, emblemPath, type FactionId } from '../../data/factions';
 import { portraitPath } from '../../data/speakers';
 import { tx } from '../../i18n';
-import { Button, Key, KeyHint, Lamp, Panel } from '../theme';
+import { Button, Key, KeyHint, Panel } from '../theme';
 import './comms.css';
 
 const t = () => tx().comms;
 const BASE = import.meta.env.BASE_URL;
-
-const reducedMotion = (): boolean =>
-  document.documentElement.hasAttribute('data-reduced-motion') || (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
 
 /** Emblem shown when a portrait file is missing (faction emblem, the Rust for clan-less pirates). */
 function fallbackEmblem(s: Speaker): string | null {
@@ -49,56 +46,15 @@ export function Portrait({ speaker, size = 'md' }: { speaker: Speaker; size?: 'm
   );
 }
 
-/** Characters typed out of `total` since the message appeared (all at once with reduced motion). */
-function useTyping(id: string, total: number): [number, () => void] {
-  const [typed, setTyped] = useState(() => (reducedMotion() ? total : 0));
-  const start = useRef(0);
-  const done = useRef(false);
-  /** The message whose text was fully shown: re-rendered in another language it stays typed out. */
-  const full = useRef<string | null>(null);
-  useEffect(() => {
-    start.current = performance.now();
-    done.current = reducedMotion() || full.current === id;
-    setTyped(done.current ? total : 0);
-    if (done.current) return;
-    let frame = 0;
-    const step = () => {
-      const s = (performance.now() - start.current) / 1000 - TYPE_DELAY;
-      const n = Math.max(0, Math.min(total, Math.floor(s * TYPE_RATE)));
-      setTyped(n);
-      if (n >= total) full.current = id;
-      if (n < total && !done.current) frame = requestAnimationFrame(step);
-    };
-    frame = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(frame);
-  }, [id, total]);
-  const finish = () => {
-    done.current = true;
-    full.current = id;
-    setTyped(total);
-  };
-  return [done.current ? total : typed, finish];
-}
-
-/** The lines cut to the typed length (the rest keeps its space, so the panel does not grow while typing). */
-function TypedLines({ lines, typed, echo }: { lines: string[]; typed: number; echo: boolean }) {
-  let left = typed;
+/** The lines of the message, each its own paragraph. */
+function Lines({ lines, echo }: { lines: string[]; echo: boolean }) {
   return (
     <div class={`cm-lines${echo ? ' is-echo' : ''}`}>
-      {lines.map((line, i) => {
-        const shown = line.slice(0, Math.max(0, left));
-        left -= line.length;
-        const typing = shown.length < line.length && shown.length > 0;
-        return (
-          <p key={i} class="cm-line">
-            <span>{shown}</span>
-            {typing && <span class="cm-caret" aria-hidden="true" />}
-            <span class="cm-rest" aria-hidden="true">
-              {line.slice(shown.length)}
-            </span>
-          </p>
-        );
-      })}
+      {lines.map((line, i) => (
+        <p key={i} class="cm-sentence">
+          {line}
+        </p>
+      ))}
     </div>
   );
 }
@@ -137,16 +93,11 @@ function TollReply({ d, on }: { d: NonNullable<CommsPanelData['toll']>; on: Comm
 }
 
 export function CommPanel({ d, on }: { d: CommsPanelData; on: CommsHandlers }) {
-  const total = d.lines.reduce((n, l) => n + l.length, 0);
-  const [typed, finish] = useTyping(d.id, total);
-  const typing = typed < total;
   // hostile voices get hazard stripes; a distress call is urgent but not hostile
   const hostile = d.channel === 'danger' && (d.speaker.kind === 'pirate' || d.speaker.kind === 'captain');
-  const urgent = d.channel === 'danger' && !hostile;
   const echo = d.speaker.kind === 'echo';
   const onClick = () => {
-    if (typing) finish();
-    else if (!d.toll) on.dismiss();
+    if (!d.toll) on.dismiss();
   };
   return (
     <Panel
@@ -155,7 +106,7 @@ export function CommPanel({ d, on }: { d: CommsPanelData; on: CommsHandlers }) {
       cut="md"
       trim="left"
       as="section"
-      class={`cm-panel${d.docked ? ' is-docked' : ''}${hostile ? ' is-danger' : ''}${d.toll ? ' has-reply' : ''}`}
+      class={`cm-line${d.docked ? ' is-docked' : ''}${hostile ? ' is-danger' : ''}${d.toll ? ' has-reply' : ''}`}
       style={{ '--trim': d.speaker.accent, '--cm-accent': d.speaker.accent }}
       testId="comm-panel"
       aria-label={`${t().panel.radio}: ${d.speaker.name}`}
@@ -164,22 +115,17 @@ export function CommPanel({ d, on }: { d: CommsPanelData; on: CommsHandlers }) {
         <Portrait speaker={d.speaker} />
         <div class="cm-main">
           <header class="cm-head">
-            <span class="af-label cm-role">{d.speaker.role}</span>
-            <span class="cm-radio">
-              <Lamp state={typing ? 'info' : hostile ? 'bad' : urgent ? 'warn' : 'ok'} />
-              <span class="af-label">{t().panel.radio}</span>
-              {d.queued > 0 && (
-                <span class="cm-queued" data-testid="comm-queued">
-                  {t().panel.queued(d.queued)}
-                </span>
-              )}
+            <span class="af-label cm-role">
+              <span data-testid="comm-speaker">{d.speaker.name}</span>
             </span>
+            {d.queued > 0 && (
+              <span class="cm-queued" data-testid="comm-queued">
+                {t().panel.queued(d.queued)}
+              </span>
+            )}
           </header>
-          <h3 class="cm-name" data-testid="comm-speaker">
-            {d.speaker.name}
-          </h3>
           <div role="status" aria-live="polite" data-testid="comm-text">
-            <TypedLines lines={d.lines} typed={typed} echo={echo} />
+            <Lines lines={d.lines} echo={echo} />
             {d.note && <p class="cm-note">{d.note}</p>}
           </div>
           {d.journal && (
@@ -192,6 +138,7 @@ export function CommPanel({ d, on }: { d: CommsPanelData; on: CommsHandlers }) {
         </div>
       </div>
       {d.toll && <TollReply d={d.toll} on={on} />}
+      {d.seconds !== null && <i key={d.id} class="cm-timebar" data-testid="comm-timebar" style={{ animationDuration: `${d.seconds}s` }} aria-hidden="true" />}
     </Panel>
   );
 }

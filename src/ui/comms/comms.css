@@ -1,51 +1,98 @@
-/* Communicator (the radio module): the radio module sits on the flight console's top edge
-   (left, above the console – the training panel is above it, the combat HUD around the edges and the
-   centre stays free); in the dock it sits low on the left, beside the hub. */
+/* Communicator (the radio module): one compact line at the top centre (below the pirate warning band
+   when there is one); the comm log (L) stays a card on the left. */
 
-.cm-panel {
+.cm-line {
   --cm-accent: var(--af-glow);
   position: absolute;
   z-index: 4;
-  /* beside the chip column when the left column is full (Hud folds it, leftColumn.ts) */
-  left: var(--cm-left, var(--af-edge));
-  /* Game measures the console and sets --cm-bottom; a sane default until it does */
-  bottom: var(--cm-bottom, calc(var(--af-edge) + 11.5rem));
-  width: min(25rem, calc(100vw - 2 * var(--af-edge)));
+  top: var(--af-edge);
+  left: 50%;
+  translate: -50% 0;
+  width: max-content;
+  max-width: min(38rem, calc(100vw - 2 * var(--af-edge)));
   padding: 0;
   /* in flight the radio never takes the mouse from aiming, mining and firing – only its toll buttons do */
   pointer-events: none;
   animation: cm-in var(--af-dur-hatch) var(--af-ease-clamp);
 }
-.cm-panel.is-docked {
-  left: var(--af-edge);
+/* under the pirate warning band (top centre as well; the band lives in the .hud sibling before us) */
+.hud:has(.cb-threat) ~ .cm-line {
+  top: calc(var(--af-edge) + 3.6rem);
+}
+/* the toast (top centre too) moves below the radio line */
+.cm-line:not(.is-docked) ~ .ui-toast {
+  top: calc(var(--af-edge) + 6.2rem);
+}
+.hud:has(.cb-threat) ~ .cm-line:not(.is-docked) ~ .ui-toast {
+  top: calc(var(--af-edge) + 9.8rem);
+}
+/* screens under 1360 px keep the training panel top left (up to 29 rem; training.css): the line moves right of it */
+@media (max-width: 1359px) {
+  body:has(.tr-layer:not(.is-docked) .tr-panel) .cm-line:not(.is-docked) {
+    left: calc(var(--af-edge) + 30.5rem);
+    translate: none;
+    max-width: min(38rem, calc(100vw - var(--af-edge) - 30.5rem - 13rem));
+  }
+}
+/* docked: the hub fills the top centre, so the line sits low on the left (as the radio card did) */
+.cm-line.is-docked {
+  top: auto;
   bottom: var(--af-edge);
+  left: var(--af-edge);
+  translate: none;
+  max-width: min(27rem, calc(100vw - 2 * var(--af-edge)));
   pointer-events: auto;
 }
+.cm-line.is-docked .cm-sentence {
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
 /* danger: the channel stripe becomes hazard stripes in the speaker's colour */
-.cm-panel.is-danger > .af-trim {
+.cm-line.is-danger > .af-trim {
   width: 7px;
   background: repeating-linear-gradient(-45deg, var(--cm-accent) 0 5px, #1d1214 5px 10px);
 }
 @keyframes cm-in {
   from {
     opacity: 0;
-    transform: translateX(-0.75rem);
+    transform: translateY(-0.5rem);
+  }
+}
+/* the remaining display time: a thin bar under the line that runs down */
+.cm-timebar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--cm-accent);
+  opacity: 0.75;
+  transform-origin: left center;
+  animation: cm-time linear forwards;
+}
+@keyframes cm-time {
+  to {
+    transform: scaleX(0);
   }
 }
 
 .cm-body {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0.75rem;
-  padding: 0.6rem 0.8rem 0.65rem 0.85rem;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.45rem 0.9rem 0.55rem 0.8rem;
 }
-.cm-panel.is-docked .cm-body {
+.cm-line .cm-portrait {
+  --cm-size: 2.75rem;
+}
+.cm-line.is-docked .cm-body {
   cursor: pointer;
 }
-.cm-panel.is-danger .cm-body {
+.cm-line.is-danger .cm-body {
   padding-left: 1.05rem;
 }
-.cm-panel.has-reply .cm-body {
+.cm-line.has-reply .cm-body {
   cursor: default;
 }
 
@@ -109,7 +156,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  min-height: 1rem;
+  min-height: 0.9rem;
 }
 .cm-role {
   color: var(--cm-accent);
@@ -117,14 +164,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.cm-radio {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  color: var(--af-text-dim);
-}
 .cm-queued {
+  margin-left: auto;
   font-family: var(--af-font-text);
   font-size: var(--af-fs-xs);
   font-weight: 700;
@@ -136,36 +177,19 @@
   box-shadow: inset 0 0 0 1px #3a4558;
   clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px);
 }
-.cm-name {
-  margin: 0.1rem 0 0.3rem;
-  font-family: var(--af-font-display);
-  font-stretch: var(--af-stretch-control);
-  font-size: var(--af-fs-lg);
-  font-weight: 750;
-  line-height: var(--af-lh-tight);
-  color: var(--af-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 .cm-lines {
   font-family: var(--af-font-text);
-  font-size: var(--af-fs-lg);
-  line-height: 1.35;
+  font-size: max(1rem, var(--af-fs-lg));
+  line-height: 1.3;
   color: var(--af-text);
 }
-.cm-line {
+.cm-sentence {
   margin: 0;
-}
-.cm-rest {
-  visibility: hidden;
-}
-.cm-caret {
-  display: inline-block;
-  width: 0.45em;
-  height: 0.95em;
-  margin: 0 1px -0.12em;
-  background: var(--cm-accent);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 .cm-lines.is-echo {
   color: #c9c1ff;
@@ -366,11 +390,13 @@
   align-items: flex-start;
   gap: 1rem;
 }
-.cm-kit .cm-panel,
+.cm-kit .cm-line,
 .cm-kit .cm-log {
   position: relative;
   left: auto;
+  top: auto;
   bottom: auto;
+  translate: none;
   pointer-events: auto;
 }
 .cm-kit .cm-log {
@@ -378,12 +404,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cm-panel,
+  .cm-line,
+  .cm-timebar,
   .cm-log {
     animation: none;
   }
 }
-:root[data-reduced-motion] .cm-panel,
+:root[data-reduced-motion] .cm-line,
+:root[data-reduced-motion] .cm-timebar,
 :root[data-reduced-motion] .cm-log {
   animation: none;
 }

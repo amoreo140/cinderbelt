@@ -148,7 +148,7 @@ test('radio: traffic control answers docking, the toll is answered in the comm p
   }, '/src/sim/captains/captains.ts');
   await quietRadio(page);
   await expect(page.locator('[data-speaker="cap:5"]')).toBeVisible({ timeout: 20_000 });
-  await expect(page.locator('.cm-panel.is-danger')).toBeVisible();
+  await expect(page.locator('[data-testid="comm-panel"].is-danger')).toBeVisible();
   await page.mouse.move(820, 330);
   await page.waitForTimeout(1200);
   await page.screenshot({ path: `${OUT}/comms-combat-captain.png` });
@@ -393,7 +393,7 @@ test("radio part B: the first pirates – the taunt, the instructor's warning, t
     for (let i = 0; i < 2; i++) s.combat.enemies.push(en.createEnemy({ id: `pr:9,9:${i}`, kind: 'jackal', tier: 1, pos: { x: home.x + i * 8, y: home.y + i * 5 }, angle: Math.PI, home, orbit: 1 }));
   }, '/src/sim/combat/enemies.ts');
   await expect(page.locator('[data-speaker="pirate:jackal"]')).toBeVisible({ timeout: 20_000 });
-  await expect(page.locator('.cm-panel.is-danger')).toBeVisible();
+  await expect(page.locator('[data-testid="comm-panel"].is-danger')).toBeVisible();
   await page.waitForTimeout(900);
   await page.screenshot({ path: `${OUT}/b-pirates-1-taunt.png` });
   // the training hull would not survive the wait: the pair keeps its distance (a truce) from now on
