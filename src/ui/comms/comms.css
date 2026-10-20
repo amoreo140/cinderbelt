@@ -9,7 +9,7 @@
   left: 50%;
   translate: -50% 0;
   width: max-content;
-  max-width: min(38rem, calc(100vw - 2 * var(--af-edge)));
+  max-width: min(42rem, calc(100vw - 2 * var(--af-edge)));
   padding: 0;
   /* in flight the radio never takes the mouse from aiming, mining and firing – only its toll buttons do */
   pointer-events: none;
@@ -21,17 +21,17 @@
 }
 /* the toast (top centre too) moves below the radio line */
 .cm-line:not(.is-docked) ~ .ui-toast {
-  top: calc(var(--af-edge) + 7.8rem);
+  top: calc(var(--af-edge) + 9.4rem);
 }
 .hud:has(.cb-threat) ~ .cm-line:not(.is-docked) ~ .ui-toast {
-  top: calc(var(--af-edge) + 11.4rem);
+  top: calc(var(--af-edge) + 13rem);
 }
 /* screens under 1360 px keep the training panel top left (up to 29 rem; training.css): the line moves right of it */
 @media (max-width: 1359px) {
   body:has(.tr-layer:not(.is-docked) .tr-panel) .cm-line:not(.is-docked) {
     left: calc(var(--af-edge) + 30.5rem);
     translate: none;
-    max-width: min(38rem, calc(100vw - var(--af-edge) - 30.5rem - 13rem));
+    max-width: min(42rem, calc(100vw - var(--af-edge) - 30.5rem - 13rem));
   }
 }
 /* docked: the hub fills the top centre, so the line sits low on the left (as the radio card did) */
@@ -187,8 +187,8 @@
   margin: 0;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
   overflow: hidden;
 }
 .cm-lines.is-echo {
