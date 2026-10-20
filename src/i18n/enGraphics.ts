@@ -11,6 +11,7 @@ export const enGraphics: GraphicsTexts = {
     label: 'Background brightness',
     hint: 'Brightness and saturation of the stars, nebulae, planets and the sun. A darker background lets ships, asteroids and stations stand out, even zoomed out.',
   },
+  uiScale: { label: 'Interface size', hint: 'Makes all text and panels larger or smaller.' },
   hullShell: {
     label: 'Hull shell',
     hint: "Ships read as one hull: a continuous side band, a trim lip in the cockpit's colour, seams between parts and nav lights. Off = bare parts with connectors, as before.",

@@ -146,6 +146,7 @@ export class App {
 
     this.systemReducedMotion = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null;
     this.applyMotion();
+    this.applyUiScale();
 
     const signal = this.lifetime.signal;
     window.addEventListener('keydown', (e) => this.onKey(e), { signal });
@@ -751,7 +752,12 @@ export class App {
     this.game?.setRadio(this.settings.radio);
     applyRenderSettings(this.settings);
     this.applyMotion();
+    this.applyUiScale();
     this.render();
+  }
+
+  private applyUiScale(): void {
+    document.documentElement.style.setProperty('--af-ui-scale', String(this.settings.uiScale));
   }
 
   private applyMotion(): void {

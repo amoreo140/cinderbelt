@@ -17,6 +17,8 @@ export interface GraphicsTexts {
   hint: string;
   /** The background brightness slider (readability: the playfield stays brighter than the sky). */
   background: { label: string; hint: string };
+  /** The interface size slider (Settings → Display). */
+  uiScale: { label: string; hint: string };
   /** The hull shell toggle (SL2 E1): on = one continuous hull, off = the previous look. */
   hullShell: { label: string; hint: string };
   /** The dynamic resolution toggle (optimisation R3): a lower 3D resolution while the GPU cannot keep up. */
@@ -33,6 +35,7 @@ export const skGraphics: GraphicsTexts = {
     label: 'Jas pozadia',
     hint: 'Jas a sýtosť hviezd, hmlovín, planét a slnka. Tmavšie pozadie nechá lode, asteroidy a stanice vyniknúť aj pri oddialení.',
   },
+  uiScale: { label: 'Veľkosť rozhrania', hint: 'Zväčší alebo zmenší všetky texty a panely.' },
   hullShell: {
     label: 'Plášť lodí',
     hint: 'Lode pôsobia ako jeden trup: súvislý bočný pás, lem vo farbe kokpitu, švy medzi dielmi a navigačné svetlá. Vypnutý = holé diely so spojkami ako predtým.',

@@ -183,6 +183,17 @@ test('M2c: load screen with slots by difficulty, damaged save with backup, delet
   expect(errors.filter((e) => !e.includes('Load failed'))).toEqual([]);
 });
 
+test('interface size slider scales the root font size', async ({ page }) => {
+  await openMenu(page);
+  await page.getByTestId('menu-settings').click();
+  await expect(page.getByTestId('settings')).toBeVisible();
+  const root = () => page.evaluate(() => getComputedStyle(document.documentElement).fontSize);
+  expect(await root()).toBe('16px');
+  await page.getByTestId('set-ui-scale').focus();
+  await page.keyboard.press('End');
+  await expect.poll(root).toBe('24px');
+});
+
 test('M2c: settings persist across reloads and apply to the game', async ({ page }) => {
   const errors = trackErrors(page);
   await openMenu(page);

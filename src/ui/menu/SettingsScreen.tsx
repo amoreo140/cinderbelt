@@ -1,5 +1,5 @@
 import { useId } from 'preact/hooks';
-import { ZOOM_SENSITIVITY_MAX, ZOOM_SENSITIVITY_MIN, type UserSettings } from '../../game/settings/userSettings';
+import { UI_SCALE_MAX, UI_SCALE_MIN, ZOOM_SENSITIVITY_MAX, ZOOM_SENSITIVITY_MIN, type UserSettings } from '../../game/settings/userSettings';
 import { LOCALE_NAMES, LOCALES, tx } from '../../i18n';
 import { formatNumber, formatPercent } from '../format';
 import { litSegments } from '../theme/gaugeMath';
@@ -221,6 +221,17 @@ export function SettingsScreen({ data, on }: { data: OverlayData; on: OverlayHan
             testId="set-background"
             format={percent}
             onChange={(backgroundBrightness) => set({ backgroundBrightness })}
+          />
+          <Slider
+            label={tx().graphics.uiScale.label}
+            hint={tx().graphics.uiScale.hint}
+            value={s.uiScale}
+            min={UI_SCALE_MIN}
+            max={UI_SCALE_MAX}
+            step={0.05}
+            testId="set-ui-scale"
+            format={percent}
+            onChange={(uiScale) => set({ uiScale })}
           />
           <div class="st-row">
             <span class="st-name">{t().language}</span>
