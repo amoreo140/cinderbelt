@@ -4,6 +4,25 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+Based on player feedback on 0.3.1: easier flying for newcomers.
+
+### Flight
+- Assisted flight: with the inertial dampers on, your ship holds a cruise speed of 25 u/s; switch the dampers off (Z) for free flight up to the full 60 u/s. The console shows when the limit is holding you back.
+- The route planner and the shipyard figures use the cruise speed.
+- A bow arrow shows which way your ship faces; it is brighter for a few seconds after undocking.
+
+### Docking
+- Dock at any heading: within reach of the clamp and slow enough, the clamp turns your ship into place. The Archive's docking computer still extends the reach and speed.
+
+### Scanner
+- A pulse costs 15 energy instead of 30.
+- The low-energy message tells you how much energy the scanner needs and how much you have; an empty pulse says what the scanner finds.
+
+### Look and sound
+- Space dust streaks at speed are shorter and fainter.
+- The engine sound is quieter and softer.
+- Wrecks near you no longer fade away in front of you; they expire only once you are far away.
+
 ## [0.3.1] – a clearer start
 
 Based on the feedback on the first public release: a calmer first 15 minutes, a simpler station and a third language.
