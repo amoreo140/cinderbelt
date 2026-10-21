@@ -92,7 +92,21 @@ const CHUNK_KEY = /^-?\d+,-?\d+$/;
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v);
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
-const isInt = (v: unknown): v is number => Number.isInteger(v);
+// Safe integers only: above 2^53 `n + 1 === n`, and a sim loop counting ticks one by one never ends.
+const isInt = (v: unknown): v is number => Number.isSafeInteger(v);
+
+/**
+ * The largest saved game tick: 2^40 ticks are about 580 years of play at 60 ticks/s. A crafted import
+ * with a tick near 2^53 restores fine and then hangs the first step (comet and convoy windows count
+ * ticks one by one), so the bound is part of validation.
+ */
+export const SAVE_MAX_TICK = 2 ** 40;
+
+/**
+ * The largest saved coordinate or velocity component (u, u/s). A position of 1e15 throws in the first
+ * step and 1e308 hangs it; 1e10 u is years of flight from the origin and far below either.
+ */
+export const SAVE_MAX_COORD = 1e10;
 
 export class Checker {
   readonly errors: string[] = [];
@@ -176,7 +190,7 @@ export class Checker {
   vec(v: unknown, path: string): Vec2 {
     const o = this.obj(v, path);
     if (!o) return { x: 0, y: 0 };
-    return { x: this.num(o.x, path), y: this.num(o.y, path) };
+    return { x: this.num(o.x, path, -SAVE_MAX_COORD, SAVE_MAX_COORD), y: this.num(o.y, path, -SAVE_MAX_COORD, SAVE_MAX_COORD) };
   }
 
   /** A complete cargo – every resource, no unknown ones. */
@@ -587,7 +601,7 @@ export function validateSave(data: unknown): ValidationResult {
     seed,
     worldGen: c.oneOf<WorldGen>(data.worldGen, WORLD_GENS, 'worldGen'),
     settings,
-    tick: c.int(data.tick, 'tick', 0),
+    tick: c.int(data.tick, 'tick', 0, SAVE_MAX_TICK),
     credits: c.num(data.credits, 'credits', 0),
     player,
     respawn,

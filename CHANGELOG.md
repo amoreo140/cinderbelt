@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+- An imported save with an absurd game tick or position no longer freezes the tab: validation accepts only safe integers, caps the tick at 2^40 and every saved position and velocity at 1e10.
+
 ## [0.3.2] – flight comfort
 
 Based on player feedback on 0.3.1: easier flying for newcomers.

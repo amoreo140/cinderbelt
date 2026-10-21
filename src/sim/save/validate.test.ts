@@ -9,7 +9,9 @@ import { HOME_STATION_ID, homeStation } from '../world/stations';
 import { toSave } from './serialize';
 import { testContext } from './testing';
 import type { SaveGame } from './types';
-import { validateSave } from './validate';
+import { IDLE_COMMAND } from '../commands';
+import { restoreSimulation } from './serialize';
+import { SAVE_MAX_COORD, SAVE_MAX_TICK, validateSave } from './validate';
 
 const good = (): SaveGame => {
   const sim = dockedSim();
@@ -258,4 +260,39 @@ describe('validateSave – pirates (V6)', () => {
     expect(result).toMatchObject({ ok: true, warnings: [{ code: 'capacityClamped', paths: ['pirates.fortresses[0].core'] }] });
     if (result.ok) expect(result.save.pirates.fortresses[0]![1].core).toBe(FORTRESS.coreHp);
   });
+});
+
+describe('validateSave – bounds against crafted imports', () => {
+  it('rejects a tick above the cap or beyond the safe integers, accepts the cap itself', () => {
+    expect(errorsOf((s) => (s.tick = SAVE_MAX_TICK + 1))[0]).toMatch(/^tick/);
+    expect(errorsOf((s) => (s.tick = 2 ** 53))[0]).toMatch(/^tick/);
+    expect(errorsOf((s) => (s.tick = 1e308))[0]).toMatch(/^tick/);
+    expect(errorsOf((s) => (s.tick = SAVE_MAX_TICK))).toEqual([]);
+  });
+
+  it('accepts only safe integers in counters', () => {
+    expect(errorsOf((s) => (s.stats.partsCrafted = 2 ** 53))[0]).toMatch(/^stats\.partsCrafted/);
+    expect(errorsOf((s) => (s.stats.partsCrafted = Number.MAX_SAFE_INTEGER))).toEqual([]);
+  });
+
+  it('rejects positions and velocities outside the coordinate bound', () => {
+    for (const v of [SAVE_MAX_COORD * 2, -1e15, 1e308]) {
+      expect(errorsOf((s) => (s.player.body.pos = { x: v, y: 0 }))[0], `pos ${v}`).toMatch(/^player\.body\.pos/);
+      expect(errorsOf((s) => (s.player.body.vel = { x: 0, y: v }))[0], `vel ${v}`).toMatch(/^player\.body\.vel/);
+    }
+    expect(errorsOf((s) => (s.player.body.pos = { x: SAVE_MAX_COORD, y: -SAVE_MAX_COORD }))).toEqual([]);
+  });
+
+  it('a save at the bounds restores and steps (no hang, no throw)', () => {
+    const save = good();
+    save.tick = SAVE_MAX_TICK;
+    save.player.dockedAt = null;
+    save.player.body.pos = { x: SAVE_MAX_COORD, y: -SAVE_MAX_COORD };
+    const result = validateSave(JSON.parse(JSON.stringify(save)));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const sim = restoreSimulation(result.save);
+    for (let i = 0; i < 60; i++) sim.step(IDLE_COMMAND);
+    expect(sim.state.tick).toBe(SAVE_MAX_TICK + 60);
+  }, 20_000);
 });
