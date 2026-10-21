@@ -30,16 +30,16 @@ export class EngineThrustVoice {
     mainSend.connect(sfx.wet);
 
     const rumbleSrc = startNoiseLoop(graph, 'brown');
-    const rumbleFilter = createFilter(ctx, 'lowpass', 140, 0.9);
+    const rumbleFilter = createFilter(ctx, 'lowpass', 110, 0.7);
     const rumbleGain = createGain(ctx, 0);
     rumbleSrc.connect(rumbleFilter).connect(rumbleGain).connect(mainOut);
     // slow filter "breathing" - the engine is not dead static
-    const breath = createLfo(ctx, 0.23, 35, rumbleFilter.frequency);
+    const breath = createLfo(ctx, 0.23, 20, rumbleFilter.frequency);
 
-    const humFilter = createFilter(ctx, 'lowpass', 160, 0.8);
+    const humFilter = createFilter(ctx, 'lowpass', 140, 0.7);
     const humGain = createGain(ctx, 0);
     const hum1 = createOscillator(ctx, 'sawtooth', 44);
-    const hum2 = createOscillator(ctx, 'sawtooth', 44, 9);
+    const hum2 = createOscillator(ctx, 'sawtooth', 44, 5);
     const hum3 = createOscillator(ctx, 'triangle', 88, -5);
     const hum3Level = createGain(ctx, 0.35);
     hum1.connect(humFilter);
@@ -48,7 +48,7 @@ export class EngineThrustVoice {
     humFilter.connect(humGain).connect(mainOut);
 
     const airSrc = startNoiseLoop(graph, 'pink');
-    const airFilter = createFilter(ctx, 'bandpass', 700, 0.8);
+    const airFilter = createFilter(ctx, 'bandpass', 600, 0.7);
     const airGain = createGain(ctx, 0);
     airSrc.connect(airFilter).connect(airGain).connect(mainOut);
 
@@ -85,7 +85,7 @@ export class EngineThrustVoice {
     revOut.connect(revSend);
     revSend.connect(sfx.wet);
     const revSrc = startNoiseLoop(graph, 'pink');
-    const revFilter = createFilter(ctx, 'bandpass', 520, 1.4);
+    const revFilter = createFilter(ctx, 'bandpass', 420, 1.0);
     const revNoiseGain = createGain(ctx, 0);
     revSrc.connect(revFilter).connect(revNoiseGain).connect(revOut);
     const revOsc = createOscillator(ctx, 'triangle', 88);
@@ -110,8 +110,8 @@ export class EngineThrustVoice {
 
     // ---- side thrusters ----
     const sideSrc = startNoiseLoop(graph, 'white');
-    const sideHp = createFilter(ctx, 'highpass', 900, 0.7);
-    const sideLp = createFilter(ctx, 'lowpass', 1800, 0.7);
+    const sideHp = createFilter(ctx, 'highpass', 700, 0.7);
+    const sideLp = createFilter(ctx, 'lowpass', 1400, 0.7);
     const sideGain = createGain(ctx, 0);
     sideSrc.connect(sideHp).connect(sideLp).connect(sideGain);
     let sideTail: AudioNode = sideGain;

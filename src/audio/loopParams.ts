@@ -38,18 +38,18 @@ export interface EngineMainParams {
   airHz: number;
 }
 
-/** Main engine - the curves are slightly "advanced" so low thrust is audible. */
+/** Main engine - calm and low: the curves are slightly "advanced" so low thrust is audible, but the noise stays under the hum. */
 export function engineMainParams(throttle: number): EngineMainParams {
   const t = clamp01(throttle);
   const shaped = Math.pow(t, 0.6);
   return {
-    rumbleGain: 0.5 * shaped,
-    rumbleCutoff: 140 + 760 * Math.pow(t, 1.3),
-    humGain: 0.09 * shaped,
+    rumbleGain: 0.3 * shaped,
+    rumbleCutoff: 110 + 420 * Math.pow(t, 1.3),
+    humGain: 0.07 * shaped,
     humHz: 44 + 14 * t,
-    humCutoff: 160 + 360 * t,
-    airGain: 0.1 * t * t,
-    airHz: 700 + 1300 * t,
+    humCutoff: 140 + 260 * t,
+    airGain: 0.045 * t * t,
+    airHz: 600 + 700 * t,
   };
 }
 
@@ -65,9 +65,9 @@ export function engineReverseParams(throttle: number): EngineReverseParams {
   const t = clamp01(throttle);
   const shaped = Math.pow(t, 0.7);
   return {
-    noiseGain: 0.3 * shaped,
-    noiseHz: 520 + 500 * t,
-    toneGain: 0.04 * shaped,
+    noiseGain: 0.17 * shaped,
+    noiseHz: 420 + 280 * t,
+    toneGain: 0.035 * shaped,
     toneHz: 88 + 22 * t,
   };
 }
@@ -83,14 +83,14 @@ export function engineSideParams(side: number): EngineSideParams {
   const s = clamp(side, -1, 1);
   const mag = Math.abs(s);
   return {
-    gain: 0.2 * Math.pow(mag, 0.7),
-    cutoff: 1800 + 1600 * mag,
+    gain: 0.11 * Math.pow(mag, 0.7),
+    cutoff: 1400 + 1000 * mag,
     pan: 0.35 * Math.sign(s),
   };
 }
 
-/** Engine attack and release times in seconds (faster attack, slower release). */
-export const ENGINE_RAMP = { up: 0.12, down: 0.35 } as const;
+/** Engine attack and release times in seconds (a soft swell, an even softer fade; still follows the throttle). */
+export const ENGINE_RAMP = { up: 0.25, down: 0.5 } as const;
 
 export interface LaserTone {
   /** Base frequency of the laser hum. */

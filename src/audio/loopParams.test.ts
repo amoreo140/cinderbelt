@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { RESOURCE_IDS } from '../data/resources';
 import {
+  ENGINE_RAMP,
   engineMainParams,
   engineReverseParams,
   engineSideParams,
@@ -51,6 +52,20 @@ describe('engineMainParams', () => {
     const p = engineMainParams(5);
     expect(p).toEqual(engineMainParams(1));
     expect(p.rumbleGain + p.humGain + p.airGain).toBeLessThan(1);
+  });
+});
+
+describe('engine calmness', () => {
+  it('stays soft: gentle cutoff sweep, noise below the tonal hum character, soft attack', () => {
+    const full = engineMainParams(1);
+    expect(full.rumbleCutoff).toBeLessThanOrEqual(600);
+    expect(full.airHz).toBeLessThanOrEqual(1400);
+    expect(full.rumbleGain).toBeLessThanOrEqual(0.3);
+    expect(full.rumbleGain + full.humGain + full.airGain).toBeLessThan(0.45);
+    expect(engineReverseParams(1).noiseGain).toBeLessThanOrEqual(0.2);
+    expect(engineSideParams(1).gain).toBeLessThanOrEqual(0.12);
+    expect(ENGINE_RAMP.up).toBeGreaterThanOrEqual(0.2);
+    expect(ENGINE_RAMP.up).toBeLessThanOrEqual(0.3);
   });
 });
 
