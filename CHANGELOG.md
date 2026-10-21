@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.3.2] – flight comfort
+
 Based on player feedback on 0.3.1: easier flying for newcomers.
 
 ### Flight
