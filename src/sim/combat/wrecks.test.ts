@@ -12,6 +12,9 @@ import {
   salvageWreck,
   SALVAGE_RANGE,
   stepWreck,
+  WRECK_FADE_TICKS,
+  WRECK_KEEP_RANGE,
+  wreckKept,
   WRECK_TTL,
 } from './wrecks';
 
@@ -44,6 +47,36 @@ describe('stepWreck', () => {
     expect(w.body.angVel).toBeLessThan(1);
     expect(w.ttl).toBe(WRECK_TTL - 1);
     expect(w.prevBody.pos.x).toBe(0);
+  });
+});
+
+describe('wrecks near the player', () => {
+  const wreckAt = (x: number, ttl: number) => {
+    const ship = combatShip(createGrid([['armor', 0, 0]]), { x, y: 0 });
+    const w = createWreck(1, ship.grid.parts, ship, { vel: { x: 0, y: 0 }, angVel: 0 }, emptyLoot(), 'default');
+    w.ttl = ttl;
+    return w;
+  };
+
+  it('a wreck near the player never reaches its fade, a far one expires', () => {
+    const near = wreckAt(WRECK_KEEP_RANGE - 10, 200);
+    const far = wreckAt(WRECK_KEEP_RANGE + 50, 200);
+    expect(wreckKept(near, { x: 0, y: 0 })).toBe(true);
+    expect(wreckKept(far, { x: 0, y: 0 })).toBe(false);
+    for (let i = 0; i < 1000; i++) {
+      stepWreck(near, [], DT, wreckKept(near, { x: 0, y: 0 }));
+      stepWreck(far, [], DT, wreckKept(far, { x: 0, y: 0 }));
+    }
+    expect(near.ttl).toBe(WRECK_FADE_TICKS + 1);
+    expect(far.ttl).toBeLessThanOrEqual(0);
+  });
+
+  it('keeps counting down normally above the fade and resumes once the player leaves', () => {
+    const w = wreckAt(0, WRECK_FADE_TICKS + 5);
+    for (let i = 0; i < 50; i++) stepWreck(w, [], DT, true);
+    expect(w.ttl).toBe(WRECK_FADE_TICKS + 1);
+    for (let i = 0; i < 200; i++) stepWreck(w, [], DT, false);
+    expect(w.ttl).toBeLessThanOrEqual(0);
   });
 });
 

@@ -15,6 +15,14 @@ import type { Livery, Wreck, WreckLoot } from './types';
 
 /** A wreck disappears after 5 minutes of game time. */
 export const WRECK_TTL = 5 * 60 * 60;
+/** A wreck shrinks over its last frames (render) and disappears. */
+export const WRECK_FADE_TICKS = 90;
+/**
+ * A wreck this close to the player never starts to fade (its lifetime stops counting just above the fade):
+ * it would shrink and vanish in front of the player. The camera's farthest zoom-out (210) frames the
+ * ground well under 250 from the ship, so the shrink happens off-screen.
+ */
+export const WRECK_KEEP_RANGE = 250;
 /** At most this many wrecks at once – the oldest disappear first. */
 export const MAX_WRECKS = 40;
 /** Loot can be loaded while the gap between the ship's and the wreck's bounds is at most this. */
@@ -116,12 +124,17 @@ export function createWreck(
 }
 
 /** One drift step of a wreck; static obstacles (asteroids, stations) bounce it. */
-export function stepWreck(w: Wreck, obstacles: readonly Circle[], dt: number): void {
+export function stepWreck(w: Wreck, obstacles: readonly Circle[], dt: number, keep = false): void {
   w.prevBody = w.body;
   const damped = driftDamped(w.body, dt, LINEAR_DAMPING, ANGULAR_DAMPING);
   w.body = obstacles.length > 0 ? resolveCollisions(damped, w.props.cellOffsets, w.props.boundingRadius, obstacles).body : damped;
-  w.ttl--;
+  // `keep` (near the player): the lifetime counts down only until the fade would begin
+  if (!keep || w.ttl > WRECK_FADE_TICKS + 1) w.ttl--;
 }
+
+/** Is the wreck within `WRECK_KEEP_RANGE` of the player (so it must not fade)? */
+export const wreckKept = (w: Wreck, pos: { x: number; y: number }): boolean =>
+  (w.body.pos.x - pos.x) ** 2 + (w.body.pos.y - pos.y) ** 2 <= WRECK_KEEP_RANGE * WRECK_KEEP_RANGE;
 
 /** The gap between the ship's and the wreck's bounds. */
 export const wreckGap = (w: Wreck, pos: { x: number; y: number }, boundingRadius: number): number =>

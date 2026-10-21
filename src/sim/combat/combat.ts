@@ -33,7 +33,7 @@ import { careerSpawns } from '../career/career';
 import { expandBlasts } from './partBlast';
 import { sectorAt, sectorEffects } from '../sector/sector';
 import { CHUNK_SIZE } from '../world/chunks';
-import { addPartLoot, createWreck, emptyLoot, lootEmpty, MAX_WRECKS, mergeLoot, stepWreck, type WreckSource } from './wrecks';
+import { addPartLoot, createWreck, emptyLoot, lootEmpty, MAX_WRECKS, mergeLoot, stepWreck, wreckKept, type WreckSource } from './wrecks';
 import { createScavenger, scareScavenger, scavengerSlots, thinkScavenger } from '../pirates/scavenger';
 import { damageShell, giantAt, giantCirclesInto } from '../discovery/giants';
 import { containerColliderInto, stepContainer } from '../salvage/containers';
@@ -674,7 +674,7 @@ export function stepCombat(state: SimState, events: SimEvent[], dt: number): voi
 
   for (const w of combat.wrecks) {
     const reach = w.props.boundingRadius + COLLISION_MARGIN;
-    stepWreck(w, obstaclesNear(state, w.body.pos, reach), dt);
+    stepWreck(w, obstaclesNear(state, w.body.pos, reach), dt, wreckKept(w, player.body.pos));
   }
   // a new list only when a wreck is gone (the same contents either way)
   if (combat.wrecks.some((w) => w.ttl <= 0)) combat.wrecks = combat.wrecks.filter((w) => w.ttl > 0);

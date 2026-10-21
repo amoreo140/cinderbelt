@@ -28,7 +28,7 @@ import { gridCellKeys } from '../../sim/ship/outline';
 import type { ShipGrid } from '../../sim/ship/types';
 import type { ShipProperties } from '../../sim/ship/properties';
 import { shieldRadius } from '../../sim/combat/projectiles';
-import { lootEmpty, WRECK_TTL } from '../../sim/combat/wrecks';
+import { lootEmpty, WRECK_FADE_TICKS, WRECK_TTL } from '../../sim/combat/wrecks';
 import { lerpAngle } from '../../sim/math/angle';
 import { fnv1a32 } from '../../sim/math/fnv1a';
 import { lerp, rotate, sub, type Vec2 } from '../../sim/math/vec2';
@@ -59,8 +59,6 @@ import type { WarmUpZoo } from '../warmup';
 /** Height of the bolts (the cannon muzzle is ~0.4 above the plane). */
 const BOLT_HEIGHT = 0.35;
 const SIM_DT = 1 / 60;
-/** A wreck shrinks over its last frames and disappears. */
-const WRECK_FADE_TICKS = 90;
 /** The loot beacon shows only after the explosion burns out. */
 const BEACON_DELAY_TICKS = 120;
 /** How long a pirate's last pose is remembered – its wreck (same step or a piece later) takes its clan. */
