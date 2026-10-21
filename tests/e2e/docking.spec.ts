@@ -59,7 +59,7 @@ test('docking: approach readout far and close, the clamp marker, the latch', asy
   // far: out of every tolerance – distance and speed red, the prompt says what to fix first
   await approachClamp(page, { stationId: 'home', offset: 14, side: 3, turn: 1.4, speed: 4.5 });
   await expect(page.getByTestId('dock-approach')).toBeVisible();
-  expect(await itemsOk(page)).toEqual([false, false]);
+  await expect.poll(() => itemsOk(page)).toEqual([false, false]);
   await expect(page.getByTestId('dock-prompt')).toContainText('Prileť k dokovacej svorke');
   expect(await marker(page)).toMatchObject({ visible: true, ready: false, latch: false });
   await page.screenshot({ path: `${OUT}/dock-readout-far.png` });
@@ -67,7 +67,7 @@ test('docking: approach readout far and close, the clamp marker, the latch', asy
   // by the clamp but turned away: no heading rule, so F is on offer all the same
   await approachClamp(page, { stationId: 'home', offset: 2, turn: 1.2 });
   await waitTicks(page, 10);
-  expect(await itemsOk(page)).toEqual([true, true]);
+  await expect.poll(() => itemsOk(page)).toEqual([true, true]);
   await expect(page.getByTestId('dock-prompt')).toContainText('pristáť na stanici');
   await expect(page.getByTestId('dock-item-bow')).toHaveCount(0);
   await page.screenshot({ path: `${OUT}/dock-readout-turned.png` });
@@ -75,7 +75,7 @@ test('docking: approach readout far and close, the clamp marker, the latch', asy
   // close: all green, the F keycap prompt, the marker turns green
   await approachClamp(page, { stationId: 'home', offset: 2.5, turn: 0.2 });
   await waitTicks(page, 10);
-  expect(await itemsOk(page)).toEqual([true, true]);
+  await expect.poll(() => itemsOk(page)).toEqual([true, true]);
   await expect(page.getByTestId('dock-approach')).toHaveAttribute('data-ready', '1');
   await expect(page.getByTestId('dock-prompt')).toContainText('pristáť na stanici');
   expect(await marker(page)).toMatchObject({ visible: true, ready: true });
