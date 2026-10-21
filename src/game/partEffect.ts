@@ -6,6 +6,7 @@ import { parsePartKey, partDef, partDefOf, partKey, type PartDef, type PartId, t
 import type { VariantId } from '../data/variants';
 import { arcsWidth, CANNON_HALF_ARC } from '../sim/combat/arcs';
 import { MAX_SPEED } from '../sim/physics/body';
+import { ASSISTED_SPEED } from '../sim/ship/control';
 import { turnTime180 } from '../sim/ship/turnTime';
 import { hullBudgetOf } from '../sim/ship/budget';
 import { FUEL_PER_FORCE_SECOND } from '../sim/ship/fuel';
@@ -236,8 +237,8 @@ export function withPart(s: ShipSummary, key: PartKey, shape?: ShapeId | null): 
 
 /**
  * A straight flight from rest holding "forward" (M4d: shared by `fuelRange` and the map's route
- * planner): the run-up to top speed, then cruising at the speed cap while the engines keep burning (as
- * they do in the simulation). `distance` = how far the ship gets after `seconds` of thrust; `fuel` = what
+ * planner): the run-up to the `cruise` speed (default: the free-flight cap, the worst case for fuel), then cruising with
+ * the engines burning (the route planner passes the assisted cap instead and burns only in the run-up). `distance` = how far the ship gets after `seconds` of thrust; `fuel` = what
  * that burns. Null without forward thrust.
  */
 export interface ForwardTravel {
@@ -252,17 +253,17 @@ export interface ForwardTravel {
   seconds(distance: number): number;
 }
 
-export function travelFuel(thrust: number, mass: number, fuelUseMult: number): ForwardTravel | null {
+export function travelFuel(thrust: number, mass: number, fuelUseMult: number, cruise = MAX_SPEED): ForwardTravel | null {
   if (thrust <= 0 || mass <= 0) return null;
   const accel = thrust / mass;
-  const runUp = MAX_SPEED / accel;
+  const runUp = cruise / accel;
   const runUpDistance = 0.5 * accel * runUp * runUp;
   return {
     accel,
     fuelPerSecond: thrust * FUEL_PER_FORCE_SECOND * fuelUseMult,
     runUp,
-    distance: (t) => (t <= runUp ? 0.5 * accel * t * t : runUpDistance + MAX_SPEED * (t - runUp)),
-    seconds: (d) => (d <= runUpDistance ? Math.sqrt((2 * Math.max(0, d)) / accel) : runUp + (d - runUpDistance) / MAX_SPEED),
+    distance: (t) => (t <= runUp ? 0.5 * accel * t * t : runUpDistance + cruise * (t - runUp)),
+    seconds: (d) => (d <= runUpDistance ? Math.sqrt((2 * Math.max(0, d)) / accel) : runUp + (d - runUpDistance) / cruise),
   };
 }
 
@@ -294,8 +295,8 @@ export function shipMetrics(s: ShipSummary): ShipMetrics {
   return {
     turn180: turnTime180(s.torque, s.inertia),
     accel,
-    topSpeedTime: accel > 0 ? MAX_SPEED / accel : null,
-    brakeTime: brake > 0 ? MAX_SPEED / brake : null,
+    topSpeedTime: accel > 0 ? ASSISTED_SPEED / accel : null,
+    brakeTime: brake > 0 ? ASSISTED_SPEED / brake : null,
     fuelRange: fuelRange(s.fuel, s.thrust.forward, s.mass, s.fuelUseMult),
     cargo: s.cargo,
     energyMining,

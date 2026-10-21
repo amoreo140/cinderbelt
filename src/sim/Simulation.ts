@@ -17,7 +17,7 @@ import { assayOre, createMiningState, spawnNuggets, stepNuggets, type MiningEven
 import { createBody, integrate, type Body } from './physics/body';
 import { DEFAULT_SETTINGS, type GameSettings } from './settings';
 import { resolveCollisions, type Circle } from './physics/collide';
-import { computeFlight, type FlightProps } from './ship/control';
+import { ASSISTED_SPEED, computeFlight, type FlightProps } from './ship/control';
 import { clampRefined, idleWorkshop, stepWorkshop, type RepairBank, type WorkshopActivity } from './ship/workshop';
 import { flightFuel } from './ship/fuel';
 import type { VeinState } from './mining/veins';
@@ -877,7 +877,7 @@ export class Simulation {
     effective.torque = props.torque;
     effective.mass = mass;
     effective.inertia = (props.inertia * mass) / props.mass;
-    const out = computeFlight(effective, player.body, flight, player.dampers && hasFuel, SIM_DT);
+    const out = computeFlight(effective, player.body, flight, player.dampers && hasFuel, SIM_DT, ASSISTED_SPEED);
 
     const needed = flightFuel(out, props.fuelUseMult, SIM_DT) * effects.fuelUseMult;
     const ratio = needed > player.fuel ? player.fuel / needed : 1;

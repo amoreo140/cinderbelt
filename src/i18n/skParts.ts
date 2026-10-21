@@ -232,7 +232,7 @@ export const skParts: PartsTexts = {
     tractorEnergy: 'Koľko energie za sekundu lúč minie, kým drží objekt.',
     turn180: 'Koľko sekúnd trvá otočiť loď čelom vzad a zastaviť. Skráti ho gyroskop; každý ťažký diel ho predĺži – najviac ten ďaleko od ťažiska.',
     accel: 'O koľko j/s loď pridá za každú sekundu plného plynu dopredu (s prázdnym nákladom).',
-    topSpeedTime: 'Za koľko sekúnd sa loď z pokoja rozbehne na najvyššiu rýchlosť 60\u00a0j/s.',
+    topSpeedTime: 'Za koľko sekúnd sa loď z pokoja rozbehne na cestovnú rýchlosť 25 j/s so zapnutými tlmičmi.',
     brakeTime: 'Za koľko sekúnd motory otočené dopredu zastavia loď z plnej rýchlosti. Bez nich brzdia len slabé manévrovacie trysky kokpitu.',
     fuelRange: 'Asi ako ďaleko doletíš na plnú nádrž, keď držíš plyn (prázdny náklad, bez prúdov). Viac motorov pije viac.',
     energyMining: 'Výroba energie mínus spotreba všetkých laserov. Záporná = batéria sa pri ťažbe vybíja.',

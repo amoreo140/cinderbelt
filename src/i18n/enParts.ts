@@ -136,7 +136,7 @@ export const enParts: PartsTexts = {
     tractorEnergy: 'How much energy per second the beam uses while it holds an object.',
     turn180: 'How many seconds it takes to turn the ship around and stop. A gyroscope shortens it; every heavy part lengthens it – most of all one far from the centre of mass.',
     accel: 'How many u/s the ship gains per second of full forward thrust (with an empty hold).',
-    topSpeedTime: 'How many seconds the ship needs from rest to its top speed of 60 u/s.',
+    topSpeedTime: 'How many seconds the ship needs from rest to its cruise speed of 25 u/s with the dampers on.',
     brakeTime: 'How many seconds forward-facing engines need to stop the ship from full speed. Without them only the weak manoeuvring thrusters of the cockpit brake.',
     fuelRange: 'Roughly how far you get on a full tank while holding thrust (empty hold, no currents). More engines burn more.',
     energyMining: 'Energy production minus the use of all lasers. Negative = the battery drains while mining.',

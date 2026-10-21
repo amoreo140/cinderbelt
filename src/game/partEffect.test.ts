@@ -4,6 +4,7 @@ import { createGrid } from '../sim/ship/grid';
 import { createStarterShip } from '../sim/ship/presets';
 import type { ShipGrid } from '../sim/ship/types';
 import { MAX_SPEED } from '../sim/physics/body';
+import { ASSISTED_SPEED } from '../sim/ship/control';
 import {
   fuelRange,
   travelFuel,
@@ -96,8 +97,8 @@ describe('summarizeShip / shipMetrics', () => {
     expect(s.hullBudget).toBe(28);
     const m = shipMetrics(s);
     expect(m.accel).toBeCloseTo(180 / 25, 6);
-    expect(m.topSpeedTime).toBeCloseTo(MAX_SPEED / (180 / 25), 6);
-    expect(m.brakeTime).toBeCloseTo(MAX_SPEED / (180 / 25), 6);
+    expect(m.topSpeedTime).toBeCloseTo(ASSISTED_SPEED / (180 / 25), 6);
+    expect(m.brakeTime).toBeCloseTo(ASSISTED_SPEED / (180 / 25), 6);
     expect(m.energyMining).toBeCloseTo(10 - 6, 6);
     expect(m.cargo).toBe(130);
     expect(m.turn180).toBeGreaterThan(2);
@@ -107,7 +108,7 @@ describe('summarizeShip / shipMetrics', () => {
   it('a ship without reverse engines brakes slowly with the cockpit RCS', () => {
     const s = summarizeShip(createGrid([['cockpit', 0, 0], ['engine', -1, 0, 0]]));
     expect(s.rcs).toBe(COCKPIT_RCS_THRUST[1]);
-    expect(shipMetrics(s).brakeTime).toBeCloseTo(MAX_SPEED / (COCKPIT_RCS_THRUST[1] / s.mass), 6);
+    expect(shipMetrics(s).brakeTime).toBeCloseTo(ASSISTED_SPEED / (COCKPIT_RCS_THRUST[1] / s.mass), 6);
     // a T2 cockpit brings stronger RCS
     expect(withPart(s, 'cockpit:2').rcs).toBe(COCKPIT_RCS_THRUST[2]);
     expect(shipMetrics(withPart(s, 'cockpit:2')).brakeTime!).toBeLessThan(shipMetrics(s).brakeTime!);

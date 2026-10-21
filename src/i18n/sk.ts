@@ -33,6 +33,9 @@ export interface CoreTexts {
     speed: string;
     speedUnit: string;
     dampers: string;
+    /** Assisted flight at the cruise cap: the label and what [Z] does. */
+    assisted: string;
+    freeFlight: string;
     on: string;
     off: string;
     fuel: string;
@@ -840,6 +843,8 @@ export const sk = {
     speed: 'Rýchlosť',
     speedUnit: 'j/s',
     dampers: 'Tlmiče',
+    assisted: 'Asistovaný let',
+    freeFlight: 'voľný let',
     on: 'ZAP',
     off: 'VYP',
     fuel: 'Palivo',
@@ -1582,7 +1587,7 @@ export const sk = {
       'Q / E – bočný posun',
       'Myš + ľavé tlačidlo – kanóny',
       'Myš + pravé tlačidlo – ťažobný laser',
-      'Z – inerciálne tlmiče',
+      'Z – tlmiče: asistovaný let do 25 j/s / voľný let',
       'F – pristáť / odletieť / korisť',
       'Tab – skener: ťuk pulz, podrž analýza',
       'T – vlečný lúč: zachytiť / pustiť',

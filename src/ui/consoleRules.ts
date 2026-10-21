@@ -11,7 +11,11 @@
 //                ship destroyed) or anything damaged (a part below its max HP, a part missing, hull below max).
 //                The shield gauge goes with it. Combat parts are never gated by the reveal.
 //  - dampers:    only as a warning row while the dampers are OFF – and 'dampers' revealed.
+//  - cap:        assisted flight at its cruise cap (`atAssistedCap`): the dampers are on, the speed is at
+//                ASSISTED_SPEED and the pilot holds forward thrust – a short "Assisted flight 25 · [Z] free flight"
+//                note, with the speed row's reveal.
 //  - tractor:    the tractor beam is active.
+import { ASSISTED_SPEED } from '../sim/ship/control';
 import type { HudParts } from './hudParts';
 
 export interface ConsoleRulesInput {
@@ -29,6 +33,8 @@ export interface ConsoleRulesInput {
   /** The goal is a stop-here target within reach (`stopTargetNear`). */
   stopTarget: boolean;
   dampersOn: boolean;
+  /** The ship sits at the assisted cruise cap and the pilot thrusts forward (`atAssistedCap`). */
+  atCap?: boolean;
   tractor: boolean;
 }
 
@@ -38,6 +44,8 @@ export interface ConsoleRules {
   readonly silhouette: boolean;
   readonly dampers: boolean;
   readonly tractor: boolean;
+  /** The assisted-flight note. */
+  readonly cap: boolean;
 }
 
 /** A goal this near (units) counts as a "stop here" target: the speed readout helps to brake onto it. */
@@ -46,12 +54,19 @@ export const STOP_TARGET_RANGE = 60;
 /** Is the goal (its distance in units, null = none) a stop target within reach? */
 export const stopTargetNear = (goalDistance: number | null): boolean => goalDistance !== null && goalDistance <= STOP_TARGET_RANGE;
 
-/** One shared frozen result per combination of the five flags (32 at most), built on demand. */
+/** A little under the cap still counts as "at the cap" (u/s). */
+const CAP_TOLERANCE = 0.5;
+
+/** Assisted flight is holding the speed cap: dampers on, speed at the cap, forward thrust held. */
+export const atAssistedCap = (speed: number, dampersOn: boolean, thrustingForward: boolean): boolean =>
+  dampersOn && thrustingForward && speed >= ASSISTED_SPEED - CAP_TOLERANCE;
+
+/** One shared frozen result per combination of the six flags (64 at most), built on demand. */
 const cache: (ConsoleRules | undefined)[] = [];
 
-function shared(cargo: boolean, speed: boolean, silhouette: boolean, dampers: boolean, tractor: boolean): ConsoleRules {
-  const key = (cargo ? 1 : 0) | (speed ? 2 : 0) | (silhouette ? 4 : 0) | (dampers ? 8 : 0) | (tractor ? 16 : 0);
-  return (cache[key] ??= Object.freeze({ cargo, speed, silhouette, dampers, tractor }));
+function shared(cargo: boolean, speed: boolean, silhouette: boolean, dampers: boolean, tractor: boolean, cap: boolean): ConsoleRules {
+  const key = (cargo ? 1 : 0) | (speed ? 2 : 0) | (silhouette ? 4 : 0) | (dampers ? 8 : 0) | (tractor ? 16 : 0) | (cap ? 32 : 0);
+  return (cache[key] ??= Object.freeze({ cargo, speed, silhouette, dampers, tractor, cap }));
 }
 
 export function consoleRules(i: ConsoleRulesInput): ConsoleRules {
@@ -61,5 +76,6 @@ export function consoleRules(i: ConsoleRulesInput): ConsoleRules {
     i.combat || i.damaged,
     i.parts.dampers && !i.dampersOn,
     i.tractor,
+    i.parts.speed && (i.atCap ?? false),
   );
 }

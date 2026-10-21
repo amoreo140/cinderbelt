@@ -331,7 +331,8 @@ describe('Gunner fairness (M4b §2.6)', () => {
       const { sim } = gunnerDuel(armedStarter(), 'mild', v);
       let closed: number | null = null;
       let fastest = 0;
-      for (let t = 0; t < 30 * 60 && closed === null; t++) {
+      // 90 s: the assisted cap (25 u/s) closes in on the 16 u/s gunner more slowly than free flight did
+      for (let t = 0; t < 90 * 60 && closed === null; t++) {
         const g = theGunner(sim)!;
         const p = sim.state.player;
         p.hp = new Map();

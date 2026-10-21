@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createBody } from '../physics/body';
-import { computeFlight, type FlightInput } from './control';
+import { createBody, integrate } from '../physics/body';
+import { ASSISTED_SPEED, computeFlight, type FlightInput } from './control';
 import { makeProps } from './testing';
 
 const DT = 1 / 60;
@@ -160,5 +160,48 @@ describe('computeFlight – cockpit manoeuvring thrusters (RCS)', () => {
     const out = computeFlight({ ...hull, rcsThrust: 0 }, body, idle, true, DT);
     expect(out.localForce.y).toBe(0);
     expect(out.rcs).toEqual({ x: 0, y: 0 });
+  });
+});
+
+describe('computeFlight – assisted speed cap', () => {
+  const fly = (vx: number, input: FlightInput, dampers: boolean, steps: number) => {
+    let body = { ...createBody(), vel: { x: vx, y: 0 } };
+    for (let i = 0; i < steps; i++) {
+      const out = computeFlight(props, body, input, dampers, DT, ASSISTED_SPEED);
+      body = integrate(body, out.force, out.torque, props.mass, props.inertia, DT);
+    }
+    return body;
+  };
+
+  it('holds the cap while the pilot keeps thrusting', () => {
+    const body = fly(0, { ...idle, forward: 1 }, true, 60 * 30);
+    expect(Math.hypot(body.vel.x, body.vel.y)).toBeLessThanOrEqual(ASSISTED_SPEED + 1e-6);
+    expect(body.vel.x).toBeGreaterThan(ASSISTED_SPEED - 0.5);
+  });
+
+  it('does not touch free flight with the dampers off', () => {
+    const body = fly(0, { ...idle, forward: 1 }, false, 60 * 30);
+    expect(body.vel.x).toBeGreaterThan(ASSISTED_SPEED + 5);
+  });
+
+  it('brakes an excess smoothly within the damper authority', () => {
+    let body = { ...createBody(), vel: { x: 60, y: 0 } };
+    const out = computeFlight(props, body, { ...idle, forward: 1 }, true, DT, ASSISTED_SPEED);
+    expect(out.localForce.x).toBe(-50); // the backward group, never a hard clamp
+    body = fly(60, { ...idle, forward: 1 }, true, 60 * 2);
+    expect(body.vel.x).toBeLessThan(60);
+    expect(body.vel.x).toBeGreaterThan(ASSISTED_SPEED);
+    expect(fly(60, { ...idle, forward: 1 }, true, 60 * 30).vel.x).toBeLessThanOrEqual(ASSISTED_SPEED + 0.01);
+  });
+
+  it('lets the pilot steer at the cap without exceeding it', () => {
+    const body = fly(ASSISTED_SPEED, { ...idle, forward: 1, strafe: 1 }, true, 60 * 10);
+    expect(Math.hypot(body.vel.x, body.vel.y)).toBeLessThanOrEqual(ASSISTED_SPEED + 1e-6);
+    expect(body.vel.y).toBeGreaterThan(0);
+  });
+
+  it('is off without a cap argument', () => {
+    const out = computeFlight(props, { ...createBody(), vel: { x: 40, y: 0 } }, { ...idle, forward: 1 }, true, DT);
+    expect(out.localForce.x).toBe(100);
   });
 });

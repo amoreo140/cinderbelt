@@ -12,6 +12,7 @@ import { CollisionBand, type CollisionHud } from './FlightAssist';
 import { DockApproachView } from './DockApproach';
 import type { RadarContact, ThreatContact } from './radar';
 import type { DockPrompt, EdgeArrow, StationContact } from './stationHud';
+import { ASSISTED_SPEED } from '../sim/ship/control';
 import { Gauge, Key, KeyHint, Lamp, Odometer, Panel, Readout, RingBadge } from './theme';
 import type { MiningHudData } from '../game/miningView';
 import { MiningHeat } from './MiningHeat';
@@ -28,7 +29,7 @@ import { drawRadarGuild, drawRadarRock, drawRadarShip, drawRadarSites, drawRadar
 import type { GuildContact, SiteContact } from './radar';
 import { RadarLegend } from './RadarLegend';
 import { hudParts, isFresh } from './hudParts';
-import { consoleRules, stopTargetNear, type ConsoleRules } from './consoleRules';
+import { atAssistedCap, consoleRules, stopTargetNear, type ConsoleRules } from './consoleRules';
 import type { UiFeature } from '../game/onboarding/reveal';
 import { deepEqual, pure, sameDeep } from './pure';
 import {
@@ -71,6 +72,8 @@ export type { MapStation } from './discovery/MapView';
 export interface HudData {
   speed: number;
   dampers: boolean;
+  /** The pilot holds forward thrust (W) – with the speed at the cap it shows the assisted-flight note. */
+  thrusting?: boolean;
   fuel: number;
   fuelMax: number;
   energy: number;
@@ -405,6 +408,20 @@ const DampersPart = pure(function Dampers({ fresh }: { fresh: boolean }) {
   );
 });
 
+/** Assisted flight at its cruise cap: a short note and the key that frees the ship (Z). */
+const AssistedPart = pure(function Assisted() {
+  return (
+    <div class="hud-row hud-assisted" role="status" data-testid="hud-assisted">
+      <Lamp state="ok" />
+      <span>{tx().hud.assisted}</span>
+      <strong>{ASSISTED_SPEED}</strong>
+      <KeyHint keys="Z" dark>
+        {tx().hud.freeFlight}
+      </KeyHint>
+    </div>
+  );
+});
+
 /**
  * The console's gauge column: hull, fuel, energy always (thin bars); the shield (with the silhouette),
  * the laser heat (while mining) and the cargo (consoleRules.ts) when the situation asks for them.
@@ -580,10 +597,11 @@ const ConsolePart = pure(
         {status && <ShipStatusPart view={status} />}
         <div class="hud-console-main">
           <ConsoleGaugesPart {...gauges} />
-          {(rules.speed || rules.dampers || tractor) && (
+          {(rules.speed || rules.dampers || rules.cap || tractor) && (
             <div class="hud-console-rows">
               {rules.speed && <SpeedPart live={speed} fresh={speedNew} />}
               {rules.dampers && <DampersPart fresh={dampersNew} />}
+              {rules.cap && <AssistedPart />}
               {tractor && <TractorLinePart t={tractor} />}
             </div>
           )}
@@ -1133,6 +1151,7 @@ export function Hud(d: HudData) {
     dockApproach: !!d.prompt?.approach,
     stopTarget: stopTargetNear(d.goal?.distance ?? null),
     dampersOn: d.dampers,
+    atCap: atAssistedCap(d.speed, d.dampers, d.thrusting ?? false),
     tractor: d.pirates?.tractor?.active ?? false,
   });
   scope.update({

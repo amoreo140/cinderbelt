@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { createStarterShip } from '../../sim/ship/presets';
 import { computeProperties } from '../../sim/ship/properties';
-import { computeFlight } from '../../sim/ship/control';
+import { ASSISTED_SPEED, computeFlight } from '../../sim/ship/control';
 import { flightFuel } from '../../sim/ship/fuel';
-import { createBody, integrate, MAX_SPEED } from '../../sim/physics/body';
+import { createBody, integrate } from '../../sim/physics/body';
 import { SIM_DT } from '../../sim/Simulation';
 import { NO_SECURITY_OVERRIDES } from '../../sim/regions/world';
 import { sectorIdAt, sectorSecurity } from '../../sim/regions/sectors';
@@ -25,7 +25,7 @@ function simulateFlight(grid: ShipGrid, distance: number, cargoMass = 0): { seco
     const stop = (v * v) / (2 * brake);
     const thrusting = distance - body.pos.x > stop + v * SIM_DT;
     if (!thrusting && v === 0 && steps > 0) break;
-    const out = computeFlight(eff, body, { forward: thrusting ? 1 : 0, strafe: 0, turn: 0 }, true, SIM_DT);
+    const out = computeFlight(eff, body, { forward: thrusting ? 1 : 0, strafe: 0, turn: 0 }, true, SIM_DT, ASSISTED_SPEED);
     fuel += flightFuel(out, props.fuelUseMult, SIM_DT);
     body = integrate(body, out.force, out.torque, mass, eff.inertia, SIM_DT);
     steps++;
@@ -68,8 +68,8 @@ describe('routeEstimate', () => {
 
   it('a short trip never reaches top speed; the sector multiplier scales the fuel', () => {
     const s = ship(starter());
-    expect(routeEstimate(s, 50)!.peak).toBeLessThan(MAX_SPEED);
-    expect(routeEstimate(s, 5000)!.peak).toBe(MAX_SPEED);
+    expect(routeEstimate(s, 50)!.peak).toBeLessThan(ASSISTED_SPEED);
+    expect(routeEstimate(s, 5000)!.peak).toBe(ASSISTED_SPEED);
     expect(routeEstimate(s, 5000, { fuelMult: 1.3 })!.fuel).toBeCloseTo(routeEstimate(s, 5000)!.fuel * 1.3, 6);
   });
 
@@ -93,11 +93,11 @@ describe('routeRanges', () => {
 describe('routePlan', () => {
   const s = summarizeShip(starter());
   it('says how much fuel is missing when the tank does not reach ("not enough")', () => {
-    const far = routePlan({ from: { x: 0, y: 0 }, to: { x: 30000, y: 0 }, label: 'Far', ship: s, fuel: 20 });
+    const far = routePlan({ from: { x: 0, y: 0 }, to: { x: 30000, y: 0 }, label: 'Far', ship: s, fuel: 1 });
     expect(far.short).not.toBeNull();
     expect(far.short!).toBeGreaterThanOrEqual(1);
     expect(far.fuelLeft).toBe(0);
-    expect(far.short!).toBe(Math.ceil(far.fuel - 20));
+    expect(far.short!).toBe(Math.ceil(far.fuel - 1));
     const near = routePlan({ from: { x: 0, y: 0 }, to: { x: 1000, y: 0 }, label: 'Near', ship: s, fuel: 120 });
     expect(near.short).toBeNull();
     expect(near.fuelLeft).toBeCloseTo(120 - near.fuel, 9);
@@ -143,5 +143,16 @@ describe('routePlan', () => {
       sectors: { seed, overrides: NO_SECURITY_OVERRIDES, knowledge: () => 'uncharted', coverage: () => null, current: null },
     });
     expect(blind.risks).toEqual({ pirate: 0, contested: 0, unknown: ids.size });
+  });
+});
+
+describe('routeEstimate – assisted cruise', () => {
+  it('cruises at the assisted cap and burns fuel only in the run-up and the stop', () => {
+    const s = ship(starter());
+    const est = routeEstimate(s, 9000)!;
+    expect(est.peak).toBe(ASSISTED_SPEED);
+    // distance at the cap dominates the time
+    expect(est.seconds).toBeGreaterThan(9000 / ASSISTED_SPEED);
+    expect(est.seconds).toBeLessThan(9000 / ASSISTED_SPEED + 30);
   });
 });

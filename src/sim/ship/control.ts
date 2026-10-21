@@ -20,6 +20,11 @@ export interface FlightOutput {
   torque: number;
 }
 
+/** Cruise cap of the player's ship while its dampers are on (u/s) – assisted flight; free flight goes up to MAX_SPEED. */
+export const ASSISTED_SPEED = 25;
+/** How softly the dampers pull the speed down to the cap (s) – a short time constant instead of a hard clamp. */
+const CAP_TAU = 0.25;
+
 /** Below this speed along an axis the dampers stop the ship completely. */
 export const DAMPER_SNAP = 0.05;
 
@@ -60,6 +65,26 @@ function axisForce(
 const rcsShare = (force: number, posEngines: number, negEngines: number): number =>
   (force > 0 && !(posEngines > 0)) || (force < 0 && !(negEngines > 0)) ? force : 0;
 
+/**
+ * Assisted flight: when the velocity after this tick's pilot force would exceed `cap`, the net force on both
+ * axes is replaced by the one that eases the velocity to the capped target (same direction, speed `cap`) over
+ * `CAP_TAU`, limited by the damper authority of each direction. The engines cannot push beyond the cap, and an
+ * excess (dampers switched back on at 60 u/s) is braked with the ship's own thrusters. `localForce` is edited in place.
+ */
+function capSpeed(props: FlightProps, localForce: Vec2, lvx: number, lvy: number, cap: number, dt: number): void {
+  const k = dt / props.mass;
+  const px = lvx + localForce.x * k;
+  const py = lvy + localForce.y * k;
+  const speed = Math.hypot(px, py);
+  if (speed <= cap) return;
+  const f = cap / speed;
+  const t = props.thrust;
+  const rcs = props.rcsThrust;
+  const tau = Math.max(dt, CAP_TAU);
+  localForce.x = clamp((props.mass * (px * f - lvx)) / tau, -damperThrust(t.backward, rcs), damperThrust(t.forward, rcs));
+  localForce.y = clamp((props.mass * (py * f - lvy)) / tau, -damperThrust(t.right, rcs), damperThrust(t.left, rcs));
+}
+
 /** What the flight model reads of a ship (a reused view can stand in for the whole properties). */
 export type FlightProps = Pick<ShipProperties, 'thrust' | 'rcsThrust' | 'mass' | 'inertia' | 'torque'>;
 
@@ -69,6 +94,7 @@ export function computeFlight(
   input: FlightInput,
   dampers: boolean,
   dt: number,
+  speedCap = Infinity,
 ): FlightOutput {
   // rotate(body.vel, -body.angle) without the temporary
   const ca = Math.cos(-body.angle);
@@ -103,6 +129,7 @@ export function computeFlight(
       dt,
     ),
   };
+  if (speedCap < Infinity && dampers) capSpeed(props, localForce, lvx, lvy, speedCap, dt);
   const rcsForce = { x: rcsShare(localForce.x, t.forward, t.backward), y: rcsShare(localForce.y, t.left, t.right) };
 
   const torque =

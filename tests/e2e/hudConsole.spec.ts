@@ -97,3 +97,24 @@ test('radar legend on demand: held "?" pins it, no longer open with the help; th
   expect(chip.x + chip.width).toBeGreaterThan(view.width / 2);
   expect(chip.y).toBeGreaterThan(view.height / 2);
 });
+
+test('assisted flight: holding thrust reaches the 25 u/s cap and shows the note; Z frees the ship', async ({ page }) => {
+  test.setTimeout(180_000);
+  await loadFixture(page, 'rich-rock');
+  await expect(page.getByTestId('hud-assisted')).toHaveCount(0);
+  // the fixture's bow points at a rock: turn away so the way is open
+  await page.evaluate(() => {
+    const body = window.__cinder!.sim.state.player.body;
+    body.angle += Math.PI;
+  });
+  await page.keyboard.down('KeyW');
+  await expect(page.getByTestId('hud-assisted')).toBeVisible({ timeout: 40_000 });
+  await expect(page.getByTestId('hud-assisted')).toContainText('25');
+  const speed = await page.evaluate(() => Math.hypot(window.__cinder!.sim.state.player.body.vel.x, window.__cinder!.sim.state.player.body.vel.y));
+  expect(speed).toBeLessThanOrEqual(25.01);
+  await page.screenshot({ path: `${OUT}/hudconsole-assisted.png` });
+  // dampers off: free flight, the note goes away
+  await page.keyboard.press('KeyZ');
+  await expect(page.getByTestId('hud-assisted')).toHaveCount(0);
+  await page.keyboard.up('KeyW');
+});

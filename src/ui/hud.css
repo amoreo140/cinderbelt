@@ -121,6 +121,23 @@
   color: var(--af-text-dim);
   white-space: nowrap;
 }
+.hud-assisted {
+  font-family: var(--af-font-display);
+  font-stretch: var(--af-stretch-label);
+  letter-spacing: var(--af-track-label);
+  text-transform: uppercase;
+  font-size: var(--af-fs-xs);
+  font-weight: 650;
+  color: var(--af-text-dim);
+  white-space: nowrap;
+}
+.hud-assisted strong {
+  color: var(--af-ok);
+  font-weight: 700;
+}
+.hud-assisted .af-keyhint {
+  margin-left: auto;
+}
 .hud-dampers strong {
   color: var(--af-ok);
   font-weight: 700;

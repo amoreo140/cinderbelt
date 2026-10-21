@@ -6,7 +6,7 @@
 // with the current security) and the range circles (one way = `fuelRange`, round trip = half).
 // Pure; the game layer (T9) keeps the picked target and calls `routePlan` for the map's data.
 import { fuelRange, travelFuel, type ShipSummary } from '../partEffect';
-import { MAX_SPEED } from '../../sim/physics/body';
+import { ASSISTED_SPEED } from '../../sim/ship/control';
 import { FUEL_PER_FORCE_SECOND } from '../../sim/ship/fuel';
 import type { Vec2 } from '../../sim/math/vec2';
 import type { Knowledge } from '../../sim/regions/constants';
@@ -30,20 +30,20 @@ export interface RouteEstimate {
   seconds: number;
   /** Fuel the flight burns. */
   fuel: number;
-  /** The highest speed on the way (u/s): MAX_SPEED unless the trip is too short to reach it. */
+  /** The highest speed on the way (u/s): ASSISTED_SPEED unless the trip is too short to reach it. */
   peak: number;
 }
 
 /**
- * Time and fuel of a straight flight of `distance` from rest to a stop: full forward thrust (the
- * engines keep burning while the speed is capped, as in the simulation), then braking with the
+ * Time and fuel of a straight flight of `distance` from rest to a stop: full forward thrust up to the
+ * assisted cruise cap (dampers on; the engines idle at the cap, so fuel burns only in the run-up), then braking with the
  * reverse engines – or the cockpit RCS on a ship without them (the dampers' rule, control.ts). A trip
  * too short for top speed accelerates and brakes at once. Null when the ship has no forward thrust.
  */
 export function routeEstimate(ship: RouteShip, distance: number, options: RouteOptions = {}): RouteEstimate | null {
   const mass = ship.mass + (options.cargoMass ?? 0);
   const mult = options.fuelMult ?? 1;
-  const travel = travelFuel(ship.thrust.forward, mass, ship.fuelUseMult);
+  const travel = travelFuel(ship.thrust.forward, mass, ship.fuelUseMult, ASSISTED_SPEED);
   if (!travel) return null;
   const d = Math.max(0, distance);
   // braking: reverse engines at the engines' fuel rate, else the RCS at the base rate (fuel.ts)
@@ -56,11 +56,11 @@ export function routeEstimate(ship: RouteShip, distance: number, options: RouteO
   if (brake <= 0) {
     // nothing brakes: the ship arrives at speed
     const t = travel.seconds(d);
-    return { seconds: t, fuel: t * travel.fuelPerSecond * mult, peak: Math.min(MAX_SPEED, travel.accel * t) };
+    return { seconds: t, fuel: Math.min(t, travel.runUp) * travel.fuelPerSecond * mult, peak: Math.min(ASSISTED_SPEED, travel.accel * t) };
   }
   const a = travel.accel;
   const runUpDistance = travel.distance(travel.runUp);
-  const brakeDistance = (MAX_SPEED * MAX_SPEED) / (2 * brake);
+  const brakeDistance = (ASSISTED_SPEED * ASSISTED_SPEED) / (2 * brake);
   if (d < runUpDistance + brakeDistance) {
     // a triangle: accelerate to `peak`, brake from it at once
     const peak = Math.sqrt((2 * d * a * brake) / (a + brake));
@@ -68,7 +68,7 @@ export function routeEstimate(ship: RouteShip, distance: number, options: RouteO
     return { seconds: up + peak / brake, fuel: (up * travel.fuelPerSecond + brakeFuel(peak)) * mult, peak };
   }
   const thrust = travel.seconds(d - brakeDistance);
-  return { seconds: thrust + MAX_SPEED / brake, fuel: (thrust * travel.fuelPerSecond + brakeFuel(MAX_SPEED)) * mult, peak: MAX_SPEED };
+  return { seconds: thrust + ASSISTED_SPEED / brake, fuel: (Math.min(thrust, travel.runUp) * travel.fuelPerSecond + brakeFuel(ASSISTED_SPEED)) * mult, peak: ASSISTED_SPEED };
 }
 
 /**

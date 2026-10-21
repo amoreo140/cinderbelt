@@ -136,7 +136,7 @@ export const deParts: PartsTexts = {
     tractorEnergy: 'Wie viel Energie pro Sekunde der Strahl verbraucht, solange er ein Objekt hält.',
     turn180: 'Wie viele Sekunden es dauert, das Schiff umzudrehen und anzuhalten. Ein Gyroskop verkürzt das; jedes schwere Teil verlängert es – am meisten eines weit weg vom Schwerpunkt.',
     accel: 'Wie viele E/s das Schiff pro Sekunde vollen Vorwärtsschubs gewinnt (mit leerem Frachtraum).',
-    topSpeedTime: 'Wie viele Sekunden das Schiff aus dem Stand bis zur Höchstgeschwindigkeit von 60 E/s braucht.',
+    topSpeedTime: 'Wie viele Sekunden das Schiff aus dem Stand bis zur Reisegeschwindigkeit von 25 E/s bei eingeschalteten Dämpfern braucht.',
     brakeTime: 'Wie viele Sekunden nach vorn gerichtete Triebwerke brauchen, um das Schiff aus voller Fahrt anzuhalten. Ohne sie bremsen nur die schwachen Steuerdüsen des Cockpits.',
     fuelRange: 'Wie weit du ungefähr mit vollem Tank bei gehaltenem Schub kommst (leerer Frachtraum, keine Strömungen). Mehr Triebwerke verbrennen mehr.',
     energyMining: 'Energieerzeugung minus Verbrauch aller Laser. Negativ = die Batterie leert sich beim Abbau.',
