@@ -166,7 +166,7 @@ export class GameRenderer {
   private readonly dust: SpaceDust;
   /** Flight-path marker, stopping point, collision ring (M3.8). */
   private readonly markers = new FlightMarkers();
-  /** The dock clamp marker: tolerance ring, approach chevrons, latch (docking manoeuvre). */
+  /** The dock clamp marker: tolerance ring, latch (docking manoeuvre). */
   private readonly dockMarker = new DockMarker();
   /** Red brackets with HP and shield bars under pirate ships (readability R3). */
   private readonly enemyMarkers = new EnemyMarkers();
@@ -502,7 +502,7 @@ export class GameRenderer {
   }
 
   /** Flight markers on screen (M3.8, tests). */
-  flightMarkerStats(): { prograde: boolean; stop: boolean; obstacle: boolean } {
+  flightMarkerStats(): { prograde: boolean; stop: boolean; obstacle: boolean; bow: boolean; bowOpacity: number } {
     return this.markers.stats();
   }
 
@@ -1234,7 +1234,10 @@ export class GameRenderer {
     const player = this.sim.state.player;
     const flying = player.dock.mode === 'flying' && !player.destroyed;
     this.markers.object.visible = flying;
-    if (!flying) return;
+    if (!flying) {
+      this.markers.rest();
+      return;
+    }
     const mass = player.props.mass + cargoMass(player.cargo);
     const stop = player.dampers && player.fuel > 0 ? stoppingPoint(player.props, mass, { pos, vel, angle }) : null;
     this.markers.update({
@@ -1244,6 +1247,7 @@ export class GameRenderer {
       stop,
       marker: this.assist.marker,
       collision: this.assist.collision,
+      angle,
       cameraDistance: this.rig.viewDistance,
       time: this.time,
       reducedMotion: this.assist.reducedMotion,

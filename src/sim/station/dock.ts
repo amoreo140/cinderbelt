@@ -1,6 +1,6 @@
 // Docking (spec M2, ch. 7.2; manoeuvre rules of 2026-10-17): the conditions, the dock and undock poses.
-// The ship docks only by the dock clamp at the tip of the station's arm: close to the docking point,
-// slow and with the bow along the dock axis; then a short latch pulls it into the dock pose.
+// The ship docks only by the dock clamp at the tip of the station's arm: close to the docking point and
+// slow, at any heading; then a short latch turns it (the shorter way) into the dock pose.
 import { normalizeAngle } from '../math/angle';
 import { add, dot, length, rotate, scale, sub, type Vec2 } from '../math/vec2';
 import type { Body } from '../physics/body';
@@ -22,9 +22,9 @@ export interface DockRules {
   maxAngle: number | null;
 }
 
-/** The manoeuvre (difficulty "Mierne"): within 4 u of the clamp, at most 3 u/s, bow within ±35°. */
-export const DOCK_RULES: DockRules = { range: 4, maxSpeed: 3, maxAngle: (35 * Math.PI) / 180 };
-/** The Archive's docking computer: 12 u, 6 u/s, any heading – the computer flies the approach. */
+/** The manoeuvre: within 4 u of the clamp, at most 3 u/s, any heading (the latch turns the ship). */
+export const DOCK_RULES: DockRules = { range: 4, maxSpeed: 3, maxAngle: null };
+/** The Archive's docking computer: a longer reach (12 u) and a higher speed (6 u/s). */
 export const DOCKING_COMPUTER_RULES: DockRules = { range: 12, maxSpeed: 6, maxAngle: null };
 /** The approach readout and the clamp marker show within this distance of a docking point. */
 export const DOCK_APPROACH_RANGE = 25;

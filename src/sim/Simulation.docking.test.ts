@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { STARTING_CREDITS } from '../data/economy';
+import { normalizeAngle } from './math/angle';
 import { IDLE_COMMAND, type GameAction, type GameActionInput, type PlayerCommand } from './commands';
 import { createBody } from './physics/body';
 import { Simulation, type SimEvent } from './Simulation';
@@ -133,15 +134,26 @@ describe('docking', () => {
     if (rejected?.type === 'dockRejected') expect(rejected.speed).toBeCloseTo(DOCK_RULES.maxSpeed + 0.05, 1);
   });
 
-  it('rejects a bow off the dock axis and accepts one within ±35°', () => {
-    const off = newGame();
-    flyingAt(off, 1, 0, 1);
-    const rejected = off.step(dock).find((e) => e.type === 'dockRejected');
-    expect(rejected).toMatchObject({ reason: 'misaligned' });
-    if (rejected?.type === 'dockRejected') expect(rejected.angle).toBeCloseTo(1, 1);
-    const ok = newGame();
-    flyingAt(ok, 1, 0, -0.55);
-    expect(ok.step(dock)).toContainEqual({ type: 'dockingStarted', stationId: HOME_STATION_ID });
+  it('docks at any heading and the latch turns the ship the shorter way into the dock heading', () => {
+    for (const turn of [1, -0.55, Math.PI, 2.9, -2.9]) {
+      const sim = newGame();
+      flyingAt(sim, 1, 0, turn);
+      const start = sim.state.player.body.angle;
+      expect(sim.step(dock)).toContainEqual({ type: 'dockingStarted', stationId: HOME_STATION_ID });
+      const to = dockPose(homeStation(), sim.state.player.props.boundingRadius).angle;
+      let prev = Math.abs(normalizeAngle(start - to));
+      let travelled = 0;
+      for (let i = 0; i < DOCKING_TICKS && sim.state.player.dock.mode === 'docking'; i++) {
+        sim.step(IDLE_COMMAND);
+        const left = Math.abs(normalizeAngle(sim.state.player.body.angle - to));
+        expect(left, `turn ${turn} tick ${i}`).toBeLessThanOrEqual(prev + 1e-9);
+        travelled += prev - left;
+        prev = left;
+      }
+      expect(sim.state.player.dock.mode).toBe('docked');
+      expect(sim.state.player.body.angle).toBeCloseTo(to);
+      expect(travelled).toBeLessThanOrEqual(Math.PI + 1e-6);
+    }
   });
 
   it('the docking computer from the Archive relaxes the rules (12 u, 6 u/s, any heading)', () => {

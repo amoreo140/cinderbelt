@@ -141,10 +141,11 @@ describe('home colliders', () => {
 describe('the dock stays clear', () => {
   it('no module circle reaches into the approach cone of the dock clamp', () => {
     const { radius } = STATION_LAYOUTS.station_home;
-    const half = DOCK_RULES.maxAngle!;
+    // the old ±35° alignment cone: kept as a design margin for the approach lane
+    const half = (35 * Math.PI) / 180;
     for (const m of HOME_MODULE_IDS) {
       for (const c of HOME_MODULES[m].circles) {
-        // cone: apex at the dock port (R, 0), axis +x, half angle = the manoeuvre's alignment limit,
+        // cone: apex at the dock port (R, 0), axis +x, half angle = 35°,
         // DOCK_APPROACH_RANGE long – distance from the circle centre to the cone surface > r
         const dx = c.x - radius;
         const dy = Math.abs(c.y);

@@ -476,7 +476,7 @@ function mockHud(ring: number): HudData {
   };
 }
 
-/** Approach readout states for the kit: far, too fast, misaligned, ready, the docking computer. */
+/** Approach readout states for the kit: far, too fast, ready, the docking computer. */
 const kitDock = (status: DockCheck['status'], distance: number, speed: number, deg: number, rules = DOCK_RULES): DockCheck => ({
   status,
   station: homeStation(),
@@ -489,7 +489,6 @@ const kitDock = (status: DockCheck['status'], distance: number, speed: number, d
 const KIT_DOCK: DockCheck[] = [
   kitDock('tooFar', 14.2, 6.1, 72),
   kitDock('tooFast', 3.1, 4.4, 18),
-  kitDock('misaligned', 2.2, 1.2, 51),
   kitDock('ok', 1.6, 0.8, 9),
   kitDock('ok', 9.5, 4.2, 140, DOCKING_COMPUTER_RULES),
 ];

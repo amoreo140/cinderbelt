@@ -24,9 +24,9 @@ export const deTraining: TrainingTexts = {
     tooFastToMine: 'Der Laser reicht nur kurz – flieg nah heran und werd langsamer.',
     goDock: [
       { keys: [], text: 'Flieg langsam zur Andockklammer am Ende des Arms' },
-      { keys: ['F'], text: 'dreh den Bug zur Station und drück F' },
+      { keys: ['F'], text: 'werd an der Klammer langsam und drück F' },
     ],
-    slowForDock: 'Die Klammer fängt das Schiff nur, wenn es langsam fliegt und der Bug zur Station zeigt.',
+    slowForDock: 'Die Klammer fängt das Schiff nur, wenn es langsam fliegt.',
     sellAll: { keys: [], text: 'Drück „Ganze Fracht verkaufen“' },
     openOverview: { keys: ['1'], text: 'Öffne die Übersicht' },
     openShipyard: { keys: ['3'], text: 'Öffne die Werft' },

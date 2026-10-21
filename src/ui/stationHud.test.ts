@@ -34,7 +34,6 @@ describe('dockPrompt', () => {
     expect(p.approach!.items).toEqual([
       { id: 'distance', label: 'Svorka', value: '2,3 j', limit: '≤ 4 j', ok: true },
       { id: 'speed', label: 'Rýchlosť', value: '1,5 j/s', limit: '≤ 3 j/s', ok: true },
-      { id: 'bow', label: 'Príď', value: '12°', limit: '≤ 35°', ok: true },
     ]);
     expect(p.approach!.computer).toBe(false);
   });
@@ -42,22 +41,18 @@ describe('dockPrompt', () => {
   it('marks each item out of tolerance and says what to fix first', () => {
     const far = dockPrompt(check('tooFar', 9.6, 5, deg(80)), 'Kotva')!;
     expect(far).toMatchObject({ text: 'Prileť k dokovacej svorke na konci ramena', kind: 'info' });
-    expect(far.approach!.items.map((i) => i.ok)).toEqual([false, false, false]);
+    expect(far.approach!.items.map((i) => i.ok)).toEqual([false, false]);
     const fast = dockPrompt(check('tooFast', 3, 4.25, deg(10)), 'Kotva')!;
     expect(fast).toMatchObject({ text: 'Spomaľ', kind: 'warn' });
-    expect(fast.approach!.items.map((i) => i.ok)).toEqual([true, false, true]);
+    expect(fast.approach!.items.map((i) => i.ok)).toEqual([true, false]);
     expect(fast.approach!.items[1]!.value).toBe('4,3 j/s');
-    const turned = dockPrompt(check('misaligned', 3, 1, deg(50)), 'Kotva')!;
-    expect(turned).toMatchObject({ text: 'Natoč príď k stanici', kind: 'warn' });
-    expect(turned.approach!.items.map((i) => i.ok)).toEqual([true, true, false]);
   });
 
-  it('shows the relaxed limits of the docking computer and no heading rule', () => {
+  it('shows the relaxed limits of the docking computer and no heading item', () => {
     const p = dockPrompt(check('ok', 10, 5.5, deg(170), DOCKING_COMPUTER_RULES), 'Kotva')!;
     expect(p.kind).toBe('ok');
     expect(p.approach!.computer).toBe(true);
-    expect(p.approach!.items.map((i) => i.limit)).toEqual(['≤ 12 j', '≤ 6 j/s', '']);
-    expect(p.approach!.items[2]).toMatchObject({ value: 'ľubovoľne', ok: true });
+    expect(p.approach!.items.map((i) => i.limit)).toEqual(['≤ 12 j', '≤ 6 j/s']);
   });
 
   it('stays silent beyond the approach range and without a station', () => {
@@ -87,7 +82,7 @@ describe('DockReadoutGate', () => {
     return gate;
   };
 
-  it('hides the readout right after undocking, while the bow still points away from the station', () => {
+  it('hides the readout right after undocking, while the ship sits in the undock pose', () => {
     const gate = undocked();
     expect(shown(gate, 'flying', undockPose(home, R))).toBe(false);
     // parked in the undock pose for a long while – still leaving, not approaching
@@ -102,13 +97,13 @@ describe('DockReadoutGate', () => {
     expect(shown(gate, 'flying', at(15, 6, 0.3))).toBe(false);
   });
 
-  it('shows the readout once the departing ship turns its bow back to the station or closes in', () => {
-    const turned = undocked();
-    expect(shown(turned, 'flying', at(0.5, 0, 0.4))).toBe(true);
+  it('shows the readout once the departing ship closes in', () => {
+    const hovering = undocked();
+    expect(shown(hovering, 'flying', at(0.5, 0, 0.4))).toBe(false);
     // reversing in with the bow away still counts as an approach
     const reversing = undocked();
     expect(shown(reversing, 'flying', at(6, -1.5, Math.PI))).toBe(true);
-    // the departure is over – drifting at rest with the bow away now shows the red bow item
+    // the departure is over – drifting at rest now shows the readout
     expect(shown(reversing, 'flying', at(5, 0, Math.PI))).toBe(true);
   });
 
@@ -145,7 +140,6 @@ describe('dockRejectedText', () => {
     const e = { distance: 7.26, speed: 4.51, angle: deg(62.4) };
     expect(dockRejectedText({ ...e, reason: 'tooFar' }, DOCK_RULES)).toBe('Príliš ďaleko od dokovacej svorky: 7,3 j (treba do 4 j)');
     expect(dockRejectedText({ ...e, reason: 'tooFast' }, DOCK_RULES)).toBe('Príliš rýchlo na pristátie: 4,5 j/s (treba do 3 j/s)');
-    expect(dockRejectedText({ ...e, reason: 'misaligned' }, DOCK_RULES)).toBe('Príď nemieri k stanici: odchýlka 62° (treba do 35°)');
     expect(dockRejectedText({ ...e, reason: 'noStation' }, DOCK_RULES)).toBe('V okolí nie je žiadna stanica');
     expect(dockRejectedText({ ...e, reason: 'tooFast' }, DOCKING_COMPUTER_RULES)).toBe('Príliš rýchlo na pristátie: 4,5 j/s (treba do 6 j/s)');
   });

@@ -204,8 +204,8 @@ export const deComms: CommsTexts = {
         'Eisen ist dein erstes Einkommen. Flieg nah an den Felsen, brems ab und ziel auf die leuchtende Ader – da geht es am schnellsten.',
       ],
       dockSell: [
-        'Flieg heim und verkauf das Eisen. Komm langsam und mit dem Bug voran an die Klammer, sonst fängt sie dich nicht. Für den ersten Verkauf bekommst du von der Gilde zwei Seitentriebwerke.',
-        'Ab nach Hause, Pilot. Brems an der Klammer ab, dreh den Bug zur Station und drück F. Für das Eisen gibt dir die Gilde zwei Seitentriebwerke.',
+        'Flieg heim und verkauf das Eisen. Komm langsam an die Klammer, sonst fängt sie dich nicht. Für den ersten Verkauf bekommst du von der Gilde zwei Seitentriebwerke.',
+        'Ab nach Hause, Pilot. Brems an der Klammer ab und drück F. Für das Eisen gibt dir die Gilde zwei Seitentriebwerke.',
       ],
       installSide: [
         'Die Seitentriebwerke liegen im Lager. Bau sie in der Werft an die Seiten, Düse nach außen – dann stoppen die Dämpfer ein seitliches Rutschen sofort, nicht nur langsam über die Düsen.',
@@ -254,7 +254,7 @@ export const deComms: CommsTexts = {
       finishShip: ['Reaktor, Radar, Gyroskop, ein Haupttriebwerk – alles liegt im Lager.', 'Das Ausbildungsfenster zeigt, was noch fehlt. Dann Enter.'],
     },
     nudgeUndock: ['Erst abdocken – die Schaltfläche Abdocken oder F.', 'Im Dock lernst du das nicht. Dock ab, Pilot.'],
-    nudgeDock: ['Dock an der Station an: langsam zur Klammer, Bug zur Station, dann F.', 'Die Teile warten im Lager der Station. Dock an, Pilot.'],
+    nudgeDock: ['Dock an der Station an: langsam zur Klammer, dann F.', 'Die Teile warten im Lager der Station. Dock an, Pilot.'],
   },
   firstContact: {
     pirate: ['Sieh an, ein frisches Schiff der Gilde. Dein Übungsflug endet hier, Bergmann.', 'Ein grüner Pilot in unserem Raum? Heute wird ein guter Fang.'],

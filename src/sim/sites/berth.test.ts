@@ -44,11 +44,10 @@ describe('berth rules', () => {
     }
   });
 
-  it('uses the station manoeuvre rules: too far, too fast, misaligned', () => {
+  it('uses the station manoeuvre rules: too far, too fast', () => {
     const cases: [string, (sim: ReturnType<typeof atClamp>) => void][] = [
       ['tooFar', (sim) => (sim.state.player.body = { ...sim.state.player.body, pos: { x: sim.state.player.body.pos.x + Math.cos(site.angle) * 8, y: sim.state.player.body.pos.y + Math.sin(site.angle) * 8 } })],
       ['tooFast', (sim) => (sim.state.player.body = { ...sim.state.player.body, vel: { x: 4, y: 0 } })],
-      ['misaligned', (sim) => (sim.state.player.body = { ...sim.state.player.body, angle: sim.state.player.body.angle + 1 })],
     ];
     for (const [reason, apply] of cases) {
       const sim = atClamp(SEED, site);

@@ -25,7 +25,7 @@ export interface TrainingTexts {
     mine: GuideLine;
     vein: string;
     tooFastToMine: string;
-    /** Docking (taught as the manoeuvre at the dock clamp: slow, bow to the station, F). */
+    /** Docking (taught as the manoeuvre at the dock clamp: slow, F). */
     goDock: readonly GuideLine[];
     slowForDock: string;
     sellAll: GuideLine;
@@ -132,9 +132,9 @@ export const skTraining: TrainingTexts = {
     tooFastToMine: 'Laser dočiahne len kúsok – priblíž sa a spomaľ.',
     goDock: [
       { keys: [], text: 'Prileť pomaly k dokovacej svorke na konci ramena' },
-      { keys: ['F'], text: 'natoč sa prídou ku stanici a stlač F' },
+      { keys: ['F'], text: 'spomaľ pri svorke a stlač F' },
     ],
-    slowForDock: 'Svorka loď prichytí, len keď letí pomaly a mieri prídou ku stanici.',
+    slowForDock: 'Svorka loď prichytí, len keď letí pomaly.',
     sellAll: { keys: [], text: 'Stlač „Predať celý náklad“' },
     openOverview: { keys: ['1'], text: 'Otvor Prehľad' },
     openShipyard: { keys: ['3'], text: 'Otvor Lodenicu' },

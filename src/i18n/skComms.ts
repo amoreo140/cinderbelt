@@ -437,8 +437,8 @@ export const skComms: CommsTexts = {
         'Železo je tvoj prvý zárobok. Priblíž sa ku kameňu, spomaľ a mier na svietiacu žilu – tá ide najrýchlejšie.',
       ],
       dockSell: [
-        'Leť domov a predaj železo. Ku svorke prileť pomaly a prídou k stanici, inak ťa nezachytí. Za prvý predaj máš od Cechu dva bočné motory.',
-        'Domov, pilot. Pri svorke spomaľ, natoč prídu k stanici a stlač F. Za predaj železa ti Cech dá dva bočné motory.',
+        'Leť domov a predaj železo. Ku svorke prileť pomaly, inak ťa nezachytí. Za prvý predaj máš od Cechu dva bočné motory.',
+        'Domov, pilot. Pri svorke spomaľ a stlač F. Za predaj železa ti Cech dá dva bočné motory.',
       ],
       installSide: [
         'Bočné motory máš v sklade. V Lodenici ich namontuj po bokoch, tryskou von z lode – tlmiče nimi zastavia šmyk do strán hneď, nie len pomaly tryskami.',
@@ -487,7 +487,7 @@ export const skComms: CommsTexts = {
       finishShip: ['Reaktor, radar, gyroskop, motor dopredu – všetko je v sklade.', 'Panel výcviku ukazuje, čo ešte chýba. Potom Enter.'],
     },
     nudgeUndock: ['Najprv odleť – tlačidlo Odletieť alebo F.', 'Toto sa v doku nenaučíš. Odleť, pilot.'],
-    nudgeDock: ['Pristaň na stanici: pomaly k svorke, prídou k stanici, potom F.', 'Diely čakajú v sklade stanice. Pristaň, pilot.'],
+    nudgeDock: ['Pristaň na stanici: pomaly k svorke, potom F.', 'Diely čakajú v sklade stanice. Pristaň, pilot.'],
   },
   firstContact: {
     pirate: ['Pozrime sa, nová loď Cechu. Tu sa končí tvoja cvičná trasa, ťažiar.', 'Čerstvý pilot na našom území? Dnes to bude pekný úlovok.'],

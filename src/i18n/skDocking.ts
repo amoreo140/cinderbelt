@@ -12,30 +12,25 @@ export interface DockingTexts {
     /** Item labels (stencil). */
     distance: string;
     speed: string;
-    bow: string;
     /** Units. */
     distanceUnit: string;
     speedUnit: string;
     degree: string;
     /** The limit next to a value: "≤ 4 j". */
     limit: (value: string) => string;
-    /** The bow item with the docking computer (no heading rule). */
-    anyHeading: string;
     /** Tag of the band when the docking computer relaxes the rules. */
     computer: string;
     /** What to fix first when an item is out of tolerance. */
-    fix: { tooFar: string; tooFast: string; misaligned: string };
+    fix: { tooFar: string; tooFast: string };
   };
   /** Toasts after F away from the tolerances (formatted numbers). */
   rejected: {
     tooFar: (distance: string, max: string) => string;
     tooFast: (speed: string, max: string) => string;
-    misaligned: (degrees: string, max: string) => string;
     noStation: string;
   };
-  /** The hint while the clamp pulls the ship in (manoeuvre) or the computer flies it (Archive). */
+  /** The hint while the clamp pulls the ship in and turns it to the dock heading. */
   latch: string;
-  autoApproach: string;
   /** The Archive node "Docking computer". */
   archive: { name: string; effect: string };
 }
@@ -46,29 +41,24 @@ export const skDocking: DockingTexts = {
     title: 'Dokovanie',
     distance: 'Svorka',
     speed: 'Rýchlosť',
-    bow: 'Príď',
     distanceUnit: 'j',
     speedUnit: 'j/s',
     degree: '°',
     limit: (value) => `≤ ${value}`,
-    anyHeading: 'ľubovoľne',
     computer: 'Dokovací počítač',
     fix: {
       tooFar: 'Prileť k dokovacej svorke na konci ramena',
       tooFast: 'Spomaľ',
-      misaligned: 'Natoč príď k stanici',
     },
   },
   rejected: {
     tooFar: (d, max) => `Príliš ďaleko od dokovacej svorky: ${d} j (treba do ${max} j)`,
     tooFast: (v, max) => `Príliš rýchlo na pristátie: ${v} j/s (treba do ${max} j/s)`,
-    misaligned: (deg, max) => `Príď nemieri k stanici: odchýlka ${deg}° (treba do ${max}°)`,
     noStation: 'V okolí nie je žiadna stanica',
   },
   latch: 'Svorka zachytáva loď…',
-  autoApproach: 'Dokovací počítač vedie loď k svorke…',
   archive: {
     name: 'Dokovací počítač',
-    effect: 'Pristátie do 12 j od dokovacej svorky, do 6 j/s a v akomkoľvek natočení – loď k svorke dovedie počítač.',
+    effect: 'Pristátie až do 12 j od dokovacej svorky a pri rýchlosti do 6 j/s.',
   },
 };

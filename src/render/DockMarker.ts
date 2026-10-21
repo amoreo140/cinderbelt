@@ -2,21 +2,19 @@
 // everything like the flight markers (M3.8) and in their colours:
 // - a dashed ring around the docking point (where the docked ship's centre sits by the clamp) with the
 //   radius of the docking tolerance, and a small solid target ring in its middle;
-// - chevrons along the dock axis outside the ring, pointing at the station – the approach line and the
-//   heading the bow must hold (manoeuvre rules only; the docking computer takes any heading);
-// - glow while approaching, green when all three rules are met; during the latch the ring closes on the
+// - glow while approaching, green when the distance and the speed are in tolerance (any heading docks); during the latch the ring closes on the
 //   target in green.
 // Shown within DOCK_APPROACH_RANGE of a docking point together with the HUD readout (hidden while the
 // ship departs or moves away – ui/stationHud.ts DockReadoutGate); reads the simulation state only.
 // A derelict's clamp (M4b) gets the same marker once all its relays are powered (`clampPowered`) and it
 // is the nearest dock target (`nearestBerth`); the berth's latch closes the ring like a station's. The
 // berth has its own small gate: hidden while the ship pulls away, and after leaving until it closes in again.
-import { Color, DoubleSide, Group, Mesh, MeshBasicMaterial, RingGeometry, Shape, ShapeGeometry, type BufferGeometry, type Material } from 'three';
+import { Color, DoubleSide, Group, Mesh, MeshBasicMaterial, RingGeometry, type BufferGeometry, type Material } from 'three';
 import type { Vec2 } from '../sim/math/vec2';
 import type { SimState } from '../sim/Simulation';
 import { berthLatched, derelictDockTarget, nearestBerth } from '../sim/sites/berth';
 import { derelictById } from '../sim/sites/derelict';
-import { checkDock, DOCK_APPROACH_RANGE, DOCKING_TICKS, dockHeading, dockPoint, smoothstep, type DockCheck, type DockTarget } from '../sim/station/dock';
+import { checkDock, DOCK_APPROACH_RANGE, DOCKING_TICKS, dockPoint, smoothstep, type DockCheck, type DockTarget } from '../sim/station/dock';
 import { playerDockRules } from '../sim/station/dockRules';
 import { PALETTE } from '../ui/theme/tokens';
 import { simToWorld } from './coords';
@@ -36,7 +34,7 @@ const CLOSING_SPEED = 0.3;
 
 export interface DockMarkerStats {
   visible: boolean;
-  /** All three rules met (green). */
+  /** Distance and speed in tolerance (green). */
   ready: boolean;
   /** The latch runs. */
   latch: boolean;
@@ -48,10 +46,8 @@ export class DockMarker {
   readonly object = new Group();
   private readonly ring: Mesh;
   private readonly target: Mesh;
-  private readonly chevrons = new Group();
   private readonly ringMat: MeshBasicMaterial;
   private readonly targetMat: MeshBasicMaterial;
-  private readonly chevronMat: MeshBasicMaterial;
   /** Dashed ring geometries per tolerance radius (the dash width stays constant). */
   private readonly rings = new Map<number, BufferGeometry>();
   private readonly geometries: BufferGeometry[] = [];
@@ -68,21 +64,9 @@ export class DockMarker {
       this.own(new MeshBasicMaterial({ color: PALETTE.glow, transparent: true, opacity, depthTest: false, depthWrite: false, side: DoubleSide, forceSinglePass: true }));
     this.ringMat = basic(0.85);
     this.targetMat = basic(0.9);
-    this.chevronMat = basic(0.7);
     this.ring = new Mesh(this.ringGeometry(4), this.ringMat);
     this.target = new Mesh(this.geo(new RingGeometry(0.38, 0.5, 32).rotateX(-Math.PI / 2)), this.targetMat);
-    // chevrons: local +x = towards the station
-    const shape = new Shape();
-    shape.moveTo(0.3, 0);
-    shape.lineTo(-0.05, 0.42);
-    shape.lineTo(-0.25, 0.42);
-    shape.lineTo(0.1, 0);
-    shape.lineTo(-0.25, -0.42);
-    shape.lineTo(-0.05, -0.42);
-    shape.closePath();
-    const chevron = this.geo(new ShapeGeometry(shape).rotateX(-Math.PI / 2));
-    for (let i = 0; i < 3; i++) this.chevrons.add(new Mesh(chevron, this.chevronMat));
-    for (const o of [this.ring, this.target, this.chevrons]) {
+    for (const o of [this.ring, this.target]) {
       o.renderOrder = 19;
       o.traverse((c) => (c.renderOrder = 19));
       this.object.add(o);
@@ -125,7 +109,6 @@ export class DockMarker {
       const k = smoothstep((state.tick - dock.startTick) / DOCKING_TICKS);
       const radius = rules.range + (LATCH_RADIUS - rules.range) * k;
       this.place(dock.to.pos, radius, rules.range, 1, true);
-      this.chevrons.visible = false;
       this.last = { visible: true, ready: true, latch: true, point: dock.to.pos };
       return;
     }
@@ -133,27 +116,15 @@ export class DockMarker {
 
     const check = checkDock(player.body, player.props.boundingRadius, world.stations(), rules);
     if (!check.station || !check.point || check.distance > FADE_FROM) return;
-    this.approach(check, rules.range, rules.maxAngle !== null);
+    this.approach(check, rules.range);
   }
 
-  /** The approach marker of a dock check within FADE_FROM: ring, target and the chevrons along the axis. */
-  private approach<T extends DockTarget>(check: DockCheck<T>, range: number, chevrons: boolean): void {
+  /** The approach marker of a dock check within FADE_FROM: the tolerance ring and the target. */
+  private approach<T extends DockTarget>(check: DockCheck<T>, range: number): void {
     if (!check.station || !check.point) return;
     const t = Math.min(1, Math.max(0, (FADE_FROM - check.distance) / (FADE_FROM - FADE_TO)));
     const ready = check.status === 'ok';
     this.place(check.point, range, range, t, ready);
-    // chevrons out along the axis, pointing at the station (the manoeuvre's heading)
-    this.chevrons.visible = chevrons;
-    if (this.chevrons.visible) {
-      const heading = dockHeading(check.station);
-      const out = { x: -Math.cos(heading), y: -Math.sin(heading) };
-      this.chevrons.children.forEach((c, i) => {
-        const d = range + 1.1 + i * 1.1;
-        simToWorld({ x: check.point!.x + out.x * d, y: check.point!.y + out.y * d }, Y, c.position);
-        c.rotation.y = heading;
-      });
-      this.chevronMat.opacity = 0.65 * t;
-    }
     this.last = { visible: true, ready, latch: false, point: check.point };
   }
 
@@ -174,7 +145,6 @@ export class DockMarker {
       const left = Math.hypot(player.body.pos.x - point.x, player.body.pos.y - point.y);
       const radius = LATCH_RADIUS + (rules.range - LATCH_RADIUS) * Math.min(1, left / rules.range);
       this.place(point, radius, rules.range, 1, true);
-      this.chevrons.visible = false;
       this.last = { visible: true, ready: true, latch: true, point };
       return true;
     }
@@ -194,7 +164,7 @@ export class DockMarker {
     if (this.berthDeparting && closing > CLOSING_SPEED) this.berthDeparting = false;
     const leaving = closing < -CLOSING_SPEED;
     if (this.berthDeparting || (leaving && check.status !== 'ok') || check.distance > FADE_FROM) return true;
-    this.approach(check, rules.range, rules.maxAngle !== null);
+    this.approach(check, rules.range);
     return true;
   }
 
@@ -207,7 +177,6 @@ export class DockMarker {
     simToWorld(point, Y, this.target.position);
     this.ringMat.color.copy(color);
     this.targetMat.color.copy(color);
-    this.chevronMat.color.copy(color);
     this.ringMat.opacity = 0.85 * alpha;
     this.targetMat.opacity = 0.9 * alpha;
   }

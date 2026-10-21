@@ -131,7 +131,7 @@ describe('training guide – flight and dock', () => {
     at(sim, 'dockSell');
     undock(sim);
     const g = trainingGuide(sim.state, ctx({ tab: null }))!;
-    expect(g.phases.map((p) => p.text).join(' ')).toMatch(/dokovacej svorke na konci ramena.*prídou ku stanici/);
+    expect(g.phases.map((p) => p.text).join(' ')).toMatch(/dokovacej svorke na konci ramena.*spomaľ pri svorke/);
     expect(g.phases[1]!.keys).toEqual(['F']);
     // the label sits where the clamp marker rings the docking point (the docked ship's centre)
     const clamp = dockPoint(homeStation(), sim.state.player.props.boundingRadius);

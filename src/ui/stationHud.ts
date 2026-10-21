@@ -2,16 +2,16 @@
 import { tx } from '../i18n';
 import type { Vec2 } from '../sim/math/vec2';
 import type { Body } from '../sim/physics/body';
-import { DOCK_APPROACH_RANGE, type DockCheck, type DockRules, type DockState, type DockTarget } from '../sim/station/dock';
+import { DOCK_APPROACH_RANGE, DOCK_RULES, type DockCheck, type DockRules, type DockState, type DockTarget } from '../sim/station/dock';
 import type { StationDef } from '../sim/world/stations';
 import { formatAmount } from './format';
 
 /** One item of the approach readout: the value now, the limit, and whether it is in tolerance. */
 export interface DockApproachItem {
-  id: 'distance' | 'speed' | 'bow';
+  id: 'distance' | 'speed';
   label: string;
   value: string;
-  /** "≤ 4 j" ('' when the item has no limit – the docking computer's heading). */
+  /** "≤ 4 j". */
   limit: string;
   ok: boolean;
 }
@@ -38,8 +38,7 @@ export function dockPrompt(check: DockCheck<DockTarget>, name: string): DockProm
   if (!check.station || check.distance > DOCK_APPROACH_RANGE) return null;
   const r = tx().docking.readout;
   const { rules } = check;
-  const computer = rules.maxAngle === null;
-  const degrees = (check.angle * 180) / Math.PI;
+  const computer = rules.range > DOCK_RULES.range;
   const items: DockApproachItem[] = [
     {
       id: 'distance',
@@ -55,15 +54,6 @@ export function dockPrompt(check: DockCheck<DockTarget>, name: string): DockProm
       limit: r.limit(`${whole(rules.maxSpeed)} ${r.speedUnit}`),
       ok: check.speed <= rules.maxSpeed + 1e-6,
     },
-    rules.maxAngle === null
-      ? { id: 'bow', label: r.bow, value: r.anyHeading, limit: '', ok: true }
-      : {
-          id: 'bow',
-          label: r.bow,
-          value: `${whole(Math.abs(degrees))}${r.degree}`,
-          limit: r.limit(`${whole((rules.maxAngle * 180) / Math.PI)}${r.degree}`),
-          ok: check.angle <= rules.maxAngle + 1e-6,
-        },
   ];
   const approach = { items, computer };
   switch (check.status) {
@@ -73,8 +63,6 @@ export function dockPrompt(check: DockCheck<DockTarget>, name: string): DockProm
       return { text: r.fix.tooFar, kind: 'info', approach };
     case 'tooFast':
       return { text: r.fix.tooFast, kind: 'warn', approach };
-    case 'misaligned':
-      return { text: r.fix.misaligned, kind: 'warn', approach };
     default:
       return null;
   }
@@ -85,10 +73,9 @@ export const DOCK_CLOSING_SPEED = 0.3;
 
 /**
  * When the approach readout and the clamp marker show. Right after undocking the ship sits on the
- * docking point with its bow away from the station, so a red "turn the bow" readout would only be noise
- * while the player is leaving. A departure starts at undocking and ends when the ship closes in on the
- * docking point or leaves the readout range; during it the readout shows only once the bow turns back
- * to the station (and the ship is not moving away). Otherwise the readout hides while the ship moves
+ * docking point, so a green "F – dock" prompt would only be noise while the player is leaving. A
+ * departure starts at undocking and ends when the ship closes in on the docking point or leaves the
+ * readout range; during it the readout stays hidden. Otherwise the readout hides while the ship moves
  * away from the docking point, unless it is still within every tolerance (F would dock).
  * Reads the simulation state only; one instance per game, updated every frame.
  */
@@ -109,7 +96,7 @@ export class DockReadoutGate {
     const closing = check.distance > 1e-6 ? (body.vel.x * dx + body.vel.y * dy) / check.distance : 0;
     const leaving = closing < -DOCK_CLOSING_SPEED;
     if (this.departing && closing > DOCK_CLOSING_SPEED) this.departing = false;
-    if (this.departing) return check.angle < Math.PI / 2 && !leaving;
+    if (this.departing) return false;
     return !leaving || check.status === 'ok';
   }
 }
@@ -125,8 +112,6 @@ export function dockRejectedText(
       return t.tooFar(formatAmount(e.distance), whole(rules.range));
     case 'tooFast':
       return t.tooFast(formatAmount(e.speed), whole(rules.maxSpeed));
-    case 'misaligned':
-      return t.misaligned(whole((e.angle * 180) / Math.PI), whole(((rules.maxAngle ?? Math.PI) * 180) / Math.PI));
     default:
       return t.noStation;
   }

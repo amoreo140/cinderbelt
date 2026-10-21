@@ -55,7 +55,7 @@ describe('sites UI', () => {
     expect(ui.updateReadout(sim.state)).toBe(true);
     const dead = ui.prompt(sim.state)!;
     expect(dead).toMatchObject({ text: tx().world.map.scan.clampDark, kind: 'warn' });
-    expect(dead.approach?.items).toHaveLength(3);
+    expect(dead.approach?.items).toHaveLength(2);
     powerRelays(sim, site);
     ui.updateReadout(sim.state);
     expect(ui.prompt(sim.state)).toMatchObject({ text: tx().world.derelict.berthPrompt, kind: 'ok' });

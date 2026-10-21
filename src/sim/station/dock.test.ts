@@ -63,16 +63,12 @@ describe('checkDock', () => {
     expect(checkDock(at(1, DOCK_RULES.maxSpeed + 0.01), bR, [s]).status).toBe('tooFast');
   });
 
-  it('wants the bow within ±35° of the dock axis', () => {
-    const max = DOCK_RULES.maxAngle!;
-    expect(max).toBeCloseTo((35 * Math.PI) / 180);
-    expect(checkDock(at(1, 0, max - 0.001), bR, [s]).status).toBe('ok');
-    expect(checkDock(at(1, 0, -(max - 0.001)), bR, [s]).status).toBe('ok');
-    const off = checkDock(at(1, 0, max + 0.01), bR, [s]);
-    expect(off.status).toBe('misaligned');
-    expect(off.angle).toBeCloseTo(max + 0.01);
-    // bow away from the station (the undock heading)
-    expect(checkDock(at(1, 0, Math.PI), bR, [s]).status).toBe('misaligned');
+  it('accepts any heading, also the bow away from the station (the undock heading)', () => {
+    expect(DOCK_RULES.maxAngle).toBeNull();
+    for (const turn of [0, 0.7, -1.5, Math.PI / 2, Math.PI, -Math.PI + 0.01]) {
+      expect(checkDock(at(1, 0, turn), bR, [s]).status, `turn ${turn}`).toBe('ok');
+    }
+    expect(checkDock(at(1, 0, Math.PI), bR, [s]).angle).toBeCloseTo(Math.PI);
   });
 
   it('follows the port angle of the station', () => {
@@ -80,10 +76,11 @@ describe('checkDock', () => {
     // dock axis points +y: the docking point is above the station, the bow points −y
     const body = createBody({ x: 100, y: P + 1 }, -Math.PI / 2);
     expect(checkDock(body, bR, [turned]).status).toBe('ok');
-    expect(checkDock({ ...body, angle: 0 }, bR, [turned]).status).toBe('misaligned');
+    expect(checkDock({ ...body, angle: 0 }, bR, [turned]).status).toBe('ok');
+    expect(checkDock({ ...body, angle: 0 }, bR, [turned]).angle).toBeCloseTo(Math.PI / 2);
   });
 
-  it('reports the first failing rule: distance, then speed, then alignment', () => {
+  it('reports the first failing rule: distance, then speed', () => {
     expect(checkDock(at(40, 20, 2), bR, [s]).status).toBe('tooFar');
     expect(checkDock(at(1, 20, 2), bR, [s]).status).toBe('tooFast');
   });
@@ -95,7 +92,7 @@ describe('checkDock', () => {
     expect(result.distance).toBeCloseTo(25 - P);
   });
 
-  it('the docking computer relaxes the rules: 12 u, 6 u/s and any heading', () => {
+  it('the docking computer extends the reach: 12 u and 6 u/s', () => {
     expect(DOCKING_COMPUTER_RULES).toMatchObject({ range: 12, maxSpeed: 6, maxAngle: null });
     expect(checkDock(at(12, 6, Math.PI), bR, [s], DOCKING_COMPUTER_RULES).status).toBe('ok');
     expect(checkDock(at(12.1), bR, [s], DOCKING_COMPUTER_RULES).status).toBe('tooFar');
@@ -130,5 +127,15 @@ describe('rebuiltDockPose', () => {
     const pose = rebuiltDockPose(station, body, { x: 1, y: 1 }, { x: 1, y: 1 }, 3);
     expect(pose.pos.x).toBeCloseTo(body.pos.x);
     expect(pose.pos.y).toBeCloseTo(body.pos.y);
+  });
+});
+
+describe('a custom alignment rule still reports misaligned', () => {
+  it('rules with maxAngle reject a bow outside the cone', () => {
+    const s = station('a', 0, 0);
+    const rules = { range: 4, maxSpeed: 3, maxAngle: 0.5 };
+    const p = dockPoint(s, 2);
+    expect(checkDock({ pos: p, vel: { x: 0, y: 0 }, angle: 0, angVel: 0 }, 2, [s], rules).status).toBe('misaligned');
+    expect(checkDock({ pos: p, vel: { x: 0, y: 0 }, angle: Math.PI + 0.1, angVel: 0 }, 2, [s], rules).status).toBe('ok');
   });
 });

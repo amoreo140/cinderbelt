@@ -1870,7 +1870,7 @@ export class Game {
     let hint: string | null = null;
     let hintTone: HudData['messageTone'] = 'bad';
     if (player.dock.mode === 'docking') {
-      hint = playerDockRules(state).maxAngle === null ? tx().docking.autoApproach : tx().docking.latch;
+      hint = tx().docking.latch;
       hintTone = 'info';
     } else if (towAvailable(player)) {
       const quote = towQuote(state);
@@ -1926,6 +1926,7 @@ export class Game {
     return {
       speed: length(player.body.vel),
       dampers: player.dampers,
+      thrusting: this.keyboard.pressed.has('KeyW'),
       fuel: player.fuel,
       fuelMax: props.fuelCapacity,
       energy: player.energy,

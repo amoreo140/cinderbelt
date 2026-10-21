@@ -205,8 +205,8 @@ export const enComms: CommsTexts = {
         'Iron is your first income. Get close to the rock, slow down and aim at the glowing vein – it goes fastest.',
       ],
       dockSell: [
-        'Fly home and sell the iron. Come to the clamp slowly and bow first, or it will not catch you. The first sale earns you two side engines from the Guild.',
-        'Home, pilot. Slow down at the clamp, turn the bow to the station and press F. The Guild gives you two side engines for the iron.',
+        'Fly home and sell the iron. Come to the clamp slowly, or it will not catch you. The first sale earns you two side engines from the Guild.',
+        'Home, pilot. Slow down at the clamp and press F. The Guild gives you two side engines for the iron.',
       ],
       installSide: [
         'The side engines are in the storage. Mount them on the sides in the Shipyard, nozzle out – the dampers will stop a sideways slide with them at once, not just slowly on the thrusters.',
@@ -255,7 +255,7 @@ export const enComms: CommsTexts = {
       finishShip: ['Reactor, radar, gyroscope, a forward engine – it is all in the storage.', 'The training panel shows what is still missing. Then Enter.'],
     },
     nudgeUndock: ['Undock first – the Undock button or F.', 'You will not learn this in the dock. Undock, pilot.'],
-    nudgeDock: ['Dock at the station: slowly to the clamp, bow to the station, then F.', 'The parts wait in the station storage. Dock, pilot.'],
+    nudgeDock: ['Dock at the station: slowly to the clamp, then F.', 'The parts wait in the station storage. Dock, pilot.'],
   },
   firstContact: {
     pirate: ['Look at that, a fresh Guild ship. Your training run ends here, miner.', 'A green pilot in our space? Today will be a fine catch.'],

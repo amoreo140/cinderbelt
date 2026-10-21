@@ -25,9 +25,9 @@ export const enTraining: TrainingTexts = {
     tooFastToMine: 'The laser reaches only a short way – get close and slow down.',
     goDock: [
       { keys: [], text: 'Fly slowly to the dock clamp at the end of the arm' },
-      { keys: ['F'], text: 'turn the bow to the station and press F' },
+      { keys: ['F'], text: 'slow down at the clamp and press F' },
     ],
-    slowForDock: 'The clamp catches the ship only when it flies slowly with the bow to the station.',
+    slowForDock: 'The clamp catches the ship only when it flies slowly.',
     sellAll: { keys: [], text: 'Press "Sell all cargo"' },
     openOverview: { keys: ['1'], text: 'Open the Overview' },
     openShipyard: { keys: ['3'], text: 'Open the Shipyard' },

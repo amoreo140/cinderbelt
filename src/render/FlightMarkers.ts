@@ -1,6 +1,8 @@
 // Flight markers (M3.8) on the plane of the game, drawn over everything (no depth test):
 // - the flight-path marker: a ring with wings and a chevron ahead of the ship in the direction it
 //   actually moves (not where the bow points), with a faint dashed trail from the hull;
+// - the bow arrow: a small solid arrowhead just ahead of the hull in the direction the bow points (not
+//   the direction of travel); bright and larger for a few seconds after undocking or a load, then dimmed;
 // - the dampers' stopping point: a bar across the path where the ship will come to rest;
 // - the collision ring: a dashed ring around the rock the path hits (amber → red with urgency),
 //   and the flight-path marker takes the same colour.
@@ -41,11 +43,18 @@ export interface FlightMarkerInput {
   /** Show the flight-path marker and the stopping point (setting). */
   marker: boolean;
   collision: CollisionWarning | null;
+  /** Bow direction (rad, sim angle). */
+  angle: number;
   cameraDistance: number;
   /** Seconds (animation clock). */
   time: number;
   reducedMotion: boolean;
 }
+
+/** The bow arrow is emphasised this long after the ship starts flying (s), easing out over the last part. */
+const BOW_EMPHASIS = 4;
+/** A jump of the ship by more than this (u) between frames counts as a fresh start (a load, a teleport). */
+const BOW_JUMP = 5;
 
 /** Smoothstep 0..1 between a and b. */
 const ramp = (x: number, a: number, b: number): number => {
@@ -79,6 +88,12 @@ export class FlightMarkers {
   private readonly prograde = new Group();
   private readonly trail: Line;
   private readonly stop = new Group();
+  private readonly bow: Mesh;
+  private readonly bowMat: MeshBasicMaterial;
+  /** Animation time the bow emphasis started, or null (not flying). */
+  private bowSince: number | null = null;
+  private bowLastX = 0;
+  private bowLastY = 0;
   private readonly obstacle: Mesh;
   private readonly obstacleInner: Mesh;
   private readonly glowMat: MeshBasicMaterial;
@@ -98,6 +113,7 @@ export class FlightMarkers {
       this.own(new MeshBasicMaterial({ color, transparent: true, opacity, depthTest: false, depthWrite: false, side: DoubleSide, forceSinglePass: true }));
     this.glowMat = basic(PALETTE.glow, 0.9);
     this.stopMat = basic(PALETTE.hull, 0.75);
+    this.bowMat = basic(PALETTE.hullHi, 0.4);
     this.obstacleMat = basic(PALETTE.warn, 0.9);
     this.obstacleInnerMat = basic(PALETTE.warn, 0.35);
     this.trailMat = this.own(new LineDashedMaterial({ color: PALETTE.glow, dashSize: 0.35, gapSize: 0.3, transparent: true, opacity: 0.35, depthTest: false, depthWrite: false }));
@@ -120,6 +136,15 @@ export class FlightMarkers {
     const nose = new Mesh(this.geo(new ShapeGeometry(chevron).rotateX(-Math.PI / 2)), this.glowMat);
     this.prograde.add(ring, left, right, nose);
 
+    // bow arrow: a solid arrowhead with a notch at the back (local +x = the bow)
+    const arrow = new Shape();
+    arrow.moveTo(0.5, 0);
+    arrow.lineTo(-0.3, 0.42);
+    arrow.lineTo(-0.1, 0);
+    arrow.lineTo(-0.3, -0.42);
+    arrow.closePath();
+    this.bow = new Mesh(this.geo(new ShapeGeometry(arrow).rotateX(-Math.PI / 2)), this.bowMat);
+
     const trailGeo = this.geo(new BufferGeometry());
     trailGeo.setAttribute('position', new Float32BufferAttribute([0, 0, 0, 1, 0, 0], 3));
     this.trail = new Line(trailGeo, this.trailMat);
@@ -136,7 +161,7 @@ export class FlightMarkers {
     this.obstacle = new Mesh(this.geo(dashedRing(28, 0.62, 0.05)), this.obstacleMat);
     this.obstacleInner = new Mesh(this.geo(new RingGeometry(1, 1.012, 72).rotateX(-Math.PI / 2)), this.obstacleInnerMat);
 
-    for (const o of [this.prograde, this.trail, this.stop, this.obstacle, this.obstacleInner]) {
+    for (const o of [this.bow, this.prograde, this.trail, this.stop, this.obstacle, this.obstacleInner]) {
       o.renderOrder = 20;
       o.traverse((c) => (c.renderOrder = 20));
       o.visible = false;
@@ -154,6 +179,12 @@ export class FlightMarkers {
     return m;
   }
 
+  /** Not flying (docked, destroyed): the next flight restarts the bow emphasis. */
+  rest(): void {
+    this.bowSince = null;
+    this.bow.visible = false;
+  }
+
   update(p: FlightMarkerInput): void {
     const zoom = Math.min(8, Math.max(0.7, p.cameraDistance / BASE_DISTANCE));
     const speed = length(p.vel);
@@ -161,6 +192,19 @@ export class FlightMarkers {
     const c = p.collision;
     // collision colour: amber while there is time, red when close
     if (c) this.tint.copy(this.warn).lerp(this.bad, ramp(c.urgency, 0.35, 0.75));
+
+    // --- bow arrow: emphasised for a few seconds after undocking / a load, then dimmed
+    if (this.bowSince === null || Math.hypot(p.pos.x - this.bowLastX, p.pos.y - this.bowLastY) > BOW_JUMP) this.bowSince = p.time;
+    this.bowLastX = p.pos.x;
+    this.bowLastY = p.pos.y;
+    const emphasis = 1 - ramp(p.time - this.bowSince, BOW_EMPHASIS * 0.4, BOW_EMPHASIS);
+    this.bow.visible = true;
+    const bowScale = zoom * (0.7 + 0.5 * emphasis);
+    const bowAt = add(p.pos, { x: Math.cos(p.angle) * (p.radius + 0.5 + 0.5 * bowScale), y: Math.sin(p.angle) * (p.radius + 0.5 + 0.5 * bowScale) });
+    simToWorld(bowAt, Y, this.bow.position);
+    this.bow.rotation.y = p.angle;
+    this.bow.scale.setScalar(bowScale);
+    this.bowMat.opacity = 0.4 + 0.55 * emphasis;
 
     // --- flight-path marker
     const visible = show > 0.01 || (c !== null && speed > 0.1);
@@ -223,9 +267,9 @@ export class FlightMarkers {
   }
 
   /** What is shown (tests). */
-  stats(): { prograde: boolean; stop: boolean; obstacle: boolean } {
+  stats(): { prograde: boolean; stop: boolean; obstacle: boolean; bow: boolean; bowOpacity: number } {
     const on = this.object.visible;
-    return { prograde: on && this.prograde.visible, stop: on && this.stop.visible, obstacle: on && this.obstacle.visible };
+    return { bow: on && this.bow.visible, bowOpacity: this.bowMat.opacity, prograde: on && this.prograde.visible, stop: on && this.stop.visible, obstacle: on && this.obstacle.visible };
   }
 
   dispose(): void {

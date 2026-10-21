@@ -37,9 +37,9 @@ async function undockFromHome(page: Page): Promise<void> {
   await page.waitForFunction(() => window.__cinder!.sim.state.player.dock.mode === 'flying');
 }
 
-/** The readout items in tolerance, in order: distance, speed, bow. */
+/** The readout items in tolerance, in order: distance, speed. */
 async function itemsOk(page: Page): Promise<boolean[]> {
-  return Promise.all(['distance', 'speed', 'bow'].map(async (id) => (await page.getByTestId(`dock-item-${id}`).getAttribute('data-ok')) === '1'));
+  return Promise.all(['distance', 'speed'].map(async (id) => (await page.getByTestId(`dock-item-${id}`).getAttribute('data-ok')) === '1'));
 }
 
 const marker = (page: Page) => page.evaluate(() => window.__cinder!.renderer.dockMarkerStats());
@@ -56,25 +56,26 @@ test('docking: approach readout far and close, the clamp marker, the latch', asy
   const errors = collectErrors(page);
   await startFlying(page);
 
-  // far: out of every tolerance – distance, speed and bow red, the prompt says what to fix first
+  // far: out of every tolerance – distance and speed red, the prompt says what to fix first
   await approachClamp(page, { stationId: 'home', offset: 14, side: 3, turn: 1.4, speed: 4.5 });
   await expect(page.getByTestId('dock-approach')).toBeVisible();
-  expect(await itemsOk(page)).toEqual([false, false, false]);
+  expect(await itemsOk(page)).toEqual([false, false]);
   await expect(page.getByTestId('dock-prompt')).toContainText('Prileť k dokovacej svorke');
   expect(await marker(page)).toMatchObject({ visible: true, ready: false, latch: false });
   await page.screenshot({ path: `${OUT}/dock-readout-far.png` });
 
-  // by the clamp but turned away: distance and speed green, bow red
+  // by the clamp but turned away: no heading rule, so F is on offer all the same
   await approachClamp(page, { stationId: 'home', offset: 2, turn: 1.2 });
   await waitTicks(page, 10);
-  expect(await itemsOk(page)).toEqual([true, true, false]);
-  await expect(page.getByTestId('dock-prompt')).toContainText('Natoč príď k stanici');
-  await page.screenshot({ path: `${OUT}/dock-readout-misaligned.png` });
+  expect(await itemsOk(page)).toEqual([true, true]);
+  await expect(page.getByTestId('dock-prompt')).toContainText('pristáť na stanici');
+  await expect(page.getByTestId('dock-item-bow')).toHaveCount(0);
+  await page.screenshot({ path: `${OUT}/dock-readout-turned.png` });
 
   // close: all green, the F keycap prompt, the marker turns green
   await approachClamp(page, { stationId: 'home', offset: 2.5, turn: 0.2 });
   await waitTicks(page, 10);
-  expect(await itemsOk(page)).toEqual([true, true, true]);
+  expect(await itemsOk(page)).toEqual([true, true]);
   await expect(page.getByTestId('dock-approach')).toHaveAttribute('data-ready', '1');
   await expect(page.getByTestId('dock-prompt')).toContainText('pristáť na stanici');
   expect(await marker(page)).toMatchObject({ visible: true, ready: true });
@@ -124,14 +125,10 @@ test('docking: traffic control answers every rejection reason on the radio', asy
   await waitTicks(page, 20);
   await page.screenshot({ path: `${OUT}/dock-reject-too-fast.png` });
 
-  // bow away from the station
-  await approachClamp(page, { stationId: 'home', offset: 2, turn: 1.3 });
+  // bow away from the station is no reason to refuse: the latch turns the ship
+  await approachClamp(page, { stationId: 'home', offset: 2, turn: Math.PI });
   await page.keyboard.press('KeyF');
-  await expect(toast).toContainText('Príď nemieri k stanici');
-  await expect(toast).toContainText('treba do 35°');
-  await waitTicks(page, 20);
-  await page.screenshot({ path: `${OUT}/dock-reject-misaligned.png` });
-  expect(await page.evaluate(() => window.__cinder!.sim.state.player.dock.mode)).toBe('flying');
+  await page.waitForFunction(() => window.__cinder!.sim.state.player.dock.mode !== 'flying');
   expect(errors).toEqual([]);
 });
 
@@ -174,7 +171,7 @@ test('docking: an outpost docks by its own clamp under the same rules', async ({
   expect(errors).toEqual([]);
 });
 
-test('docking: the Archive docking computer relaxes the rules', async ({ page }) => {
+test('docking: the Archive docking computer extends the range and the speed', async ({ page }) => {
   test.setTimeout(150_000);
   const errors = collectErrors(page);
   await page.goto('/?play');
@@ -202,7 +199,7 @@ test('docking: the Archive docking computer relaxes the rules', async ({ page })
   await waitTicks(page, 10);
   await page.screenshot({ path: `${OUT}/dock-archive-node-owned.png` });
 
-  // in flight: 10 u out and the bow away from the station still docks – the computer flies it in. Right
+  // in flight: 10 u out (beyond the 4 u reach) still docks with the computer. Right
   // after undocking the readout is quiet (the ship is leaving); closing in on the clamp brings it back.
   await page.getByTestId('undock').click();
   await page.waitForFunction(() => window.__cinder!.sim.state.player.dock.mode === 'flying');
@@ -222,7 +219,7 @@ test('docking: the readout and the clamp marker stay quiet while the ship depart
   test.setTimeout(120_000);
   const errors = collectErrors(page);
   await undockFromHome(page);
-  // right after undocking the ship sits on the docking point with its bow away – no red "turn the bow"
+  // right after undocking the ship sits on the docking point with its bow away – no green F prompt
   await waitTicks(page, 20);
   await expect(page.getByTestId('dock-approach')).toBeHidden();
   expect(await marker(page)).toMatchObject({ visible: false });
@@ -235,7 +232,7 @@ test('docking: the readout and the clamp marker stay quiet while the ship depart
   await expect(page.getByTestId('dock-approach')).toBeHidden();
   expect(await marker(page)).toMatchObject({ visible: false });
   await page.screenshot({ path: `${OUT}/dock-departing-leaving.png` });
-  // coming back on the approach (closing in, bow at the station): the readout and the marker are back
+  // coming back on the approach (closing in): the readout and the marker are back
   await approachClamp(page, { stationId: 'home', offset: 12, turn: 0.3, speed: 1.5 });
   await expect(page.getByTestId('dock-approach')).toBeVisible();
   expect(await marker(page)).toMatchObject({ visible: true, latch: false });

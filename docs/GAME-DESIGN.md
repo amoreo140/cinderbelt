@@ -33,7 +33,7 @@ Mining is meant to be a skill, not a timer: ore veins have a grade (roughly 60â€
 
 The pieces interact in simple ways. A bigger hold means more money per trip but a slower, less manoeuvrable ship. More lasers mine faster but need a bigger reactor, and a bigger reactor needs hull space. Fuel makes the far trip a decision: ice mined near home becomes the range you can spend further out. Money buys better parts, better parts open farther sectors, and farther sectors pay more and push back harder.
 
-Stations are the hub. A station has these tabs: Overview, Market (resources and parts), Crafting, Shipyard, Service, Board (contracts, cartography) and the Archive. The home station also has a Development tab. Docking is a manoeuvre rather than a button: you approach the dock clamp slowly and nose-first (within about 4 u, under about 3 u/s, bow within 35 degrees), and a docking panel guides you.
+Stations are the hub. A station has these tabs: Overview, Market (resources and parts), Crafting, Shipyard, Service, Board (contracts, cartography) and the Archive. The home station also has a Development tab. Docking is a manoeuvre rather than a button: you approach the dock clamp slowly (within about 4 u, under about 3 u/s, at any heading â€“ the latch turns the ship), and a docking panel guides you.
 
 Flight itself uses inertia. Engines push in the direction they face; gyroscopes turn the ship; inertial dampers (on by default) use your engines to stop drift on any axis where you give no input. Each cockpit has weak built-in manoeuvring thrusters, so any ship can always be brought to a halt.
 
