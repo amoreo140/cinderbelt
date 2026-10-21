@@ -88,7 +88,7 @@ describe('YARD_KEYS', () => {
   it('lets through every shipyard editor key the training gate would block', () => {
     // the letters Game.yardKey binds (letterKey('x')) – a new binding on a gated key must be listed too
     const src = GAME_SOURCE;
-    const body = /private yardKey\([\s\S]*?\n {2}}\n/.exec(src)?.[0] ?? '';
+    const body = /private yardKey\([\s\S]*?\r?\n {2}}\r?\n/.exec(src)?.[0] ?? '';
     const letters = [...body.matchAll(/letterKey\('([a-z])'\)/g)].map((m) => m[1]!);
     expect(letters.length).toBeGreaterThan(3);
     const none = revealedFeatures(active(0));
