@@ -53,6 +53,7 @@ export interface DiscoveryTexts {
   toasts: {
     pulse: (n: number) => string;
     pulseEmpty: string;
+    energyNeeded: (need: string, have: string) => string;
     cooldown: (s: number) => string;
     energy: string;
     noTarget: string;
@@ -339,10 +340,11 @@ export const skDiscovery = {
   },
   toasts: {
     pulse: (n: number): string => `Pulz: ${n} ${plural(n, 'signál', 'signály', 'signálov')} – pozri radar a mapu (M)`,
-    pulseEmpty: 'Pulz: v dosahu nič',
+    pulseEmpty: 'Pulz: nič v dosahu – nájde vraky, anomálie, signály',
     cooldown: (s: number): string => `Skener sa nabíja – ${s} s`,
     energy: 'Skener: málo energie',
-    noTarget: 'Nič na analýzu v dosahu radaru – namier kurzor na objekt',
+    energyNeeded: (need: string, have: string): string => `Skener potrebuje ${need} energie, máš ${have} – reaktor dobíja`,
+    noTarget: 'Podrž Tab s kurzorom na objekte (kameň, vrak, signál)',
     analysed: (what: string, d: number): string => `Analýza: ${what} +${d} D`,
     analysedNoData: (what: string): string => `Analýza: ${what}`,
     analysedAgain: (what: string): string => `${what}: už analyzované`,

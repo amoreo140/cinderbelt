@@ -20,7 +20,7 @@ import { hasJournal } from './state';
 const SEED = 4242;
 
 describe('scanner pulse (5.4)', () => {
-  it('a tap sends a pulse for 30 energy, then the scanner recharges', () => {
+  it('a tap sends a pulse for 15 energy, then the scanner recharges', () => {
     const sim = flyingAt(SEED, { x: 700, y: 0 });
     const energy = sim.state.player.energy;
     const events = tapScan(sim);
@@ -33,10 +33,13 @@ describe('scanner pulse (5.4)', () => {
     expect(hasJournal(sim.state, 'scanner')).toBe(true);
   });
 
-  it('needs 30 energy', () => {
+  it('needs 15 energy', () => {
     const sim = flyingAt(SEED, { x: 700, y: 0 });
     sim.state.player.energy = 5;
-    expect(ofType(tapScan(sim), 'scanFailed')[0]?.reason).toBe('energy');
+    const failed = ofType(tapScan(sim), 'scanFailed')[0];
+    expect(failed).toMatchObject({ reason: 'energy', required: SCANNER.pulseEnergy });
+    expect(failed?.available).toBeGreaterThanOrEqual(5); // the reactor recharges during the tap
+    expect(failed?.available).toBeLessThan(SCANNER.pulseEnergy);
   });
 
   it('shows a signal with an uncertainty circle; flying close answers it', () => {

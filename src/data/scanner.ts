@@ -3,7 +3,7 @@
 
 export const SCANNER = {
   /** Pulse: energy and charge time (s). */
-  pulseEnergy: 30,
+  pulseEnergy: 15,
   pulseCooldown: 8,
   /** Dosah pulzu = dosah radaru × toto. */
   pulseRangeMult: 3,

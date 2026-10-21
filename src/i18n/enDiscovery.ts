@@ -107,10 +107,11 @@ export const enDiscovery: DiscoveryTexts = {
   },
   toasts: {
     pulse: (n) => `Pulse: ${n} ${plural(n, 'signal', 'signals')} – check the radar and the map (M)`,
-    pulseEmpty: 'Pulse: nothing in range',
+    pulseEmpty: 'Pulse: nothing here – it finds wrecks, anomalies, signals',
     cooldown: (s) => `Scanner charging – ${s} s`,
     energy: 'Scanner: low energy',
-    noTarget: 'Nothing to analyse in radar range – aim the cursor at an object',
+    energyNeeded: (need, have) => `Scanner needs ${need} energy, you have ${have} – the reactor is recharging`,
+    noTarget: 'Hold Tab with the cursor on an object (rock, wreck, signal)',
     analysed: (what, d) => `Analysis: ${what} +${d} D`,
     analysedNoData: (what) => `Analysis: ${what}`,
     analysedAgain: (what) => `${what}: already analysed`,

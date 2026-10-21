@@ -107,10 +107,11 @@ export const deDiscovery: DiscoveryTexts = {
   },
   toasts: {
     pulse: (n) => `Puls: ${n} ${plural(n, 'Signal', 'Signale')} – prüf Radar und Karte (M)`,
-    pulseEmpty: 'Puls: nichts in Reichweite',
+    pulseEmpty: 'Puls: nichts da – findet Wracks, Anomalien, Signale',
     cooldown: (s) => `Scanner lädt – ${s} s`,
     energy: 'Scanner: wenig Energie',
-    noTarget: 'Nichts zu analysieren in Radarreichweite – zieh den Cursor auf ein Objekt',
+    energyNeeded: (need, have) => `Scanner braucht ${need} Energie, du hast ${have} – Reaktor lädt`,
+    noTarget: 'Halte Tab mit dem Cursor auf einem Objekt (Fels, Wrack, Signal)',
     analysed: (what, d) => `Analyse: ${what} +${d} D`,
     analysedNoData: (what) => `Analyse: ${what}`,
     analysedAgain: (what) => `${what}: schon analysiert`,

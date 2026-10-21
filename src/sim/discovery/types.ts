@@ -117,7 +117,7 @@ export type DataSource = 'scan' | 'cache' | 'echo' | 'fragment' | 'contract' | '
 
 export type DiscoveryEvent =
   | { type: 'scanPulse'; pos: Vec2; range: number; found: number }
-  | { type: 'scanFailed'; reason: 'energy' | 'cooldown' | 'noTarget' }
+  | { type: 'scanFailed'; reason: 'energy' | 'cooldown' | 'noTarget'; required?: number; available?: number }
   | { type: 'analysisStarted'; target: string; kind: ScanKind; pos: Vec2 }
   | { type: 'analysisCancelled' }
   | { type: 'analysisDone'; target: string; kind: ScanKind; data: number; first: boolean }

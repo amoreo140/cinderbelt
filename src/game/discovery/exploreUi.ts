@@ -23,7 +23,7 @@ import type { GameActionInput } from '../../sim/commands';
 import { length, sub, type Vec2 } from '../../sim/math/vec2';
 import type { SimEvent, SimState } from '../../sim/Simulation';
 import { GIANT_RADIUS, GIANT_SHELL_HP } from '../../data/poi';
-import { formatCredits, formatGrade } from '../../ui/format';
+import { formatCredits, formatGrade, formatInt } from '../../ui/format';
 import type { ToastKind } from '../../ui/GameUi';
 import type { DockPrompt } from '../../ui/stationHud';
 import { archiveData, type ArchiveData } from './archiveView';
@@ -193,6 +193,15 @@ function findLabel(f: ScanView['finds'][number]): string {
   if (f.kind === 'rich') return tx().discovery.scanFinds.rich(f.resource ? tx().mining.symbols[f.resource] : '', formatGrade(f.grade ?? 0));
   if (f.kind === 'signal') return f.signal ? tx().discovery.signalKinds[f.signal] : tx().discovery.scanKinds.cache;
   return tx().discovery.scanKinds[f.kind];
+}
+
+/** Toast text of a failed scanner action; a low-energy failure names the needed and the available energy. */
+export function scanFailedText(state: SimState, e: Extract<SimEvent, { type: 'scanFailed' }>): string {
+  const o = tx().discovery.toasts;
+  if (e.reason === 'cooldown') return o.cooldown(Math.ceil(state.discovery.scanner.cooldown / TICKS));
+  if (e.reason === 'noTarget') return o.noTarget;
+  if (e.required === undefined || e.available === undefined) return o.energy;
+  return o.energyNeeded(formatInt(Math.ceil(e.required)), formatInt(Math.floor(e.available)));
 }
 
 export class ExploreUi {
@@ -548,10 +557,10 @@ export class ExploreUi {
     for (const e of events) {
       switch (e.type) {
         case 'scanPulse':
-          offer({ text: e.found > 0 ? o.pulse(e.found) : o.pulseEmpty, kind: 'info', seconds: 2 }, 1);
+          offer({ text: e.found > 0 ? o.pulse(e.found) : o.pulseEmpty, kind: 'info', seconds: e.found > 0 ? 2 : 3 }, 1);
           break;
         case 'scanFailed':
-          offer({ text: e.reason === 'cooldown' ? o.cooldown(Math.ceil(state.discovery.scanner.cooldown / TICKS)) : e.reason === 'energy' ? o.energy : o.noTarget, kind: 'error', seconds: 2 }, 1);
+          offer({ text: scanFailedText(state, e), kind: 'error', seconds: e.reason === 'cooldown' ? 2 : 3 }, 1);
           break;
         case 'analysisDone': {
           const label = this.targetLabel(state, e.target, e.kind);

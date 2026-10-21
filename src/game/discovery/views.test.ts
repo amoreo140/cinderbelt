@@ -79,6 +79,19 @@ describe('explore UI', () => {
     expect(explore.layers.fields).toBe(false);
   });
 
+  it('names the needed and available energy when the scanner is short of it', () => {
+    const sim = flyingAt(4242, { x: 700, y: 0 });
+    sim.state.player.energy = 9.4;
+    const events = tapScan(sim);
+    const failed = events.find((e) => e.type === 'scanFailed');
+    expect(failed).toMatchObject({ reason: 'energy', required: 15 });
+    sim.state.player.energy = 9.4; // fixed value for the text (the tap itself lets the reactor recharge)
+    const { explore } = ui(() => sim.state);
+    const toast = explore.toast(sim.state, [{ type: 'scanFailed', reason: 'energy', required: 15, available: 9.4 }]);
+    expect(toast?.text).toBe('Skener potrebuje 15 energie, máš 9 – reaktor dobíja');
+    expect(toast?.seconds).toBe(3);
+  });
+
   it('keeps the most important toast of a step', () => {
     const sim = dockedSim();
     const { explore } = ui(() => sim.state);

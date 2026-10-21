@@ -149,7 +149,7 @@ export function pulse(state: SimState, events: SimEvent[]): void {
     return;
   }
   if (player.energy < SCANNER.pulseEnergy) {
-    events.push({ type: 'scanFailed', reason: 'energy' });
+    events.push({ type: 'scanFailed', reason: 'energy', required: SCANNER.pulseEnergy, available: player.energy });
     return;
   }
   player.energy -= SCANNER.pulseEnergy;
@@ -410,7 +410,7 @@ export function stepScanner(state: SimState, held: boolean, aim: Vec2, events: S
       if (!t) {
         events.push({ type: 'scanFailed', reason: 'noTarget' });
       } else if (player.energy < SCANNER.analyzeEnergy) {
-        events.push({ type: 'scanFailed', reason: 'energy' });
+        events.push({ type: 'scanFailed', reason: 'energy', required: SCANNER.analyzeEnergy, available: player.energy });
       } else {
         player.energy -= SCANNER.analyzeEnergy;
         s.target = t.key;
