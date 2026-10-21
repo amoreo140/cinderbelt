@@ -5,16 +5,16 @@ import { wrapAround } from './wrap';
 const AREA = 220;
 
 /** Speed (j/s) where the dust starts to streak, and where the streaks are at full length (M3.8). */
-export const STREAK_FROM = 14;
-export const STREAK_FULL = 40;
+export const STREAK_FROM = 20;
+export const STREAK_FULL = 55;
 /** Longest streak (world units) and its width. */
-const STREAK_MAX = 4.5;
+const STREAK_MAX = 2.2;
 const STREAK_WIDTH = 0.07;
 
 /** Streak length and opacity for a ship speed: nothing when slow, long faint lines when fast. */
 export function streakFor(speed: number): { length: number; opacity: number } {
   const t = Math.min(1, Math.max(0, (speed - STREAK_FROM) / (STREAK_FULL - STREAK_FROM)));
-  return { length: t * STREAK_MAX, opacity: t * 0.5 };
+  return { length: t * STREAK_MAX, opacity: t * 0.25 };
 }
 
 /** Dust in the colour of the default (depth 1) zone look. */

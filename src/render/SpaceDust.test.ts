@@ -15,6 +15,13 @@ describe('streakFor (M3.8)', () => {
     expect(full.length).toBeGreaterThan(mid.length);
     expect(streakFor(STREAK_FULL * 3)).toEqual(full);
   });
+
+  it('keeps the streaks a subtle cue: short and faint even at full speed, none at the 25 u/s cruise cap', () => {
+    const full = streakFor(STREAK_FULL);
+    expect(full.length).toBeLessThanOrEqual(2.5);
+    expect(full.opacity).toBeLessThanOrEqual(0.25);
+    expect(streakFor(25).length).toBeLessThan(0.5);
+  });
 });
 
 describe('SpaceDust streaks', () => {
