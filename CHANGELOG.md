@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Fixed
 - An imported save with an absurd game tick or position no longer freezes the tab: validation accepts only safe integers, caps the tick at 2^40 and every saved position and velocity at 1e10.
+- Save import is bounded further: every deadline and event tick, string length, duplicate or oversized list (contract boards, combat objects, ship parts) and file size above 16 MB is rejected instead of stalling the game.
+- An error in the game loop no longer freezes the game silently: it stops at a card that saves your progress when that is safe, offers Back to menu and copyable error details, and stray browser errors show a short warning.
 
 ## [0.3.2] – flight comfort
 

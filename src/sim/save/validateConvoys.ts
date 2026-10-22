@@ -49,9 +49,9 @@ function escort(c: Checker, v: unknown, path: string): SavedEscortV20 {
   return {
     progress: c.num(o.progress, `${path}.progress`, 0),
     state: c.oneOf(o.state, ESCORT_STATES, `${path}.state`),
-    departed: o.departed === null ? null : c.int(o.departed, `${path}.departed`, 0),
+    departed: o.departed === null ? null : c.tick(o.departed, `${path}.departed`),
     away: c.num(o.away, `${path}.away`, 0),
-    stopUntil: c.int(o.stopUntil, `${path}.stopUntil`, 0),
+    stopUntil: c.until(o.stopUntil, `${path}.stopUntil`),
     fired: c.int(o.fired, `${path}.fired`, 0, MAX_MASK),
     hulls,
     deposit: c.num(o.deposit, `${path}.deposit`, 0),
@@ -71,7 +71,7 @@ export function validateConvoysShape(c: Checker, raw: unknown, path: string): Sa
   let link: SavedConvoysV20['link'] = null;
   if (o.link !== null) {
     const l = c.obj(o.link, `${path}.link`) ?? {};
-    link = { pass: passId(c, l.pass, `${path}.link.pass`), since: c.int(l.since, `${path}.link.since`, 0) };
+    link = { pass: passId(c, l.pass, `${path}.link.pass`), since: c.tick(l.since, `${path}.link.since`) };
   }
   const escorts: [number, SavedEscortV20][] = [];
   (c.arr(o.escorts, `${path}.escorts`) ?? []).forEach((entry, i) => {

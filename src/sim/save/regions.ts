@@ -57,6 +57,6 @@ export function validateRegions(c: Checker, v: unknown, path: string, seed: numb
     if (SECTOR_ID.test(id) && sectorInfo(seed, id) && (mask & ~surveyMask(seed, id)) !== 0) c.err(p, 'survey point bits outside the sector');
     return mask;
   });
-  const cooldowns = pairs('cooldowns', (x, p) => c.int(x, p, 0));
+  const cooldowns = pairs('cooldowns', (x, p) => c.until(x, p));
   return { gen, points, bought: ids('bought'), sold: ids('sold'), cooldowns };
 }

@@ -22,7 +22,7 @@ import { relayById, siteById } from '../sites/placement';
 import { stashParts } from '../sites/terminal';
 import type { DerelictSite, GraveyardSite } from '../sites/types';
 import type { SavedDerelictV17, SavedDirectorV17, SavedGraveyardV17, SavedPartyV17, SavedSitesV17, SaveGame } from './types';
-import type { Checker } from './validate';
+import { SAVE_MAX_TICK, SAVE_MAX_TICK_AHEAD, type Checker } from './validate';
 
 /** Sentry of a derelict `dd:<cx>,<cy>:<i>`. */
 const SENTRY_ID = /^dd:(-?\d+),(-?\d+):(\d+)$/;
@@ -68,7 +68,7 @@ export function validateSitesShape(c: Checker, raw: unknown, path: string): Save
   const derelicts = keyed(c, o.derelicts, `${path}.derelicts`, (x, p): SavedDerelictV17 => {
     const d = c.obj(x, p) ?? {};
     return {
-      woke: d.woke === null ? null : c.int(d.woke, `${p}.woke`, 0),
+      woke: d.woke === null ? null : c.tick(d.woke, `${p}.woke`),
       taken: c.int(d.taken, `${p}.taken`, 0, MAX_MASK),
       visited: c.bool(d.visited, `${p}.visited`),
     };
@@ -84,9 +84,9 @@ export function validateSitesShape(c: Checker, raw: unknown, path: string): Save
   });
   const comets = keyed(c, o.comets, `${path}.comets`, (x, p) => {
     const m = c.obj(x, p) ?? {};
-    return { pass: c.int(m.pass, `${p}.pass`, 0), core: c.num(m.core, `${p}.core`, 0), tail: c.int(m.tail, `${p}.tail`, 0, MAX_MASK) };
+    return { pass: c.int(m.pass, `${p}.pass`, 0, SAVE_MAX_TICK), core: c.num(m.core, `${p}.core`, 0), tail: c.int(m.tail, `${p}.tail`, 0, MAX_MASK) };
   });
-  const armed = keyed(c, o.armed, `${path}.armed`, (x, p) => c.int(x, p, 0));
+  const armed = keyed(c, o.armed, `${path}.armed`, (x, p) => c.until(x, p));
   return {
     powered: [...new Set(powered)].sort(),
     charge,
@@ -101,7 +101,7 @@ export function validateSitesShape(c: Checker, raw: unknown, path: string): Save
 export function validateDirectorShape(c: Checker, raw: unknown, path: string): SavedDirectorV17 {
   const o = c.obj(raw, path) ?? {};
   // `last` may lie in the future (the planned end of a running event); -1e9 = never
-  return { last: c.int(o.last, `${path}.last`), fired: sortedByKey(keyed(c, o.fired, `${path}.fired`, (x, p) => c.int(x, p, 0))) };
+  return { last: c.until(o.last, `${path}.last`, -SAVE_MAX_TICK_AHEAD), fired: sortedByKey(keyed(c, o.fired, `${path}.fired`, (x, p) => c.tick(x, p))) };
 }
 
 const derelictOf = (seed: number, id: string): DerelictSite | null => {

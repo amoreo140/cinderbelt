@@ -3,7 +3,7 @@ import { toEnvelope, toSave } from '../../sim/save/serialize';
 import { testContext } from '../../sim/save/testing';
 import { dockedSim } from '../../sim/station/testHarness';
 import { fakeSave } from './storageContract';
-import { downloadTextFile, readFileText } from './fileTransfer';
+import { MAX_IMPORT_BYTES, downloadTextFile, readFileText } from './fileTransfer';
 import { exportFileName, exportSlot, parseImport } from './transfer';
 
 describe('exportSlot / parseImport', () => {
@@ -91,5 +91,14 @@ describe('file helpers (thin DOM layer)', () => {
 
   it('reads a file as text', async () => {
     expect(await readFileText(new Blob(['hello']))).toBe('hello');
+  });
+
+  it('rejects a file above the size limit without reading it', async () => {
+    let read = false;
+    const huge = { size: MAX_IMPORT_BYTES + 1, text: async () => ((read = true), 'x') } as unknown as Blob;
+    await expect(readFileText(huge)).rejects.toThrow(/too large/);
+    expect(read).toBe(false);
+    const edge = { size: MAX_IMPORT_BYTES, text: async () => 'ok' } as unknown as Blob;
+    expect(await readFileText(edge)).toBe('ok');
   });
 });

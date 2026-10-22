@@ -23,7 +23,15 @@ export function downloadTextFile(
   (env.defer ?? ((fn) => setTimeout(fn, 1000)))(() => env.url.revokeObjectURL(href));
 }
 
-/** The content of a file from `<input type="file">` as text. */
+/**
+ * The largest save file the import reads: 16 MB. A real `.cinder` file is tens of kilobytes (the biggest
+ * test fixture is 36 KB), so this is hundreds of times more than any save; a bigger file would only be
+ * read into memory and parsed to freeze the tab.
+ */
+export const MAX_IMPORT_BYTES = 16 * 1024 * 1024;
+
+/** The content of a file from `<input type="file">` as text; rejects a file above `MAX_IMPORT_BYTES` unread. */
 export function readFileText(file: Blob): Promise<string> {
+  if (file.size > MAX_IMPORT_BYTES) return Promise.reject(new Error(`file too large (${file.size} bytes)`));
   return file.text();
 }

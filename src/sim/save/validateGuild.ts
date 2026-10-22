@@ -58,7 +58,7 @@ function watchShip(c: Checker, v: unknown, path: string): SavedWatchShipV20 {
     target,
     route,
     slot,
-    modeTick: c.int(o.modeTick, `${path}.modeTick`, 0),
+    modeTick: c.tick(o.modeTick, `${path}.modeTick`),
     lastHitBy: c.int(o.lastHitBy, `${path}.lastHitBy`, -1),
   };
 }
@@ -75,7 +75,7 @@ export function validateGuildShape(c: Checker, raw: unknown, path: string): Save
     const r = c.obj(entry[1], `${p}[1]`) ?? {};
     relays.push([
       lane,
-      { stage: c.oneOf<RelayStage>(r.stage, RELAY_STAGES, `${p}[1].stage`), sector: c.str(r.sector, `${p}[1].sector`, true), tick: c.int(r.tick, `${p}[1].tick`, 0) },
+      { stage: c.oneOf<RelayStage>(r.stage, RELAY_STAGES, `${p}[1].stage`), sector: c.str(r.sector, `${p}[1].sector`, true), tick: c.tick(r.tick, `${p}[1].tick`) },
     ]);
   });
   let hold: SavedRelayHoldV20 | null = null;
@@ -83,7 +83,7 @@ export function validateGuildShape(c: Checker, raw: unknown, path: string): Save
     const h = c.obj(o.hold, `${path}.hold`) ?? {};
     hold = {
       lane: c.oneOf<LaneId>(h.lane, LANES, `${path}.hold.lane`),
-      start: c.int(h.start, `${path}.hold.start`, 0),
+      start: c.tick(h.start, `${path}.hold.start`),
       phase: c.oneOf(h.phase, HOLD_PHASES, `${path}.hold.phase`),
       reinforced: c.bool(h.reinforced, `${path}.hold.reinforced`),
     };
@@ -98,7 +98,7 @@ export function validateGuildShape(c: Checker, raw: unknown, path: string): Save
     if (!Array.isArray(entry) || entry.length !== 2) return c.err(p, 'expected [id, tick]');
     const id = c.str(entry[0], `${p}[0]`, true);
     if (id && parseWatchId(id) === null) c.err(`${p}[0]`, 'expected a Watch ship id');
-    lost.push([id, c.int(entry[1], `${p}[1]`, 0)]);
+    lost.push([id, c.tick(entry[1], `${p}[1]`)]);
   });
   if (new Set(lost.map(([id]) => id)).size !== lost.length) c.err(`${path}.lost`, 'duplicate ids');
   return {
@@ -106,7 +106,7 @@ export function validateGuildShape(c: Checker, raw: unknown, path: string): Save
     hold,
     watch,
     lost: lost.sort((a, b) => byString(a[0], b[0])),
-    lastRadio: c.int(o.lastRadio, `${path}.lastRadio`, NEVER),
+    lastRadio: c.tick(o.lastRadio, `${path}.lastRadio`, NEVER),
   };
 }
 

@@ -2,7 +2,7 @@
 import { GRADE_TABLES } from '../../data/ore';
 import { RESOURCE_IDS } from '../../data/resources';
 import type { SavedMiningV12, SavedNuggetV12 } from './types';
-import type { Checker } from './validate';
+import { SAVE_MAX_ENTRIES, type Checker } from './validate';
 
 const CHUNK_KEY = /^-?\d+,-?\d+$/;
 const MIN_GRADE = Math.min(...Object.values(GRADE_TABLES).flat().map((g) => g.grade));
@@ -11,7 +11,7 @@ const MAX_GRADE = Math.max(...Object.values(GRADE_TABLES).flat().map((g) => g.gr
 export function validateMining(c: Checker, v: unknown, path: string): SavedMiningV12 {
   const o = c.obj(v, path) ?? {};
   const nextId = c.int(o.nextId, `${path}.nextId`, 1);
-  const nuggets = (c.arr(o.nuggets, `${path}.nuggets`) ?? []).map((raw, i): SavedNuggetV12 => {
+  const nuggets = c.capList(o.nuggets, `${path}.nuggets`, SAVE_MAX_ENTRIES).map((raw, i): SavedNuggetV12 => {
     const p = `${path}.nuggets[${i}]`;
     const n = c.obj(raw, p) ?? {};
     const id = c.int(n.id, `${p}.id`, 1);

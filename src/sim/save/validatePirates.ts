@@ -2,14 +2,14 @@
 import { FORTRESS } from '../../data/pirates';
 import type { FortressState, Raid, Toll } from '../pirates/state';
 import type { SavedPiratesV11 } from './types';
-import type { Checker } from './validate';
+import { SAVE_MAX_TICK_AHEAD, SAVE_MAX_TICK, type Checker } from './validate';
 
 function pairs(c: Checker, v: unknown, path: string): [string, number][] {
   const out: [string, number][] = [];
   (c.arr(v, path) ?? []).forEach((entry, i) => {
     const p = `${path}[${i}]`;
     if (!Array.isArray(entry) || entry.length !== 2) return c.err(p, 'expected [key, tick]');
-    out.push([c.str(entry[0], p, true), c.int(entry[1], p)]);
+    out.push([c.str(entry[0], p, true), c.until(entry[1], p, -SAVE_MAX_TICK_AHEAD)]);
   });
   if (new Set(out.map(([k]) => k)).size !== out.length) c.err(path, 'duplicate keys');
   return out;
@@ -26,7 +26,7 @@ function fortress(c: Checker, v: unknown, path: string): FortressState {
     core: c.capped(o.core, `${path}.core`, 0, FORTRESS.coreHp),
     gens: hpList(c, o.gens, `${path}.gens`, FORTRESS.generatorHp),
     turrets: hpList(c, o.turrets, `${path}.turrets`, FORTRESS.turretHp),
-    destroyed: o.destroyed === null ? null : c.int(o.destroyed, `${path}.destroyed`, 0),
+    destroyed: o.destroyed === null ? null : c.tick(o.destroyed, `${path}.destroyed`),
     kills: c.int(o.kills, `${path}.kills`, 0),
     reinforce: c.int(o.reinforce, `${path}.reinforce`, 0),
     spawned: c.int(o.spawned, `${path}.spawned`, 0),
@@ -45,8 +45,8 @@ function raid(c: Checker, v: unknown, path: string): Raid | null {
     beacon: o.beacon === null ? null : c.str(o.beacon, `${path}.beacon`, true),
     captain: o.captain === null ? null : c.int(o.captain, `${path}.captain`, 0),
     ships: c.int(o.ships, `${path}.ships`, 1),
-    arrive: c.int(o.arrive, `${path}.arrive`, 0),
-    ends: c.int(o.ends, `${path}.ends`, 0),
+    arrive: c.until(o.arrive, `${path}.arrive`),
+    ends: c.until(o.ends, `${path}.ends`),
     spawned: c.bool(o.spawned, `${path}.spawned`),
   };
 }
@@ -54,7 +54,7 @@ function raid(c: Checker, v: unknown, path: string): Raid | null {
 function toll(c: Checker, v: unknown, path: string): Toll | null {
   if (v === null) return null;
   const o = c.obj(v, path) ?? {};
-  return { group: c.str(o.group, `${path}.group`, true), amount: c.num(o.amount, `${path}.amount`, 0), until: c.int(o.until, `${path}.until`, 0) };
+  return { group: c.str(o.group, `${path}.group`, true), amount: c.num(o.amount, `${path}.amount`, 0), until: c.until(o.until, `${path}.until`) };
 }
 
 export function validatePirates(c: Checker, raw: unknown, path: string): SavedPiratesV11 {
@@ -68,7 +68,7 @@ export function validatePirates(c: Checker, raw: unknown, path: string): SavedPi
   return {
     attention: c.num(o.attention, `${path}.attention`, 0, 100),
     chunk: o.chunk === null ? null : c.str(o.chunk, `${path}.chunk`, true),
-    lastHunt: c.int(o.lastHunt, `${path}.lastHunt`),
+    lastHunt: c.tick(o.lastHunt, `${path}.lastHunt`, -SAVE_MAX_TICK),
     serial: c.int(o.serial, `${path}.serial`, 1),
     raid: raid(c, o.raid, `${path}.raid`),
     toll: toll(c, o.toll, `${path}.toll`),

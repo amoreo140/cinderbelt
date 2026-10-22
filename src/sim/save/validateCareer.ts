@@ -26,7 +26,7 @@ import {
 import type { SavedCareerV10 } from './types';
 import { TRAINING_STEPS, TRAINING_STEP_COUNT, type TrainingStepId } from '../../data/training';
 import type { TrainingState, TrainingStatus } from '../training/types';
-import type { Checker } from './validate';
+import { SAVE_MAX_ENTRIES, type Checker } from './validate';
 
 /** A margin above the game's limits (the captain's licence, later versions) – only a guard against nonsense. */
 const MAX_CONTRACTS = 8;
@@ -169,7 +169,7 @@ function contract(c: Checker, v: unknown, path: string): Contract {
   return {
     ...offer(c, o, path),
     serial: c.int(o.serial, `${path}.serial`, 0),
-    acceptedTick: c.int(o.acceptedTick, `${path}.acceptedTick`, 0),
+    acceptedTick: c.tick(o.acceptedTick, `${path}.acceptedTick`),
     seconds: c.num(o.seconds, `${path}.seconds`, 0),
     reward: c.num(o.reward, `${path}.reward`, 0),
     rep: c.num(o.rep, `${path}.rep`, 0),
@@ -193,6 +193,16 @@ function rep(c: Checker, v: unknown, path: string): RepState {
   const assignments: Record<string, number> = {};
   for (const [k, n] of Object.entries(a)) assignments[k] = c.num(n, `${path}.assignments.${k}`, 0);
   return { points: c.num(o.points, `${path}.points`, 0), level: c.oneOf<RepLevel>(o.level, [0, 1, 2, 3], `${path}.level`), assignments };
+}
+
+/**
+ * A keyed list (`[key, …]` entries) must not repeat a key and holds at most `max` entries – the sim walks
+ * it every step, so a crafted save with 100k copies of one board would stall it.
+ */
+function unique<T extends readonly [string | number, ...unknown[]]>(c: Checker, path: string, max: number, list: T[]): T[] {
+  if (list.length > max) c.err(path, `more than ${max} entries`);
+  if (new Set(list.map((e) => e[0])).size !== list.length) c.err(path, 'duplicate keys');
+  return list;
 }
 
 function pairs<T>(c: Checker, v: unknown, path: string, item: (entry: unknown[], p: string) => T): T[] {
@@ -223,13 +233,13 @@ function shipment(c: Checker, v: unknown, path: string): Shipment {
     to: c.stationId(o.to, `${path}.to`),
     resources: partialCargo(c, o.resources, `${path}.resources`),
     parts: c.parts(o.parts, `${path}.parts`),
-    arrival: c.int(o.arrival, `${path}.arrival`, 0),
+    arrival: c.until(o.arrival, `${path}.arrival`),
   };
 }
 
 function logEntry(c: Checker, v: unknown, path: string): LogEntry {
   const o = c.obj(v, path) ?? {};
-  const tick = c.int(o.tick, `${path}.tick`, 0);
+  const tick = c.tick(o.tick, `${path}.tick`);
   const kind = c.oneOf(o.kind, LOG_KINDS, `${path}.kind`);
   switch (kind) {
     case 'contractAccepted':
@@ -290,13 +300,13 @@ export function validateCareer(c: Checker, raw: unknown, path: string): SavedCar
   return {
     nextId: c.int(o.nextId, `${path}.nextId`, 1),
     contracts,
-    boards: pairs(c, o.boards, `${path}.boards`, (e, p) => [c.stationId(e[0], p), board(c, e[1], `${p}[1]`)] as [string, BoardState]),
+    boards: unique(c, `${path}.boards`, SAVE_MAX_ENTRIES, pairs(c, o.boards, `${path}.boards`, (e, p) => [c.stationId(e[0], p), board(c, e[1], `${p}[1]`)] as [string, BoardState])),
     rep: repTable,
-    captains: pairs(c, o.captains, `${path}.captains`, (e, p) => [c.int(e[0], p, 0, CAPTAIN_COUNT - 1), captain(c, e[1], `${p}[1]`)] as [number, CaptainState]),
-    engaged: pairs(c, o.engaged, `${path}.engaged`, (e, p) => [c.int(e[0], p, 0, CAPTAIN_COUNT - 1), c.num(e[1], p, 0, 1)] as [number, number]),
+    captains: unique(c, `${path}.captains`, CAPTAIN_COUNT, pairs(c, o.captains, `${path}.captains`, (e, p) => [c.int(e[0], p, 0, CAPTAIN_COUNT - 1), captain(c, e[1], `${p}[1]`)] as [number, CaptainState])),
+    engaged: unique(c, `${path}.engaged`, CAPTAIN_COUNT, pairs(c, o.engaged, `${path}.engaged`, (e, p) => [c.int(e[0], p, 0, CAPTAIN_COUNT - 1), c.num(e[1], p, 0, 1)] as [number, number])),
     shipments,
     training: training(c, o.training, `${path}.training`),
-    demandSold: pairs(c, o.demandSold, `${path}.demandSold`, (e, p) => [c.stationId(e[0], p), c.int(e[1], p, 0), c.num(e[2], p, 0)] as [string, number, number]),
+    demandSold: unique(c, `${path}.demandSold`, SAVE_MAX_ENTRIES, pairs(c, o.demandSold, `${path}.demandSold`, (e, p) => [c.stationId(e[0], p), c.tick(e[1], p), c.num(e[2], p, 0)] as [string, number, number])),
     completed,
     trophies: (c.arr(o.trophies, `${path}.trophies`) ?? []).map((x, i) => {
       const t = c.obj(x, `${path}.trophies[${i}]`) ?? {};

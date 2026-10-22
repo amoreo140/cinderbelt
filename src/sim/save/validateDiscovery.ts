@@ -39,7 +39,7 @@ function signal(c: Checker, v: unknown, path: string): Signal {
     kind: c.oneOf<SignalKind>(o.kind, SIGNAL_KINDS, `${path}.kind`),
     pos: c.vec(o.pos, `${path}.pos`),
     radius: c.num(o.radius, `${path}.radius`, 0),
-    tick: c.int(o.tick, `${path}.tick`, 0),
+    tick: c.tick(o.tick, `${path}.tick`),
   };
 }
 
@@ -53,7 +53,7 @@ function fix(c: Checker, v: unknown, path: string): Fix {
 
 function logEntry(c: Checker, v: unknown, path: string): DiscoveryLogEntry {
   const o = c.obj(v, path) ?? {};
-  const tick = c.int(o.tick, `${path}.tick`, 0);
+  const tick = c.tick(o.tick, `${path}.tick`);
   const kind = c.oneOf(o.kind, ['poi', 'echo', 'journal', 'plan', 'archive'] as const, `${path}.kind`);
   switch (kind) {
     case 'poi':
@@ -89,7 +89,7 @@ export function validateDiscovery(c: Checker, raw: unknown, path: string): Saved
     const x = c.obj(e, p) ?? {};
     const id = c.str(x.id, `${p}.id`, true);
     if (!isJournalId(id)) c.err(`${p}.id`, 'unknown journal entry');
-    return { id, tick: c.int(x.tick, `${p}.tick`, 0) };
+    return { id, tick: c.tick(x.tick, `${p}.tick`) };
   });
   if (new Set(journal.map((e) => e.id)).size !== journal.length) c.err(`${path}.journal`, 'duplicate entries');
   const log = (c.arr(o.log, `${path}.log`) ?? []).map((e, i) => logEntry(c, e, `${path}.log[${i}]`));
@@ -119,7 +119,7 @@ export function validateDiscovery(c: Checker, raw: unknown, path: string): Saved
     buffs: (c.arr(o.buffs, `${path}.buffs`) ?? []).map((b, i) => {
       const p = `${path}.buffs[${i}]`;
       const x = c.obj(b, p) ?? {};
-      return { kind: c.oneOf<BuffKind>(x.kind, BUFF_KINDS, `${p}.kind`), until: c.int(x.until, `${p}.until`, 0) };
+      return { kind: c.oneOf<BuffKind>(x.kind, BUFF_KINDS, `${p}.kind`), until: c.until(x.until, `${p}.until`) };
     }),
     anomalyUsed: pairs(c, o.anomalyUsed, `${path}.anomalyUsed`, (x, p) => c.str(x, p, true), 0),
     scanner: {

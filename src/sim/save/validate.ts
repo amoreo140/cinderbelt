@@ -108,6 +108,30 @@ export const SAVE_MAX_TICK = 2 ** 40;
  */
 export const SAVE_MAX_COORD = 1e10;
 
+/**
+ * The largest saved "until" tick (a deadline, an arrival, a cooldown end): the current tick plus a
+ * duration. 2^32 ticks (over two years) is far above any duration the game schedules.
+ */
+export const SAVE_MAX_TICK_AHEAD = SAVE_MAX_TICK + 2 ** 32;
+
+/**
+ * The longest saved string, in UTF-16 units. The game's own free text is far shorter (the seed field holds
+ * 64 characters, ship names 24, map notes `NOTES.textMax`); ids and keys are a few dozen characters.
+ * A crafted import with a megabyte name would otherwise be copied into every slot list and re-saved.
+ */
+export const SAVE_MAX_STRING = 1024;
+
+/** The most entries of a saved collection the sim walks every step with no game-rule limit of its own. */
+export const SAVE_MAX_ENTRIES = 4096;
+
+/** The most parts of one saved grid (a ship, a wreck, a blueprint): the hull budget keeps real ships far below it. */
+export const SAVE_MAX_GRID_PARTS = 4096;
+
+/** Per-step collections of the combat state: far above what the chunk spawner and the loot rules produce. */
+export const SAVE_MAX_ENEMIES = 256;
+export const SAVE_MAX_PROJECTILES = 4096;
+export const SAVE_MAX_WRECKS = 512;
+
 export class Checker {
   readonly errors: string[] = [];
   /** Paths of values clamped to their capacity (warning `capacityClamped`, M1). */
@@ -129,16 +153,38 @@ export class Checker {
     return null;
   }
 
-  str(v: unknown, path: string, nonEmpty = false): string {
+  str(v: unknown, path: string, nonEmpty = false, max = SAVE_MAX_STRING): string {
+    if (typeof v === 'string' && v.length > max) {
+      this.err(path, `string longer than ${max} characters`);
+      return '';
+    }
     if (typeof v === 'string' && (!nonEmpty || v.length > 0)) return v;
     this.err(path, nonEmpty ? 'expected a non-empty string' : 'expected a string');
     return '';
+  }
+
+  /** A tick (an event that happened, a start): an integer from `min` up to `SAVE_MAX_TICK`. */
+  tick(v: unknown, path: string, min = 0): number {
+    return this.int(v, path, min, SAVE_MAX_TICK);
+  }
+
+  /** A deadline, arrival or cooldown end – a tick that may lie ahead: up to `SAVE_MAX_TICK_AHEAD`. */
+  until(v: unknown, path: string, min = 0): number {
+    return this.int(v, path, min, SAVE_MAX_TICK_AHEAD);
   }
 
   date(v: unknown, path: string): string {
     const s = this.str(v, path, true);
     if (s && Number.isNaN(Date.parse(s))) this.err(path, 'expected an ISO date');
     return s;
+  }
+
+  /** An array of at most `max` entries; a longer one is an error and reads as empty. */
+  capList(v: unknown, path: string, max: number): unknown[] {
+    const list = this.arr(v, path) ?? [];
+    if (list.length <= max) return list;
+    this.err(path, `more than ${max} entries`);
+    return [];
   }
 
   bool(v: unknown, path: string): boolean {
@@ -222,6 +268,10 @@ export class Checker {
     const o = this.obj(v, path);
     if (!o) return { nextId: 0, parts: [] };
     const list = this.arr(o.parts, `${path}.parts`) ?? [];
+    if (list.length > SAVE_MAX_GRID_PARTS) {
+      this.err(`${path}.parts`, 'too many parts');
+      return { nextId: 0, parts: [] };
+    }
     const ids = new Set<number>();
     let maxId = -1;
     const parts = list.map((raw, i) => {
@@ -356,14 +406,14 @@ export class Checker {
 
   combat(v: unknown, path: string): SavedCombatV16 {
     const o = this.obj(v, path) ?? {};
-    const enemies = (this.arr(o.enemies, `${path}.enemies`) ?? []).map((raw, i) => this.enemy(raw, `${path}.enemies[${i}]`));
+    const enemies = this.capList(o.enemies, `${path}.enemies`, SAVE_MAX_ENEMIES).map((raw, i) => this.enemy(raw, `${path}.enemies[${i}]`));
     const defeated: [string, number][] = [];
     (this.arr(o.defeated, `${path}.defeated`) ?? []).forEach((entry, i) => {
       const p = `${path}.defeated[${i}]`;
       if (!Array.isArray(entry) || entry.length !== 2) return this.err(p, 'expected [slotId, tick]');
-      defeated.push([this.str(entry[0], p, true), this.int(entry[1], p, 0)]);
+      defeated.push([this.str(entry[0], p, true), this.tick(entry[1], p)]);
     });
-    const projectiles = (this.arr(o.projectiles, `${path}.projectiles`) ?? []).map((raw, i) => {
+    const projectiles = this.capList(o.projectiles, `${path}.projectiles`, SAVE_MAX_PROJECTILES).map((raw, i) => {
       const p = `${path}.projectiles[${i}]`;
       const x = this.obj(raw, p) ?? {};
       return {
@@ -377,8 +427,8 @@ export class Checker {
         origin: this.vec(x.origin, `${p}.origin`),
       };
     });
-    const wrecks = (this.arr(o.wrecks, `${path}.wrecks`) ?? []).map((raw, i) => this.wreck(raw, `${path}.wrecks[${i}]`));
-    const containers = (this.arr(o.containers, `${path}.containers`) ?? []).map((raw, i) => this.container(raw, `${path}.containers[${i}]`));
+    const wrecks = this.capList(o.wrecks, `${path}.wrecks`, SAVE_MAX_WRECKS).map((raw, i) => this.wreck(raw, `${path}.wrecks[${i}]`));
+    const containers = this.capList(o.containers, `${path}.containers`, SAVE_MAX_ENTRIES).map((raw, i) => this.container(raw, `${path}.containers[${i}]`));
     return {
       rng: this.int(o.rng, `${path}.rng`, 0, 0xffff_ffff),
       nextId: this.int(o.nextId, `${path}.nextId`, 1),
