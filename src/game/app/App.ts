@@ -42,6 +42,7 @@ import { downloadTextFile, readFileText } from '../storage/fileTransfer';
 import { requestPersistentStorage } from '../storage/indexedDbStorage';
 import type { StorageHandle } from '../storage/open';
 import { transition, gameActive, INITIAL_APP_STATE, simulationRunning, type AppEvent, type AppState } from './appState';
+import { crashReport, initialCrashSave, isBenignError, shouldEmergencySave, ToastThrottle, type CrashInfo, type CrashView } from './crash';
 import type { GameRuntime, RuntimeLoad } from './runtimeLoad';
 
 declare global {
@@ -114,6 +115,9 @@ export class App {
   private dying = false;
   private deathTimer: ReturnType<typeof setTimeout> | null = null;
   private death: DeathInfo | null = null;
+  /** The frame loop crashed (the crash card is up); null = no crash. */
+  private crash: CrashView | null = null;
+  private readonly errorToasts = new ToastThrottle();
   private readonly systemReducedMotion: MediaQueryList | null;
   /** Guard against the same game in two tabs (Web Locks) and the lock on the running game's slot. */
   private readonly locks = new SlotLocks();
@@ -153,6 +157,8 @@ export class App {
     document.addEventListener('visibilitychange', () => this.onHidden(document.visibilityState === 'hidden'), { signal });
     window.addEventListener('pagehide', () => this.onHidden(true), { signal });
     this.systemReducedMotion?.addEventListener('change', () => this.applyMotion(), { signal });
+    window.addEventListener('error', (e) => this.onStrayError(e.message, e.error), { signal });
+    window.addEventListener('unhandledrejection', (e) => this.onStrayError(String((e.reason as { message?: unknown } | null)?.message ?? e.reason ?? ''), e.reason ?? new Error('Unhandled rejection')), { signal });
     if (import.meta.env.DEV) window.__cinderApp = this;
   }
 
@@ -285,7 +291,7 @@ export class App {
     if (s.kind === 'menu' && s.page !== 'home') {
       e.preventDefault();
       this.dispatch({ type: 'back' });
-    } else if (s.kind === 'game' && s.overlay && s.overlay !== 'death') {
+    } else if (s.kind === 'game' && s.overlay && s.overlay !== 'death' && s.overlay !== 'crash') {
       e.preventDefault();
       this.dispatch({ type: 'back' });
     }
@@ -304,7 +310,7 @@ export class App {
     const runtime = this.runtime;
     if (!runtime) throw new Error('launch() before the game runtime loaded (await gameRuntime() first)');
     this.renderContext ??= runtime.context;
-    this.game = new runtime.Game(this.options.gameElement, this.gameUi, runtime.library, {
+    const game: Game = (this.game = new runtime.Game(this.options.gameElement, this.gameUi, runtime.library, {
       sim,
       renderContext: this.renderContext,
       audio: this.audio,
@@ -323,9 +329,10 @@ export class App {
         },
         afterStep: (events) => this.afterStep(events),
         onQuickSave: () => void this.quickSave(),
+        onCrash: (info) => this.onCrash(game, info),
       },
-    });
-    const ready = this.game.start();
+    }));
+    const ready = game.start();
     this.menuError = null;
     this.dispatch({ type: 'gameStarted' });
     // saves only in the tab's memory – the player must know right away (export is in the pause menu)
@@ -338,12 +345,95 @@ export class App {
   private stopGame(): void {
     if (this.deathTimer) clearTimeout(this.deathTimer);
     this.deathTimer = null;
-    this.game?.stop();
+    this.crash = null;
+    const game = this.game;
     this.game = null;
     this.saver = null;
     this.scheduler = null;
     this.dying = false;
     this.death = null;
+    try {
+      game?.stop();
+    } catch (e) {
+      // a game that crashed may have a broken renderer: stopping it must not take the menu down too
+      console.error('Stopping the game failed:', e);
+      render(null, this.gameUi);
+    }
+  }
+
+  /** The frame loop threw: stop at the card, save the progress when the state can be trusted. */
+  private onCrash(game: Game, info: CrashInfo): void {
+    if (this.game !== game || this.crash) return;
+    const hasSession = this.session !== null;
+    const willSave = shouldEmergencySave({ hasSession, dying: this.dying, simIntact: info.simIntact });
+    this.crash = {
+      save: initialCrashSave({ hasSession }, willSave),
+      sinceSave: this.lastSaveAt === null ? null : performance.now() - this.lastSaveAt,
+      report: crashReport(this.options.version, info.error, typeof navigator === 'undefined' ? '' : navigator.userAgent),
+    };
+    if (this.deathTimer) clearTimeout(this.deathTimer);
+    this.deathTimer = null;
+    try {
+      this.dispatch({ type: 'crashed' });
+    } catch (e) {
+      console.error('Showing the crash card failed:', e);
+    }
+    if (willSave) void this.emergencySave(game);
+  }
+
+  private async emergencySave(game: Game): Promise<void> {
+    let saved = false;
+    try {
+      // the normal path: an invalid snapshot is refused there and the slot keeps its previous save as the backup
+      const outcome = await this.save('interval');
+      saved = outcome?.status === 'saved' || outcome?.status === 'superseded';
+    } catch (e) {
+      console.error('Emergency save failed:', e);
+    }
+    if (this.game !== game || !this.crash) return;
+    this.crash = { ...this.crash, save: saved ? 'saved' : 'kept', sinceSave: this.lastSaveAt === null ? null : performance.now() - this.lastSaveAt };
+    this.render();
+  }
+
+  /** Crash card: Back to menu – no save, the slot lock goes, the player can load the slot again. */
+  private leaveCrash(): void {
+    if (!this.crash) return;
+    this.stopGame();
+    this.adoptLock(null);
+    this.dispatch({ type: 'leaveCrash' });
+  }
+
+  private async copyCrashReport(): Promise<boolean> {
+    const text = this.crash?.report;
+    if (!text) return false;
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // no clipboard permission (or an insecure context): the old way
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.append(area);
+      area.select();
+      try {
+        return document.execCommand('copy');
+      } catch {
+        return false;
+      } finally {
+        area.remove();
+      }
+    }
+  }
+
+  /** An error outside the frame loop (window `error` / `unhandledrejection`): log it and tell the player once in a while. */
+  private onStrayError(message: string, error: unknown): void {
+    if (isBenignError(message, error)) return;
+    console.error('Unhandled error:', error ?? message);
+    if (this.crash) return;
+    if (!this.errorToasts.take(performance.now())) return;
+    this.flash(tx().app.crash.toast, 'error', 5000);
   }
 
   /** Quick start without saving (`?play` in dev mode – e2e tests). */
@@ -823,6 +913,8 @@ export class App {
     },
     respawn: (evacuate) => void this.finishDeath(evacuate),
     respawnFromTemplate: () => this.respawnFromTemplate(),
+    leaveCrash: () => this.leaveCrash(),
+    copyCrashReport: () => this.copyCrashReport(),
     setSettings: (patch) => this.updateSettings(patch),
     // a reset keeps the language: the player chose it and the rest of the screen depends on it
     resetSettings: () => this.updateSettings({ ...DEFAULT_USER_SETTINGS, language: this.settings.language }),
@@ -860,6 +952,7 @@ export class App {
             }
           : null,
       death: this.death,
+      crash: this.crash,
       currentSlot: this.session?.slot ?? null,
       newGameSlot: this.newGameSlot,
       skipTraining: loadSkipTraining(localStore()),

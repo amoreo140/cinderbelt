@@ -10,6 +10,7 @@ import type { DeathView, Silhouette } from '../../game/combatView';
 import type { PartInventory } from '../../data/parts';
 import type { Cargo } from '../../data/resources';
 import type { DifficultyChoice, GameSettings } from '../../sim/settings';
+import type { CrashView } from '../../game/app/crash';
 import type { ToastTone } from '../theme';
 
 export interface StorageStatus {
@@ -65,6 +66,8 @@ export interface OverlayData {
   indicator: SaveIndicatorState;
   pause: PauseInfo | null;
   death: DeathInfo | null;
+  /** The frame loop crashed: what the card says (null = no crash). */
+  crash: CrashView | null;
   /** Slot of the running game (Load from the pause menu marks it). */
   currentSlot: SlotRef | null;
   /** Preselected slot of the New game screen (from Load → "New game here"). */
@@ -104,6 +107,10 @@ export interface OverlayHandlers {
   respawn(evacuate: boolean): void;
   /** Respawn and open the shipyard with the Templates modal (M4a, the death card's template action). */
   respawnFromTemplate?(): void;
+  /** Crash card: leave to the menu without saving. */
+  leaveCrash(): void;
+  /** Crash card: copy the error details; resolves false when the clipboard refused. */
+  copyCrashReport(): Promise<boolean>;
   setSettings(patch: Partial<UserSettings>): void;
   resetSettings(): void;
   dismissBanner(): void;

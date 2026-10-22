@@ -169,6 +169,11 @@ export interface GameHooks {
   afterStep?: (events: readonly SimEvent[]) => void;
   /** F5 – quick save (in space too). */
   onQuickSave?: () => void;
+  /**
+   * The frame loop threw and stopped (reported once). `simIntact` = false when the throw came from the
+   * fixed-step simulation advance (the state may be half-updated), true for rendering, UI, audio, ….
+   */
+  onCrash?: (info: { error: unknown; simIntact: boolean }) => void;
 }
 
 export interface GameOptions {
@@ -1349,7 +1354,38 @@ export class Game {
     }
   }
 
+  /** True while the fixed-step simulation advance runs (a throw then may leave the state half-updated). */
+  private inSimStep = false;
+  private crashed = false;
+
+  /** One frame; an error ends the loop and goes to the app (once), never freezes the picture silently. */
   private readonly tick = (now: number): void => {
+    this.inSimStep = false;
+    try {
+      this.frameBody(now);
+    } catch (error) {
+      this.crash(error);
+      return;
+    }
+    // a hook (menu, quit) may have stopped the game during the frame
+    if (this.lifetime.signal.aborted) return;
+    this.frame = requestAnimationFrame(this.tick);
+  };
+
+  private crash(error: unknown): void {
+    if (this.crashed) return;
+    this.crashed = true;
+    const simIntact = !this.inSimStep;
+    this.frame = null;
+    console.error('Frame loop crashed:', error);
+    try {
+      this.hooks.onCrash?.({ error, simIntact });
+    } catch (e) {
+      console.error('Crash handler failed:', e);
+    }
+  }
+
+  private frameBody(now: number): void {
     const dt = this.lastTime === null ? 0 : Math.min((now - this.lastTime) / 1000, 0.25);
     this.lastTime = now;
     this.clock += dt;
@@ -1374,7 +1410,9 @@ export class Game {
         this.renderer.render(1, 0, this.aim);
       }
     } else {
+      this.inSimStep = true;
       const alpha = this.loop.advance(dt);
+      this.inSimStep = false;
       this.updateCollision();
       this.updateDockReadout();
       this.renderer.miningHeld = this.pointer.right && !this.docked;
@@ -1392,9 +1430,7 @@ export class Game {
       this.uiHeldUntilFrame = false;
       this.uiElement.style.visibility = '';
     }
-
-    this.frame = requestAnimationFrame(this.tick);
-  };
+  }
 
   /**
    * The 3D frame. Under the open map (flight) the scene is not drawn: the canvas keeps its last frame,

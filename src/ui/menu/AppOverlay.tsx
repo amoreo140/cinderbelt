@@ -2,6 +2,7 @@ import { render } from 'preact';
 import { tx } from '../../i18n';
 import { Lamp, ToastView, TooltipLayer } from '../theme';
 import { AboutScreen } from './AboutScreen';
+import { CrashCard } from './CrashCard';
 import { DeathCard } from './DeathCard';
 import { LoadScreen } from './LoadScreen';
 import { MainMenu } from './MainMenu';
@@ -48,6 +49,8 @@ export function AppOverlay({ data, on }: { data: OverlayData; on: OverlayHandler
     content =
       o === 'pause' ? (
         <PauseMenu data={data} on={on} />
+      ) : o === 'crash' ? (
+        data.crash && <CrashCard crash={data.crash} on={on} />
       ) : o === 'death' ? (
         data.death && <DeathCard death={data.death} on={on} template={data.death.template} onTemplate={on.respawnFromTemplate} />
       ) : (

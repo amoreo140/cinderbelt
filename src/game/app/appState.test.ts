@@ -81,4 +81,22 @@ describe('app state machine', () => {
     expect(transition({ kind: 'game', overlay: null }, { type: 'resume' })).toBeNull();
     expect(transition({ kind: 'game', overlay: null }, { type: 'quitToMenu' })).toBeNull();
   });
+  it('a crash opens a card that only Back to menu leaves', () => {
+    const playing: AppState = { kind: 'game', overlay: null };
+    const crashed = run([{ type: 'crashed' }], playing);
+    expect(crashed).toEqual({ kind: 'game', overlay: 'crash' });
+    expect(simulationRunning(crashed)).toBe(false);
+    expect(gameActive(crashed)).toBe(true);
+    // also over the pause or the death card
+    expect(run([{ type: 'crashed' }], { kind: 'game', overlay: 'pause' })).toEqual(crashed);
+    expect(run([{ type: 'crashed' }], { kind: 'game', overlay: 'death' })).toEqual(crashed);
+    // Esc (back), pause, resume, a death or a second crash do not close or replace it
+    for (const type of ['back', 'pause', 'resume', 'died', 'respawned', 'crashed', 'quitToMenu', 'gameStarted'] as const) {
+      expect(transition(crashed, { type })).toBeNull();
+    }
+    expect(transition(crashed, { type: 'open', page: 'settings' })).toBeNull();
+    expect(run([{ type: 'leaveCrash' }], crashed)).toEqual({ kind: 'menu', page: 'home' });
+    expect(transition(playing, { type: 'leaveCrash' })).toBeNull();
+    expect(transition({ kind: 'menu', page: 'home' }, { type: 'crashed' })).toBeNull();
+  });
 });

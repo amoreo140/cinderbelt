@@ -4,7 +4,7 @@
 /** Main menu screens. */
 export type MenuPage = 'home' | 'newGame' | 'load' | 'settings' | 'about';
 /** Overlay above the running game (the simulation stands for every one except null). */
-export type GameOverlay = 'pause' | 'load' | 'settings' | 'death';
+export type GameOverlay = 'pause' | 'load' | 'settings' | 'death' | 'crash';
 
 export type AppState =
   | { kind: 'boot' }
@@ -27,7 +27,11 @@ export type AppEvent =
   /** Cockpit destroyed – the death card, the simulation stands. */
   | { type: 'died' }
   /** Penalty applied, the game continues at the respawn station. */
-  | { type: 'respawned' };
+  | { type: 'respawned' }
+  /** The frame loop threw and stopped – the crash card (nothing but Back to menu leaves it). */
+  | { type: 'crashed' }
+  /** Back to menu from the crash card (no save). */
+  | { type: 'leaveCrash' };
 
 export const INITIAL_APP_STATE: AppState = { kind: 'boot' };
 
@@ -69,9 +73,13 @@ export function transition(state: AppState, event: AppEvent): AppState | null {
         case 'quitToMenu':
           return overlay === 'pause' ? { kind: 'menu', page: 'home' } : null;
         case 'died':
-          return overlay !== 'death' ? { kind: 'game', overlay: 'death' } : null;
+          return overlay !== 'death' && overlay !== 'crash' ? { kind: 'game', overlay: 'death' } : null;
         case 'respawned':
           return overlay === 'death' ? { kind: 'game', overlay: null } : null;
+        case 'crashed':
+          return overlay !== 'crash' ? { kind: 'game', overlay: 'crash' } : null;
+        case 'leaveCrash':
+          return overlay === 'crash' ? { kind: 'menu', page: 'home' } : null;
         default:
           return null;
       }

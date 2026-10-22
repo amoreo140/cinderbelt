@@ -790,6 +790,22 @@ export interface CoreTexts {
       controls: string;
       tech: string;
     };
+    crash: {
+      title: string;
+      lead: string;
+      saving: string;
+      saved: string;
+      /** `ago` = time since the last save, null = unknown. */
+      kept: (ago: string | null) => string;
+      unsaved: string;
+      back: string;
+      copy: string;
+      copied: string;
+      copyFailed: string;
+      hint: string;
+      /** Toast for an error outside the frame loop. */
+      toast: string;
+    };
     death: {
       title: string;
       lead: (difficulty: string) => string;
@@ -1549,6 +1565,20 @@ export const sk = {
         'Hra sa ukladá sama pri pristátí, každé 2 minúty hry, pri odchode do menu a keď skryješ kartu. Kedykoľvek ulož klávesom F5 alebo v pauze (Esc). Uložené hry sú len v tomto prehliadači – dôležité si exportuj do súboru.',
       controls: 'Ovládanie',
       tech: 'Three.js, Preact, Web Audio. Písma Archivo a Atkinson Hyperlegible Next.',
+    },
+    crash: {
+      title: 'Hra sa zastavila',
+      lead: 'V hre sa niečo pokazilo a nemôže pokračovať. Je to chyba hry, nie tvoja.',
+      saving: 'Ukladám tvoj postup…',
+      saved: 'Tvoj postup sa práve uložil.',
+      kept: (ago: string | null): string => (ago ? `Posledné uloženie zostalo zachované (pred ${ago}).` : 'Posledné uloženie zostalo zachované.'),
+      unsaved: 'Táto hra nie je uložená, takže sa nedalo nič zachovať.',
+      back: 'Späť do menu',
+      copy: 'Skopírovať podrobnosti chyby',
+      copied: 'Skopírované',
+      copyFailed: 'Kopírovanie zlyhalo',
+      hint: 'Nahlásenie chyby nám pomôže opraviť ju. Vlož podrobnosti sem:',
+      toast: 'Niečo sa pokazilo – podrobnosti sú v konzole prehliadača',
     },
     death: {
       title: 'Loď zničená',

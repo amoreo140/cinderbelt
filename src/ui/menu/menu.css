@@ -1190,3 +1190,27 @@
   grid-template-columns: 1fr 1fr;
   gap: inherit;
 }
+
+/* ───────────── crash card ───────────── */
+.cr-card {
+  width: min(30rem, 100%);
+}
+.cr-card .af-hazard {
+  margin: 0 6px;
+}
+.cr-card .sheet-body {
+  box-shadow: none;
+}
+.cr-card .ps-info {
+  margin: 0.2rem 0 0.9rem;
+}
+.cr-hint {
+  margin: 0;
+  line-height: 1.5;
+}
+.cr-hint a {
+  color: var(--af-ink);
+  font-weight: 600;
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
