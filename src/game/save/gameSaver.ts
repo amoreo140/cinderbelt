@@ -5,6 +5,15 @@ import type { SaveReason } from '../../sim/save/types';
 import type { Simulation } from '../../sim/Simulation';
 import type { GameSession, SaveOutcome, SaveService } from './saveService';
 
+/** Runs a save; a synchronous throw or a rejection ends as a failed outcome (callers show it, nothing stays "saving"). */
+export async function settleSave(run: () => Promise<SaveOutcome | null>): Promise<SaveOutcome | null> {
+  try {
+    return await run();
+  } catch (error) {
+    return { status: 'failed', error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
 export class GameSaver {
   private current: GameSession;
   private move: Promise<unknown> | null = null;
@@ -44,6 +53,9 @@ export class GameSaver {
       this.current = session;
       this.move = null;
       return outcome;
+    }, (e: unknown) => {
+      this.move = null;
+      throw e;
     });
     this.move = job;
     return job;

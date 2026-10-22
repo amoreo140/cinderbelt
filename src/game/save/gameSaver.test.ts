@@ -4,7 +4,7 @@ import { applyDeath } from '../../sim/death/death';
 import type { SlotRef } from '../../sim/save/types';
 import type { DifficultyChoice } from '../../sim/settings';
 import { MemorySaveStorage } from '../storage/memoryStorage';
-import { GameSaver } from './gameSaver';
+import { GameSaver, settleSave } from './gameSaver';
 import { SaveService } from './saveService';
 
 const resource = RESOURCE_IDS[0]!;
@@ -93,5 +93,20 @@ describe('GameSaver', () => {
     expect(await saver.save(sim, 'interval')).toMatchObject({ status: 'saved', meta: { slot: { difficulty: 'hard', index: 0 } } });
     expect(saver.session.slot).toEqual({ difficulty: 'hard', index: 0 });
     expect(await slots()).toEqual(['hard/0']);
+  });
+});
+
+describe('settleSave', () => {
+  it('turns a synchronous throw and a rejection into a failed outcome', async () => {
+    const sync = await settleSave(() => {
+      throw new Error('no storage');
+    });
+    expect(sync).toEqual({ status: 'failed', error: 'no storage' });
+    expect(await settleSave(() => Promise.reject(new Error('quota')))).toEqual({ status: 'failed', error: 'quota' });
+  });
+
+  it('passes an outcome through', async () => {
+    expect(await settleSave(() => Promise.resolve({ status: 'superseded' }))).toEqual({ status: 'superseded' });
+    expect(await settleSave(() => Promise.resolve(null))).toBeNull();
   });
 });

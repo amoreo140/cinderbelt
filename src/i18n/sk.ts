@@ -87,6 +87,9 @@ export interface CoreTexts {
     models: (loaded: number, total: number) => string;
     /** The game's code or models did not download (a game start from the menu). */
     failed: string;
+    /** A lazily loaded screen's chunk did not download (inline, with a Retry button). */
+    screenFailed: string;
+    retry: string;
   };
   map: {
     title: string;
@@ -701,6 +704,8 @@ export interface CoreTexts {
       deleted: string;
       deleteCurrent: string;
       deleteFailed: string;
+      /** The game was loaded or created but could not be started. */
+      startFailed: string;
       exportFailed: string;
       loadedBackup: string;
       cantLoad: string;
@@ -903,6 +908,8 @@ export const sk = {
     title: 'Načítavam…',
     models: (loaded: number, total: number): string => `Modely ${loaded} / ${total}`,
     failed: 'Hra sa nenačítala – skontroluj pripojenie a skús to znova.',
+    screenFailed: 'Túto obrazovku sa nepodarilo načítať.',
+    retry: 'Skúsiť znova',
   },
   map: { title: 'Mapa', close: 'M – zavrieť', home: 'Domov', ringRadius: (thousands: string): string => `${thousands} tis. j` },
   stationNames: {
@@ -1482,6 +1489,7 @@ export const sk = {
       deleted: 'Hra zmazaná',
       deleteCurrent: 'Túto hru práve hráš – najprv odíď do menu.',
       deleteFailed: 'Hru sa nepodarilo zmazať.',
+      startFailed: 'Hru sa nepodarilo spustiť.',
       exportFailed: 'Export sa nepodaril.',
       loadedBackup: 'Načítaná záloha – hlavný záznam bol poškodený.',
       cantLoad: 'Nedá sa načítať',

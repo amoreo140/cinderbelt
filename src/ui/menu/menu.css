@@ -1192,6 +1192,10 @@
 }
 
 /* ───────────── crash card ───────────── */
+/* the game behind it is frozen and broken: the scrim's dark edge colour all over, so the station panel does not compete with the card */
+.cr-backdrop {
+  background: rgba(3, 5, 10, 0.88);
+}
 .cr-card {
   width: min(30rem, 100%);
 }

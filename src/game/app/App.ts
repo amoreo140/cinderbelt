@@ -23,8 +23,8 @@ import { musicScreenFor } from '../musicSituation';
 import { randomSeedText } from '../newGame/seedWords';
 import { loadSkipTraining, saveSkipTraining } from '../newGame/trainingPref';
 import { AutosaveScheduler } from '../save/autosave';
-import { GameSaver } from '../save/gameSaver';
-import { SlotLocks, type SlotLock } from '../save/slotLock';
+import { GameSaver, settleSave } from '../save/gameSaver';
+import { releaseOnThrow, SlotLocks, type SlotLock } from '../save/slotLock';
 import { sameSlot } from '../storage/slots';
 import { loadWarningTexts } from '../save/loadWarnings';
 import { SaveService, type GameSession, type SaveOutcome, type SlotOverview } from '../save/saveService';
@@ -479,16 +479,20 @@ export class App {
     if (sim.state.player.destroyed && reason !== 'death') return null;
     this.scheduler?.markSaved(sim.state.tick);
     this.showIndicator('saving');
-    const outcome = await saver.save(sim, reason);
+    const outcome = await this.runSave(saver, sim, reason);
     if (outcome) this.afterSave(outcome);
     return outcome;
+  }
+
+  private runSave(saver: GameSaver, sim: Simulation, reason: SaveReason): Promise<SaveOutcome | null> {
+    return settleSave(() => saver.save(sim, reason));
   }
 
   /** Saves the destroyed ship (no indicator – the explosion is running); the penalty applies on next start. */
   private persistDestroyed(): void {
     const sim = this.game?.simulation;
     if (!sim || !this.saver || !sim.state.player.destroyed) return;
-    void this.saver.save(sim, 'death').then((outcome) => {
+    void this.runSave(this.saver, sim, 'death').then((outcome) => {
       if (outcome?.status === 'failed') console.error('Saving the destroyed ship failed:', outcome.error);
     });
   }
@@ -610,7 +614,7 @@ export class App {
     this.scheduler?.markSaved(sim.state.tick);
     this.showIndicator('saving');
     // on a hardcore fall GameSaver moves the game to Hard; further saves wait for the move
-    const saved = await saver.save(sim, 'death');
+    const saved = await this.runSave(saver, sim, 'death');
     if (saved) this.afterSave(saved);
   }
 
@@ -676,27 +680,34 @@ export class App {
         fail(tx().app.load.openElsewhere);
         return;
       }
-      // from the pause menu: save the game in progress first so the progress is not lost
-      if (this.game && this.session) {
-        await this.save('quit');
-        await this.saves.flush();
+      const before = this.game;
+      try {
+        await releaseOnThrow(lock, (l) => l === this.slotLock, async () => {
+          // from the pause menu: save the game in progress first so the progress is not lost
+          if (this.game && this.session) {
+            await this.save('quit');
+            await this.saves.flush();
+          }
+          const result = await this.saves.load(slot, which);
+          if (!result.ok) {
+            if (lock !== this.slotLock) lock.release();
+            console.error('Load failed:', result.error, result.details.join('; '));
+            fail(result.error === 'tooNew' ? tx().saves.loadErrors.tooNew(result.version ?? 0) : tx().saves.loadErrors[result.error]);
+            void this.refreshSlots();
+            return;
+          }
+          const ready = this.launch(result.sim, result.session, !result.sim.state.player.destroyed);
+          this.adoptLock(lock);
+          // backup and repairs on load (ship replaced, hull budget exceeded) – the player must know
+          const notes = loadWarningTexts(result.warnings, (id) => stationLabel(result.sim, id));
+          if (which === 'backup') notes.unshift(tx().app.load.loadedBackup);
+          if (notes.length > 0) this.game?.notify(notes.join(' '), 'info', 4 + 2 * notes.length);
+          // the loading overlay stays up over the shader warm-up
+          await ready;
+        });
+      } catch (e) {
+        this.startFailed('Load failed:', e, before, fail);
       }
-      const result = await this.saves.load(slot, which);
-      if (!result.ok) {
-        if (lock !== this.slotLock) lock.release();
-        console.error('Load failed:', result.error, result.details.join('; '));
-        fail(result.error === 'tooNew' ? tx().saves.loadErrors.tooNew(result.version ?? 0) : tx().saves.loadErrors[result.error]);
-        void this.refreshSlots();
-        return;
-      }
-      const ready = this.launch(result.sim, result.session, !result.sim.state.player.destroyed);
-      this.adoptLock(lock);
-      // backup and repairs on load (ship replaced, hull budget exceeded) – the player must know
-      const notes = loadWarningTexts(result.warnings, (id) => stationLabel(result.sim, id));
-      if (which === 'backup') notes.unshift(tx().app.load.loadedBackup);
-      if (notes.length > 0) this.game?.notify(notes.join(' '), 'info', 4 + 2 * notes.length);
-      // the loading overlay stays up over the shader warm-up
-      await ready;
     });
   }
 
@@ -709,26 +720,55 @@ export class App {
         this.flash(tx().app.load.openElsewhere, 'error', 5000);
         return;
       }
-      saveSkipTraining(localStore(), request.skipTraining);
-      const result = await this.saves.newGame({ slot: request.slot, seedText: request.seedText, choice: request.choice, training: !request.skipTraining });
-      if (!result.ok) {
-        if (lock !== this.slotLock) lock.release();
-        this.flash(tx().app.newGame.failed, 'error', 5000);
-        return;
+      const before = this.game;
+      try {
+        await releaseOnThrow(lock, (l) => l === this.slotLock, async () => {
+          saveSkipTraining(localStore(), request.skipTraining);
+          const result = await this.saves.newGame({ slot: request.slot, seedText: request.seedText, choice: request.choice, training: !request.skipTraining });
+          if (!result.ok) {
+            if (lock !== this.slotLock) lock.release();
+            this.flash(tx().app.newGame.failed, 'error', 5000);
+            return;
+          }
+          const ready = this.launch(result.sim, result.session);
+          this.adoptLock(lock);
+          this.afterSave(result.outcome);
+          await ready;
+        });
+      } catch (e) {
+        this.startFailed('New game failed:', e, before, (text) => this.flash(text, 'error', 5000));
       }
-      const ready = this.launch(result.sim, result.session);
-      this.adoptLock(lock);
-      this.afterSave(result.outcome);
-      await ready;
     });
+  }
+
+  /**
+   * Loading or creating a game threw (a lock that was not adopted is already released): stop the half-started
+   * game (`before` = the game running when the attempt began), leave a game screen that has no game behind it,
+   * tell the player and log the error.
+   */
+  private startFailed(what: string, error: unknown, before: Game | null, fail: (text: string) => void): void {
+    console.error(what, error);
+    // a game that kept running (the throw came before launch() replaced it) stays as it is
+    if (this.game !== before || (!before && this.saver)) {
+      this.stopGame();
+      this.adoptLock(null);
+      if (this.state.kind === 'game') this.dispatch({ type: 'startFailed' });
+    }
+    fail(tx().app.load.startFailed);
+    void this.refreshSlots();
   }
 
   private async quit(): Promise<void> {
     if (this.busy) return;
     await this.withBusy(tx().saves.saving, async () => {
-      if (this.session) {
-        await this.save('quit');
-        await this.saves.flush();
+      try {
+        if (this.session) {
+          await this.save('quit');
+          await this.saves.flush();
+        }
+      } catch (e) {
+        // the failure is already shown by the save; it must not keep the player in the game
+        console.error('Saving on quit failed:', e);
       }
       this.stopGame();
       this.adoptLock(null);

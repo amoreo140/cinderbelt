@@ -64,6 +64,8 @@ export const de: CoreTexts = {
     title: 'Lädt…',
     models: (loaded, total) => `Modelle ${loaded} / ${total}`,
     failed: 'Das Spiel wurde nicht geladen – prüf deine Verbindung und versuch es erneut.',
+    screenFailed: 'Dieser Bildschirm konnte nicht geladen werden.',
+    retry: 'Erneut versuchen',
   },
   map: { title: 'Karte', close: 'M – schließen', home: 'Heimat', ringRadius: (thousands) => `${thousands}k E` },
   stationNames: {
@@ -654,6 +656,7 @@ export const de: CoreTexts = {
       deleted: 'Spiel gelöscht',
       deleteCurrent: 'Du spielst gerade dieses Spiel – kehr zuerst ins Menü zurück.',
       deleteFailed: 'Das Spiel konnte nicht gelöscht werden.',
+      startFailed: 'Das Spiel konnte nicht gestartet werden.',
       exportFailed: 'Der Export ist fehlgeschlagen.',
       loadedBackup: 'Sicherung geladen – der Haupteintrag war beschädigt.',
       cantLoad: 'Nicht ladbar',

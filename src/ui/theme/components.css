@@ -1182,3 +1182,17 @@
   from { transform: translateX(-8px); opacity: 0; }
   to { transform: none; opacity: 1; }
 }
+
+/* a lazily loaded screen that failed to download (lazy.ts): short text and a Retry button */
+.lz-fail {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.8rem;
+  padding: 0.7rem 0.9rem;
+  font-size: var(--af-fs-sm);
+  pointer-events: auto;
+}
+.lz-fail-text {
+  flex: 1;
+}

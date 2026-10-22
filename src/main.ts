@@ -5,7 +5,9 @@ import { RuntimeLoad } from './game/app/runtimeLoad';
 import { whenIdle } from './ui/lazy';
 import { loadUserSettings } from './game/settings/userSettings';
 import { openSaveStorage } from './game/storage/open';
-import { setLocale } from './i18n';
+import { showBootError } from './bootError';
+import { setLocale, loadTexts } from './i18n';
+import { applyFirstLocale } from './i18n/firstLocale';
 
 const gameElement = document.getElementById('game');
 const uiElement = document.getElementById('ui');
@@ -18,18 +20,21 @@ function quickStartSeed(): string | null {
   return params.has('play') ? params.get('play') || '1337' : null;
 }
 
+function settingsStore(): Storage | null {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * The UI language before the first screen (the loading bar): only its texts are downloaded; the App
- * applies later changes.
+ * applies later changes. A language that does not download is retried once, then another one is used;
+ * rejects when none does.
  */
 async function initialLocale(): Promise<void> {
-  let store: Storage | null = null;
-  try {
-    store = globalThis.localStorage ?? null;
-  } catch {
-    store = null;
-  }
-  await setLocale(loadUserSettings(store).language);
+  await applyFirstLocale(loadUserSettings(settingsStore()).language, { load: loadTexts, set: setLocale });
 }
 
 /** `?fixture=<name>` (dev only): straight into a test save position (tests/fixtures/saves). */
@@ -70,4 +75,4 @@ async function boot(game: HTMLElement, ui: HTMLElement): Promise<void> {
   app.start(quickStart);
 }
 
-void boot(gameElement, uiElement);
+boot(gameElement, uiElement).catch((e: unknown) => showBootError(uiElement, loadUserSettings(settingsStore()).language, e));

@@ -64,6 +64,8 @@ export const en: CoreTexts = {
     title: 'Loading…',
     models: (loaded, total) => `Models ${loaded} / ${total}`,
     failed: 'The game did not load – check your connection and try again.',
+    screenFailed: 'This screen failed to load.',
+    retry: 'Retry',
   },
   map: { title: 'Map', close: 'M – close', home: 'Home', ringRadius: (thousands) => `${thousands}k u` },
   stationNames: {
@@ -637,6 +639,7 @@ export const en: CoreTexts = {
       deleted: 'Game deleted',
       deleteCurrent: 'You are playing this game – quit to the menu first.',
       deleteFailed: 'The game could not be deleted.',
+      startFailed: 'The game could not be started.',
       exportFailed: 'The export failed.',
       loadedBackup: 'Backup loaded – the main record was corrupted.',
       cantLoad: 'Cannot be loaded',

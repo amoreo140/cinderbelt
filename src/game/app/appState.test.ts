@@ -99,4 +99,10 @@ describe('app state machine', () => {
     expect(transition(playing, { type: 'leaveCrash' })).toBeNull();
     expect(transition({ kind: 'menu', page: 'home' }, { type: 'crashed' })).toBeNull();
   });
+
+  it('a failed start returns from any game screen to the menu, and is ignored elsewhere', () => {
+    expect(transition({ kind: 'game', overlay: 'load' }, { type: 'startFailed' })).toEqual({ kind: 'menu', page: 'home' });
+    expect(transition({ kind: 'game', overlay: null }, { type: 'startFailed' })).toEqual({ kind: 'menu', page: 'home' });
+    expect(transition({ kind: 'menu', page: 'load' }, { type: 'startFailed' })).toBeNull();
+  });
 });

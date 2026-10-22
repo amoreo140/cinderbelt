@@ -30,7 +30,7 @@ export function CrashCard({ crash, on }: { crash: CrashView; on: OverlayHandlers
     void on.copyCrashReport().then((ok) => setCopy(ok ? 'copied' : 'failed'));
   };
   return (
-    <div class="ps-backdrop" data-testid="crash-card">
+    <div class="ps-backdrop cr-backdrop" data-testid="crash-card">
       <section ref={ref} class="sheet cr-card" role="alertdialog" aria-modal="true" aria-labelledby="cr-title">
         <header class="sheet-head">
           <h2 class="sheet-title" id="cr-title">

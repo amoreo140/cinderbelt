@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { lazyModule } from './lazy';
+import { describe, expect, it, vi } from 'vitest';
+import { lazyModule, startLoad, type LazyStatus } from './lazy';
 
 describe('lazy screens', () => {
   it('downloads a module once and keeps it', async () => {
@@ -26,5 +26,30 @@ describe('lazy screens', () => {
     expect(m.loaded).toBeNull();
     expect(await m.load()).toBe(42);
     expect(calls).toBe(2);
+  });
+
+  it('reports a failed download and loads again on the next start', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    let calls = 0;
+    const m = lazyModule(async () => {
+      if (++calls === 1) throw new Error('chunk 404');
+      return 'ok';
+    });
+    const seen: LazyStatus[] = [];
+    startLoad(m, (s) => seen.push(s));
+    await vi.waitFor(() => expect(seen).toEqual(['failed']));
+    startLoad(m, (s) => seen.push(s));
+    await vi.waitFor(() => expect(seen).toEqual(['failed', 'ready']));
+    expect(m.loaded).toBe('ok');
+    warn.mockRestore();
+  });
+
+  it('stays silent once stopped', async () => {
+    const m = lazyModule(async () => 1);
+    const seen: LazyStatus[] = [];
+    startLoad(m, (s) => seen.push(s))();
+    await m.load();
+    await Promise.resolve();
+    expect(seen).toEqual([]);
   });
 });

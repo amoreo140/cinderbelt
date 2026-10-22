@@ -64,3 +64,17 @@ export class SlotLocks {
     });
   }
 }
+
+/**
+ * Runs `job` that ends with the lock adopted as the running game's lock. When the job throws before that
+ * (`isHeld` still false) the lock is released, so the slot is not reported as "open in another tab" until a
+ * reload; the error goes on to the caller.
+ */
+export async function releaseOnThrow<T>(lock: SlotLock, isHeld: (lock: SlotLock) => boolean, job: () => Promise<T>): Promise<T> {
+  try {
+    return await job();
+  } catch (e) {
+    if (!isHeld(lock)) lock.release();
+    throw e;
+  }
+}

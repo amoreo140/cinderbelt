@@ -31,7 +31,9 @@ export type AppEvent =
   /** The frame loop threw and stopped – the crash card (nothing but Back to menu leaves it). */
   | { type: 'crashed' }
   /** Back to menu from the crash card (no save). */
-  | { type: 'leaveCrash' };
+  | { type: 'leaveCrash' }
+  /** Loading another game from the pause menu failed after the running game was stopped – back to the menu. */
+  | { type: 'startFailed' };
 
 export const INITIAL_APP_STATE: AppState = { kind: 'boot' };
 
@@ -80,6 +82,8 @@ export function transition(state: AppState, event: AppEvent): AppState | null {
           return overlay !== 'crash' ? { kind: 'game', overlay: 'crash' } : null;
         case 'leaveCrash':
           return overlay === 'crash' ? { kind: 'menu', page: 'home' } : null;
+        case 'startFailed':
+          return { kind: 'menu', page: 'home' };
         default:
           return null;
       }
