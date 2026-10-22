@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.3.4] – clearer space
+
 Based on player feedback: the background asteroids were confusing, it was unclear what is ambiance and what is real.
 
 ### Look
