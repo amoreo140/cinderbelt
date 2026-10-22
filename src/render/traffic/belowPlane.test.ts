@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { BELOW_DARKEN, BELOW_DESATURATE, BELOW_FLAME_DIM, BELOW_FULL_DEPTH, BELOW_HAZE, belowPlaneFade } from './belowPlane';
 
 describe('belowPlaneFade', () => {
-  it('is zero at and above the plane, so a vehicle at its berth looks as the model', () => {
+  it('is zero at and above the plane', () => {
     expect(belowPlaneFade(0)).toBe(0);
     expect(belowPlaneFade(0.6)).toBe(0);
     expect(belowPlaneFade(2.2)).toBe(0);

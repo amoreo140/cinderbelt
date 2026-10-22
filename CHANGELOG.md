@@ -8,7 +8,7 @@ Based on player feedback: the background asteroids were confusing, it was unclea
 
 ### Look
 - The fake rocks under asteroid fields are gone: every rock you see near the flight plane is now a real asteroid. (The faint far silhouettes much deeper below are unchanged.)
-- Station traffic flying below the plane is slightly faded (a little greyer, darker and hazier), so it reads as background; vehicles at their berths look as before.
+- Station traffic now berths below the flight plane, so your ship always passes over it instead of seeming to crash into it and slipping underneath; it never collides. Traffic below the plane is slightly faded (a little greyer, darker and hazier), so it reads as background.
 
 ## [0.3.3] – robustness
 

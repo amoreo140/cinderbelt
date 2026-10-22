@@ -3,7 +3,7 @@
 // – slightly grey, darker and hazed – so it reads as background and not as a ship the player can meet.
 // Always on, opaque, subtle: at full depth the lit colour loses 35 % of its saturation, 25 % of its
 // brightness and mixes 10 % of the zone haze in; the flame and the trail are dimmed too. At and above
-// the plane the factor is exactly 0 (berths are 0.6–2.2 u above it), so berthed vehicles look as the model.
+// the plane the factor is exactly 0; the berths are 4.5–6 u below it, so a berthed vehicle is mostly faded.
 
 /** Depth below the plane (u) at which the fade is complete. */
 export const BELOW_FULL_DEPTH = 8;

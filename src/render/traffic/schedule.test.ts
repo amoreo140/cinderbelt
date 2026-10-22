@@ -5,6 +5,7 @@ import {
   KIND_SPECS,
   LANE_DEPTH,
   SPAWN_RANGE,
+  TRAFFIC_CEILING,
   trafficMix,
   trafficRole,
   trafficSlots,
@@ -102,6 +103,13 @@ describe('trafficSlots', () => {
   });
 });
 
+describe('berths', () => {
+  it('are all below the traffic ceiling, under the plane', () => {
+    expect(TRAFFIC_CEILING).toBeLessThan(-3);
+    for (const spec of Object.values(KIND_SPECS)) expect(spec.height).toBeLessThanOrEqual(TRAFFIC_CEILING);
+  });
+});
+
 describe('vehicleAt', () => {
   for (const [kind, R] of ROLES) {
     it(`${kind}: never enters the dock corridor or the station, appears and vanishes far below`, () => {
@@ -114,6 +122,8 @@ describe('vehicleAt', () => {
             if (!v) continue;
             seen++;
             expect(inDockCorridor(v.x, v.z, R)).toBe(false);
+            // always under the plane: the player's ship passes over the traffic, never through it
+            expect(v.y).toBeLessThan(TRAFFIC_CEILING + 0.1);
             const r = Math.hypot(v.x, v.z);
             // near the plane it stays outside the station rim
             if (v.y > -8) expect(r).toBeGreaterThan(R + 1.5);

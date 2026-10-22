@@ -1,6 +1,7 @@
 // Cosmetic station traffic (render only – no collisions, no simulation state): traders, the civilian
 // ships of art batch C (ore barges, tankers, couriers, Institute survey ships) and small shuttles that rise from a traffic lane below the gameplay plane, hold at a berth beside the
-// station, wait and sink away again. Every vehicle is a pure function of (station, slot, time), so
+// station, wait and sink away again. The berths are below the plane too: the player's ship always passes
+// over the traffic, never through or under it. Every vehicle is a pure function of (station, slot, time), so
 // the schedule looks deterministic and needs no saved state. All poses are in the station's local
 // frame (three.js axes, +X = the dock port, y = up): the paths stay in the back sector of the
 // station, away from the player's dock corridor along +X.
@@ -35,6 +36,8 @@ export const CORRIDOR_REACH = 260;
 /** Vehicles never come closer to the +X axis than this angle (inside the corridor + margin). */
 const MIN_ANGLE = (72 * Math.PI) / 180;
 
+/** Highest point of any traffic path (u): far enough below the plane that the tallest hull clears the player's ship. */
+export const TRAFFIC_CEILING = -4;
 /** Depth of the arrival / departure lane below the plane and how far out vehicles appear. */
 export const LANE_DEPTH = 70;
 export const SPAWN_RANGE: readonly [number, number] = [380, 470];
@@ -46,7 +49,7 @@ interface KindSpec {
   wait: readonly [number, number];
   depart: number;
   idle: readonly [number, number];
-  /** Distance of the berth from the station rim and its height above the plane. */
+  /** Distance of the berth from the station rim and its height (negative: below the plane, under TRAFFIC_CEILING). */
   clearance: number;
   height: number;
   /** Docked: side to the station (tangential) or nose in (radial). */
@@ -54,14 +57,14 @@ interface KindSpec {
 }
 
 export const KIND_SPECS: Readonly<Record<VehicleKind, KindSpec>> = {
-  trader: { approach: 34, wait: [28, 50], depart: 30, idle: [10, 45], clearance: 6.5, height: 0.6, alongside: true },
-  cargo: { approach: 18, wait: [8, 18], depart: 15, idle: [4, 22], clearance: 2.6, height: 1.6, alongside: false },
-  scout: { approach: 14, wait: [5, 12], depart: 11, idle: [6, 30], clearance: 2.4, height: 2.2, alongside: false },
+  trader: { approach: 34, wait: [28, 50], depart: 30, idle: [10, 45], clearance: 6.5, height: -6, alongside: true },
+  cargo: { approach: 18, wait: [8, 18], depart: 15, idle: [4, 22], clearance: 2.6, height: -4.5, alongside: false },
+  scout: { approach: 14, wait: [5, 12], depart: 11, idle: [6, 30], clearance: 2.4, height: -4.5, alongside: false },
   // batch C (models/npc/npc_ships.json: speed class + berth hints)
-  miner_barge: { approach: 36, wait: [26, 46], depart: 32, idle: [12, 45], clearance: 6.5, height: 0.7, alongside: true },
-  tanker: { approach: 36, wait: [30, 52], depart: 32, idle: [12, 50], clearance: 6.5, height: 0.6, alongside: true },
-  courier: { approach: 16, wait: [6, 14], depart: 13, idle: [6, 28], clearance: 3.5, height: 1.2, alongside: false },
-  survey_ship: { approach: 26, wait: [20, 40], depart: 22, idle: [15, 50], clearance: 5, height: 0.8, alongside: true },
+  miner_barge: { approach: 36, wait: [26, 46], depart: 32, idle: [12, 45], clearance: 6.5, height: -6, alongside: true },
+  tanker: { approach: 36, wait: [30, 52], depart: 32, idle: [12, 50], clearance: 6.5, height: -6, alongside: true },
+  courier: { approach: 16, wait: [6, 14], depart: 13, idle: [6, 28], clearance: 3.5, height: -4.5, alongside: false },
+  survey_ship: { approach: 26, wait: [20, 40], depart: 22, idle: [15, 50], clearance: 5, height: -5, alongside: true },
 };
 
 /**
