@@ -1,0 +1,7 @@
+version: 2
+updates:
+  # the workflows pin actions by commit SHA; Dependabot keeps the pins (and their version comments) current
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
