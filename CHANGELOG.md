@@ -4,11 +4,18 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.3.3] – robustness
+
+Fixes from a robustness and security review by brummilab (issues #2, #3, #4 and PR #5) – thank you!
+
 ### Fixed
+- An error in the game loop no longer freezes the game silently: it stops at a card that saves your progress when that is safe, offers Back to menu and copyable error details, and stray browser errors show a short warning.
+- A game that fails to load or start no longer leaves its slot reported as open in another tab, a failed save no longer leaves the indicator on "Saving", a screen that fails to download shows a Retry button, and a language file that cannot be loaded at start falls back to another language or a Reload card instead of a blank page.
 - An imported save with an absurd game tick or position no longer freezes the tab: validation accepts only safe integers, caps the tick at 2^40 and every saved position and velocity at 1e10.
 - Save import is bounded further: every deadline and event tick, string length, duplicate or oversized list (contract boards, combat objects, ship parts) and file size above 16 MB is rejected instead of stalling the game.
-- An error in the game loop no longer freezes the game silently: it stops at a card that saves your progress when that is safe, offers Back to menu and copyable error details, and stray browser errors show a short warning.
-- A game that fails to load or start no longer leaves its slot reported as open in another tab, a failed save no longer leaves the indicator on "Saving", a screen that fails to download shows a Retry button, and a language file that cannot be loaded at start falls back to another language or a Reload card instead of a blank page. The crash card dims the game behind it.
+
+### Project
+- The web version is published only after all checks pass, and only the publishing step has write access; workflow actions are pinned and kept current by Dependabot.
 
 ## [0.3.2] – flight comfort
 
