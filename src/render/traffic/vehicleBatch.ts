@@ -6,9 +6,10 @@
 // blink in the shader: a per-vertex lamp index, the shared wall clock and the vehicle's slot offset
 // reproduce stationAnim.beaconLevel exactly. Nodes that move or hide on their own (drills, the
 // survey dish, the barge's ore load) stay separate.
-import { BufferAttribute, BufferGeometry, Matrix4, Mesh, MeshStandardMaterial, Vector3, type Material, type Object3D } from 'three';
+import { BufferAttribute, BufferGeometry, Matrix4, Mesh, MeshStandardMaterial, Vector3, type Color, type Material, type Object3D } from 'three';
 import { materialKey, mergeSources, type BatchSource } from '../shipBatch';
 import { BEACON_DIM, BEACON_FLASH, BEACON_PERIOD } from '../stationAnim';
+import { BELOW_DARKEN, BELOW_DESATURATE, BELOW_HAZE } from './belowPlane';
 
 export const BEACON_NODE = /^beacon_(\d+)$/;
 /** Per-vertex lamp number (−1 = not a lamp). */
@@ -82,17 +83,61 @@ export function vehicleBatch(template: Object3D, live: (o: Object3D) => boolean)
 /** Shared clock of the lamps (s) – the traffic layer advances it once per frame. */
 export type LampClock = { value: number };
 
+/** What the below-the-plane fade reads (belowPlane.ts): this vehicle's factor and the shared zone haze colour. */
+export interface BelowFade {
+  /** The vehicle's fade, 0 (as the model) .. 1 (full) – one object per vehicle, shared by its materials. */
+  below: { value: number };
+  /** The zone haze colour (linear), shared by every vehicle. */
+  haze: { value: Color };
+}
+
+/**
+ * The fade of a vehicle below the plane, injected into the lit colour: desaturate, darken and mix in a
+ * little zone haze by `uBelow` (0 leaves the colour exactly as it was). Opaque: no transparency, so no
+ * sorting and no second pass. The emissive part (lamps) is faded with the rest.
+ */
+function fadePatch(shader: { uniforms: Record<string, { value: unknown }>; fragmentShader: string }, fade: BelowFade): void {
+  shader.uniforms.uBelow = fade.below;
+  shader.uniforms.uBelowHaze = fade.haze;
+  shader.fragmentShader = shader.fragmentShader
+    .replace('#include <common>', '#include <common>\nuniform float uBelow;\nuniform vec3 uBelowHaze;')
+    .replace(
+      'vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;',
+      `vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;
+{
+  float belowGrey = dot(outgoingLight, vec3(0.2126, 0.7152, 0.0722));
+  outgoingLight = mix(outgoingLight, vec3(belowGrey), ${BELOW_DESATURATE.toFixed(4)} * uBelow);
+  outgoingLight *= 1.0 - ${BELOW_DARKEN.toFixed(4)} * uBelow;
+  outgoingLight = mix(outgoingLight, uBelowHaze, ${BELOW_HAZE.toFixed(4)} * uBelow);
+}`,
+    );
+}
+
+/**
+ * The material of a vehicle part without lamps: a clone of the model's material with the below-the-plane
+ * fade. One clone per vehicle (made when it is built, never per frame) on one shared program.
+ */
+export function fadedMaterial(source: Material, fade: BelowFade): Material {
+  if (!(source instanceof MeshStandardMaterial)) return source;
+  const m = source.clone();
+  m.onBeforeCompile = (shader) => fadePatch(shader, fade);
+  m.customProgramCacheKey = () => 'cinder-traffic-fade-v1';
+  return m;
+}
+
 /**
  * The blinking material of one vehicle: a clone of the model's material whose lamp vertices glow
  * `max(intensity, 0.8) × 1.6 × beaconLevel(clock, lamp + slot)` instead of the model's intensity
- * (the old per-lamp material clones). Dispose it with the vehicle; the program is shared.
+ * (the old per-lamp material clones), with the below-the-plane fade when `fade` is given (the convoys have
+ * none). Dispose it with the vehicle; the program is shared.
  */
-export function vehicleMaterial(source: Material, clock: LampClock, slot: number): Material {
+export function vehicleMaterial(source: Material, clock: LampClock, slot: number, fade?: BelowFade): Material {
   if (!(source instanceof MeshStandardMaterial)) return source;
   const m = source.clone();
   const intensity = source.emissiveIntensity;
   const gain = intensity > 0 ? (Math.max(intensity, 0.8) * 1.6) / intensity : 0;
   m.onBeforeCompile = (shader) => {
+    if (fade) fadePatch(shader, fade);
     shader.uniforms.uLampClock = clock;
     shader.uniforms.uLampSlot = { value: slot };
     shader.uniforms.uLampGain = { value: gain };
@@ -120,7 +165,7 @@ if (${LAMP_ATTRIBUTE} >= 0.0) {
       .replace('#include <common>', '#include <common>\nvarying float vLamp;')
       .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance *= vLamp;');
   };
-  m.customProgramCacheKey = () => 'cinder-traffic-lamps-v1';
+  m.customProgramCacheKey = () => (fade ? 'cinder-traffic-lamps-fade-v1' : 'cinder-traffic-lamps-v1');
   return m;
 }
 

@@ -730,7 +730,7 @@ export class GameRenderer {
       this.sun.target.position.copy(this.cameraTarget);
       this.sun.position.copy(this.cameraTarget).addScaledVector(this.env.lightDir, SUN_DISTANCE);
     }
-    this.traffic.update(world.stations(), this.cameraTarget, this.simTime, frameDt);
+    this.traffic.update(world.stations(), this.cameraTarget, this.simTime, frameDt, this.env.layers.haze);
     this.convoys.update(this.sim.state, alpha, frameDt);
     this.rockDust.update(world, this.cameraTarget, frameDt);
     const vel = lerp(player.prevBody.vel, player.body.vel, alpha);

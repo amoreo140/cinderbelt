@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+Based on player feedback: the background asteroids were confusing, it was unclear what is ambiance and what is real.
+
+### Look
+- The fake rocks under asteroid fields are gone: every rock you see near the flight plane is now a real asteroid. (The faint far silhouettes much deeper below are unchanged.)
+- Station traffic flying below the plane is slightly faded (a little greyer, darker and hazier), so it reads as background; vehicles at their berths look as before.
+
 ## [0.3.3] – robustness
 
 Fixes from a robustness and security review by brummilab (issues #2, #3, #4 and PR #5) – thank you!

@@ -1,6 +1,6 @@
-import { BoxGeometry, Group, Mesh, MeshStandardMaterial, Object3D, ShaderChunk, Texture, Vector3 } from 'three';
+import { BoxGeometry, Color, Group, Mesh, MeshStandardMaterial, Object3D, ShaderChunk, Texture, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
-import { nozzleMean, vehicleBatch, vehicleMaterial } from './vehicleBatch';
+import { fadedMaterial, nozzleMean, vehicleBatch, vehicleMaterial, type BelowFade } from './vehicleBatch';
 
 function model(): Group {
   const palette = new MeshStandardMaterial({ map: new Texture(), emissiveIntensity: 6 });
@@ -43,8 +43,9 @@ describe('vehicleBatch', () => {
     const template = model();
     const { material } = vehicleBatch(template, () => false).parts[0]!;
     const clock = { value: 3 };
-    const a = vehicleMaterial(material, clock, 0) as MeshStandardMaterial;
-    const b = vehicleMaterial(material, clock, 5) as MeshStandardMaterial;
+    const fade: BelowFade = { below: { value: 0 }, haze: { value: new Color() } };
+    const a = vehicleMaterial(material, clock, 0, fade) as MeshStandardMaterial;
+    const b = vehicleMaterial(material, clock, 5, fade) as MeshStandardMaterial;
     expect(a).not.toBe(b);
     expect(a.customProgramCacheKey()).toBe(b.customProgramCacheKey());
     const shader = { uniforms: {} as Record<string, { value: unknown }>, vertexShader: ShaderChunk.meshphysical_vert, fragmentShader: ShaderChunk.meshphysical_frag, defines: {} };
@@ -54,6 +55,28 @@ describe('vehicleBatch', () => {
     expect(shader.uniforms.uLampGain!.value).toBeCloseTo(1.6);
     expect(shader.vertexShader).toContain('attribute float beaconIndex');
     expect(shader.fragmentShader).toContain('totalEmissiveRadiance *= vLamp');
+    // the lamp blink and the fade live in one program
+    expect(shader.uniforms.uBelow).toBe(fade.below);
+    expect(shader.fragmentShader).toContain('uBelow');
+  });
+
+  it('fades a part without lamps on one shared program, a vehicle at a time', () => {
+    const template = model();
+    const { material } = vehicleBatch(template, () => false).parts[0]!;
+    const haze = { value: new Color(0.2, 0.3, 0.4) };
+    const near: BelowFade = { below: { value: 0 }, haze };
+    const far: BelowFade = { below: { value: 1 }, haze };
+    const a = fadedMaterial(material, near) as MeshStandardMaterial;
+    const b = fadedMaterial(material, far) as MeshStandardMaterial;
+    expect(a).not.toBe(b);
+    expect(a.transparent).toBe(false);
+    expect(a.customProgramCacheKey()).toBe(b.customProgramCacheKey());
+    expect(a.customProgramCacheKey()).not.toBe((vehicleMaterial(material, { value: 0 }, 0, near) as MeshStandardMaterial).customProgramCacheKey());
+    const shader = { uniforms: {} as Record<string, { value: unknown }>, vertexShader: ShaderChunk.meshphysical_vert, fragmentShader: ShaderChunk.meshphysical_frag, defines: {} };
+    b.onBeforeCompile(shader as never, null as never);
+    expect(shader.uniforms.uBelow).toBe(far.below);
+    expect(shader.uniforms.uBelowHaze).toBe(haze);
+    expect(shader.fragmentShader).toContain('belowGrey');
   });
 });
 

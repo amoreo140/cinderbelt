@@ -15,7 +15,8 @@ import { createTrailMaterial, Trail } from '../fx/Trail';
 import { takeOut } from '../shipBatch';
 import type { WarmUpZoo } from '../warmup';
 import { trafficRole, trafficSlots, vehicleAt, type TrafficSlot, type VehicleKind, type VehiclePose } from './schedule';
-import { nozzleMean, vehicleBatch, vehicleMaterial, type LampClock } from './vehicleBatch';
+import { BELOW_FLAME_DIM, BELOW_TRAIL_DIM, belowPlaneFade } from './belowPlane';
+import { fadedMaterial, nozzleMean, vehicleBatch, vehicleMaterial, type BelowFade, type LampClock } from './vehicleBatch';
 
 const MODELS: Readonly<Record<VehicleKind, string>> = {
   trader: 'assets/models/npc/trader.glb',
@@ -116,6 +117,8 @@ interface Vehicle {
    * measured in the world every frame) – the trail starts there without a world-matrix pass per frame.
    */
   nozzle: Vector3 | null;
+  /** How faded the vehicle is below the plane (belowPlane.ts), read by its materials. */
+  below: { value: number };
 }
 
 interface StationEntry {
@@ -142,6 +145,8 @@ export class StationTraffic {
   private readonly trailMaterial = createTrailMaterial();
   /** Wall clock of the nav lamps, shared by every vehicle's lamp material. */
   private readonly lampClock: LampClock = { value: 0 };
+  /** The zone haze colour the vehicles below the plane fade toward (set every frame). */
+  private readonly hazeColor = { value: new Color() };
   private density = 1;
   private trails = true;
   private disposed = false;
@@ -169,8 +174,9 @@ export class StationTraffic {
       if (!template) continue;
       zoo.add(template.clone());
       // the merged vehicle with its blinking-lamp material, as build() makes it
+      const fade: BelowFade = { below: { value: 0 }, haze: this.hazeColor };
       for (const part of vehicleBatch(template, (o) => o.name in SPINNERS || o.name === ORE_NODE).parts) {
-        zoo.add(new Mesh(part.geometry, part.lamps ? vehicleMaterial(part.material, this.lampClock, 0) : part.material));
+        zoo.add(new Mesh(part.geometry, part.lamps ? vehicleMaterial(part.material, this.lampClock, 0, fade) : fadedMaterial(part.material, fade)));
       }
     }
     for (const material of Object.values(this.flameMaterials)) zoo.add(new Mesh(this.flameGeometry, material));
@@ -213,8 +219,9 @@ export class StationTraffic {
       });
       takeOut(replaced, root);
       const materials: Material[] = [];
+      const fade: BelowFade = { below: { value: 0 }, haze: this.hazeColor };
       for (const part of batch.parts) {
-        const material = part.lamps ? vehicleMaterial(part.material, this.lampClock, slot.index) : part.material;
+        const material = part.lamps ? vehicleMaterial(part.material, this.lampClock, slot.index, fade) : fadedMaterial(part.material, fade);
         if (material !== part.material) materials.push(material);
         const mesh = new Mesh(part.geometry, material);
         mesh.name = 'vehicle-batch';
@@ -243,12 +250,13 @@ export class StationTraffic {
       const trail = new Trail(this.trailMaterial, 36, new Color(...spec.color), spec.width, spec.life);
       this.object.add(trail.mesh);
       entry.group.add(root);
-      entry.vehicles.push({ slot, root, flames, materials, trail, thrusters, spinners, ore, pose: {} as VehiclePose, nozzle: nozzleMean(root, thrusters, (o) => o.name in SPINNERS) });
+      entry.vehicles.push({ slot, root, flames, materials, trail, thrusters, spinners, ore, pose: {} as VehiclePose, nozzle: nozzleMean(root, thrusters, (o) => o.name in SPINNERS), below: fade.below });
     }
   }
 
-  /** `stations` = the stations of the active chunks, `time` = simulation time (s). */
-  update(stations: readonly StationDef[], target: Vector3, time: number, dt: number): void {
+  /** `stations` = the stations of the active chunks, `time` = simulation time (s), `haze` = the zone haze colour (hex). */
+  update(stations: readonly StationDef[], target: Vector3, time: number, dt: number, haze = 0x808080): void {
+    this.hazeColor.value.setHex(haze);
     this.wallTime += dt;
     this.frameDt = dt;
     this.lampClock.value = this.wallTime;
@@ -289,6 +297,8 @@ export class StationTraffic {
     for (const v of entry.vehicles) {
       const pose = vehicleAt(entry.station.id, v.slot, entry.station.radius, time, v.pose);
       v.root.visible = pose !== null && pose.scale > 0.01;
+      const below = pose ? belowPlaneFade(pose.y) : 0;
+      v.below.value = below;
       if (!pose || !v.root.visible) {
         v.trail.emit(avg, 0, this.wallTime);
         v.trail.update(this.wallTime);
@@ -301,7 +311,7 @@ export class StationTraffic {
       for (const f of v.flames) {
         f.visible = pose.throttle > 0.02;
         f.scale.set(1, FLAME_LENGTH[v.slot.kind] * (0.35 + pose.throttle), 1);
-        setFlameIntensity(f, intensity);
+        setFlameIntensity(f, intensity * (1 - BELOW_FLAME_DIM * below));
       }
       if (v.ore) v.ore.visible = pose.phase === 'approach' || (pose.phase === 'docked' && pose.progress < 0.5);
       for (const s of v.spinners) {
@@ -322,7 +332,7 @@ export class StationTraffic {
         avg.divideScalar(v.thrusters.length);
       }
       v.trail.width = TRAIL[v.slot.kind].width * pose.scale;
-      v.trail.emit(avg, this.trails ? pose.throttle * pose.scale : 0, this.wallTime);
+      v.trail.emit(avg, this.trails ? pose.throttle * pose.scale * (1 - BELOW_TRAIL_DIM * below) : 0, this.wallTime);
       v.trail.update(this.wallTime);
     }
   }
