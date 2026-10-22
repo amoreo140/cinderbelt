@@ -732,7 +732,7 @@ export class GameRenderer {
     }
     this.traffic.update(world.stations(), this.cameraTarget, this.simTime, frameDt);
     this.convoys.update(this.sim.state, alpha, frameDt);
-    this.rockDust.update(world, this.cameraTarget, frameDt, this.env.layers.haze);
+    this.rockDust.update(world, this.cameraTarget, frameDt);
     const vel = lerp(player.prevBody.vel, player.body.vel, alpha);
     this.dust.update(this.focus, simToWorld(vel, 0, this.velWorld));
     this.updateMarkers(pos, vel, angle);

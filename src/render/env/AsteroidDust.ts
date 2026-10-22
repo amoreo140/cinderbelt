@@ -20,7 +20,6 @@ import { RESOURCES, type ResourceId } from '../../data/resources';
 import { vfxTexture } from '../fx/textures';
 import { batchTextures, uploadPrefix, uploadTexturePrefix } from '../uploads';
 import { hashString } from '../traffic/schedule';
-import { BeltBed } from './BeltBed';
 import { CHIP_STRIDE, chipConstants, MOTE_STRIDE, moteConstants, writeChipMatrix, writeMote } from './dustOrbits';
 import { rubbleIndex } from './scenery';
 import { batchOf, sceneryFile, sceneryManifest } from './sceneryAssets';
@@ -47,8 +46,6 @@ interface RockDust {
 
 export class AsteroidDust {
   readonly object = new Group();
-  /** The non-minable rocks deep under each field (render-only). */
-  readonly bed = new BeltBed();
   /** Built once the rubble has loaded; until then there are no chips. */
   private chips: BatchedMesh | null = null;
   private readonly chipMaterial: MeshStandardMaterial;
@@ -74,7 +71,6 @@ export class AsteroidDust {
 
   constructor() {
     this.object.name = 'asteroid-dust';
-    this.object.add(this.bed.object);
     // the baked AO (vertex colours) darkens the chips a little – the base is a touch lighter than before
     this.chipMaterial = new MeshStandardMaterial({ color: 0x9a9288, roughness: 0.9, metalness: 0.1, flatShading: true, vertexColors: true });
     void this.loadRubble();
@@ -124,7 +120,6 @@ export class AsteroidDust {
 
   setQuality(particles: number): void {
     this.density = particles;
-    this.bed.setQuality(particles);
   }
 
   /** The rock's constants, with room for at least `chips` chips and `motes` motes. */
@@ -141,9 +136,7 @@ export class AsteroidDust {
     return d;
   }
 
-  /** `haze` = the zone haze colour of this frame (the belt beds mix it in). */
-  update(world: World, target: Vector3, dt: number, haze = 0): void {
-    this.bed.update(world, target, haze);
+  update(world: World, target: Vector3, dt: number): void {
     this.time += dt;
     this.moteAge += dt;
     const t = this.time;
@@ -226,7 +219,6 @@ export class AsteroidDust {
 
   dispose(): void {
     this.disposed = true;
-    this.bed.dispose();
     this.chipMaterial.dispose();
     this.chips?.dispose();
     this.motes.geometry.dispose();

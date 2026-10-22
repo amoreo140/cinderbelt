@@ -382,7 +382,7 @@ export class DepthLayers {
     });
   }
 
-  /** The zone haze colour of this frame (cross-faded) – the belt beds mix it in too. */
+  /** The zone haze colour of this frame (cross-faded). */
   get haze(): number {
     return this.hazeHex;
   }

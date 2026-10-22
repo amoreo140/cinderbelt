@@ -1,6 +1,6 @@
 // Batch A scenery models (art/README §2.7.22): six GLBs whose children are independent unit-radius
 // meshes at the origin, taken by name. Loaded once per page through createModelLoader() (meshopt +
-// the shared palette atlas) and kept – the depth layers, the rubble chips and the belt beds copy
+// the shared palette atlas) and kept – the depth layers and the rubble chips copy
 // the geometry into their BatchedMeshes, so nothing here is ever disposed.
 //
 // Also the haze patch shared by the far scenery: the lit part is mixed toward the zone haze colour
