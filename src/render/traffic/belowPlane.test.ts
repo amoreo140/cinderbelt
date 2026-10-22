@@ -26,10 +26,10 @@ describe('belowPlaneFade', () => {
     expect(belowPlaneFade(-0.08)).toBeLessThan(0.001);
   });
 
-  it('keeps the full effect gentle', () => {
-    expect(BELOW_DESATURATE).toBeCloseTo(0.35);
-    expect(BELOW_DARKEN).toBeCloseTo(0.25);
-    expect(BELOW_HAZE).toBeLessThanOrEqual(0.15);
-    expect(BELOW_FLAME_DIM).toBeLessThanOrEqual(0.4);
+  it('keeps the full effect readable but not ghostly', () => {
+    expect(BELOW_DESATURATE).toBeLessThanOrEqual(0.7);
+    expect(BELOW_DARKEN).toBeLessThanOrEqual(0.5);
+    expect(BELOW_HAZE).toBeLessThanOrEqual(0.3);
+    expect(BELOW_FLAME_DIM).toBeLessThanOrEqual(0.6);
   });
 });

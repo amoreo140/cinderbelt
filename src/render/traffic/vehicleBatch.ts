@@ -121,7 +121,7 @@ export function fadedMaterial(source: Material, fade: BelowFade): Material {
   if (!(source instanceof MeshStandardMaterial)) return source;
   const m = source.clone();
   m.onBeforeCompile = (shader) => fadePatch(shader, fade);
-  m.customProgramCacheKey = () => 'cinder-traffic-fade-v1';
+  m.customProgramCacheKey = () => 'cinder-traffic-fade-v2';
   return m;
 }
 
@@ -165,7 +165,7 @@ if (${LAMP_ATTRIBUTE} >= 0.0) {
       .replace('#include <common>', '#include <common>\nvarying float vLamp;')
       .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance *= vLamp;');
   };
-  m.customProgramCacheKey = () => (fade ? 'cinder-traffic-lamps-fade-v1' : 'cinder-traffic-lamps-v1');
+  m.customProgramCacheKey = () => (fade ? 'cinder-traffic-lamps-fade-v2' : 'cinder-traffic-lamps-v1');
   return m;
 }
 

@@ -37,7 +37,7 @@ export const CORRIDOR_REACH = 260;
 const MIN_ANGLE = (72 * Math.PI) / 180;
 
 /** Highest point of any traffic path (u): far enough below the plane that the tallest hull clears the player's ship. */
-export const TRAFFIC_CEILING = -4;
+export const TRAFFIC_CEILING = -8;
 /** Depth of the arrival / departure lane below the plane and how far out vehicles appear. */
 export const LANE_DEPTH = 70;
 export const SPAWN_RANGE: readonly [number, number] = [380, 470];
@@ -57,14 +57,14 @@ interface KindSpec {
 }
 
 export const KIND_SPECS: Readonly<Record<VehicleKind, KindSpec>> = {
-  trader: { approach: 34, wait: [28, 50], depart: 30, idle: [10, 45], clearance: 6.5, height: -6, alongside: true },
-  cargo: { approach: 18, wait: [8, 18], depart: 15, idle: [4, 22], clearance: 2.6, height: -4.5, alongside: false },
-  scout: { approach: 14, wait: [5, 12], depart: 11, idle: [6, 30], clearance: 2.4, height: -4.5, alongside: false },
+  trader: { approach: 34, wait: [28, 50], depart: 30, idle: [10, 45], clearance: 6.5, height: -10, alongside: true },
+  cargo: { approach: 18, wait: [8, 18], depart: 15, idle: [4, 22], clearance: 2.6, height: -8, alongside: false },
+  scout: { approach: 14, wait: [5, 12], depart: 11, idle: [6, 30], clearance: 2.4, height: -8, alongside: false },
   // batch C (models/npc/npc_ships.json: speed class + berth hints)
-  miner_barge: { approach: 36, wait: [26, 46], depart: 32, idle: [12, 45], clearance: 6.5, height: -6, alongside: true },
-  tanker: { approach: 36, wait: [30, 52], depart: 32, idle: [12, 50], clearance: 6.5, height: -6, alongside: true },
-  courier: { approach: 16, wait: [6, 14], depart: 13, idle: [6, 28], clearance: 3.5, height: -4.5, alongside: false },
-  survey_ship: { approach: 26, wait: [20, 40], depart: 22, idle: [15, 50], clearance: 5, height: -5, alongside: true },
+  miner_barge: { approach: 36, wait: [26, 46], depart: 32, idle: [12, 45], clearance: 6.5, height: -10, alongside: true },
+  tanker: { approach: 36, wait: [30, 52], depart: 32, idle: [12, 50], clearance: 6.5, height: -10, alongside: true },
+  courier: { approach: 16, wait: [6, 14], depart: 13, idle: [6, 28], clearance: 3.5, height: -8, alongside: false },
+  survey_ship: { approach: 26, wait: [20, 40], depart: 22, idle: [15, 50], clearance: 5, height: -9, alongside: true },
 };
 
 /**
